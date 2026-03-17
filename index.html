@@ -573,92 +573,45 @@ Nada de improvisar por reflejo: primero se entiende, luego se avanza.
     <!-- End Footer de la pagina -->
     </footer>
 
+    <button class="settings-fab" id="settings-fab" type="button" aria-label="Abrir configuración">
+      <img src="iconos/settings_24dp_00FFFF_FILL0_wght400_GRAD0_opsz24.svg" alt="Configuración">
+    </button>
 
-<div class="stx-library-overlay">
-  <div class="stx-library-modal">
+    <div class="settings-overlay" id="settings-overlay" aria-hidden="true">
+      <div class="setting-modal" role="dialog" aria-modal="true" aria-labelledby="settings-title">
+        <header class="settings-header">
+          <h3 id="settings-title">Ajustes</h3>
+        </header>
 
-    <div class="stx-library-header">
-      <button class="stx-tab active" data-tab="codes">Códigos</button>
-      <button class="stx-tab" data-tab="systux">Systux</button>
-    </div>
-
-    <div class="stx-library-content">
-
-      <!-- CÓDIGOS -->
-      <div class="stx-tab-content active" id="codes">
-
-        <div class="stx-code-item">
-          <div class="stx-code-info">
-            <span class="stx-card-name">Psicología Oscura</span>
-            <span class="stx-card-type">Ebootux</span>
+        <div class="settings-option">
+          <div class="settings-label-row">
+            <label for="font-size-control">Tamaño de fuente</label>
+            <span id="font-size-value">20px</span>
           </div>
+          <input id="font-size-control" type="range" min="14" max="22" step="1">
+        </div>
 
-          <div class="stx-code-actions">
-            <button class="stx-icon-btn copy">
-              <img src="" alt="copiar">
-            </button>
-            <button class="stx-icon-btn delete">
-              <img src="" alt="eliminar">
-            </button>
+        <div class="settings-option settings-switch-row">
+          <span>Desactivar hover</span>
+          <div class="statux-switch" id="hover-switch" role="switch" aria-checked="false" tabindex="0">
+            <div class="switch-wheel"></div>
           </div>
         </div>
 
-      </div>
-
-      <!-- SYSTUX -->
-      <div class="stx-tab-content" id="systux">
-
-        <div class="stx-systux-item">
-          <span class="stx-systux-name">Psicología Oscura v1.0</span>
-
-          <div class="stx-systux-actions">
-            <button class="stx-icon-btn open">
-              <img src="" alt="abrir">
-            </button>
-            <button class="stx-icon-btn delete">
-              <img src="" alt="eliminar">
-            </button>
+        <div class="settings-option settings-switch-row">
+          <span>Focus Mode</span>
+          <div class="statux-switch" id="focus-switch" role="switch" aria-checked="false" tabindex="0">
+            <div class="switch-wheel"></div>
           </div>
         </div>
 
+        <div class="settings-actions">
+          <button type="button" id="settings-refresh-btn">Refresh</button>
+          <button type="button" id="settings-codes-btn">Codes</button>
+          <button type="button" id="settings-clear-btn" class="danger">Clear Data</button>
+        </div>
       </div>
-
     </div>
-
-  </div>
-</div>
-
-<button class="stx-settings-btn">
-  <img src="" alt="settings">
-</button>
-
-<div class="stx-settings-overlay">
-  <div class="stx-setting-modal">
-
-    <div class="stx-setting-item">
-      <img src="" alt="">
-      <span>Tamaño de letra</span>
-    </div>
-
-    <div class="stx-setting-item">
-      <img src="" alt="">
-      <span>Hover</span>
-      <div class="stx-switch"></div>
-    </div>
-
-    <div class="stx-setting-item">
-      <img src="" alt="">
-      <span>Modo enfoque</span>
-      <div class="stx-switch"></div>
-    </div>
-
-    <div class="stx-setting-item">
-      <img src="" alt="">
-      <span>Avanzado</span>
-    </div>
-
-  </div>
-</div>
 
     <script src="https://gumroad.com/js/gumroad.js"></script>
     <script src="script.js" defer></script>

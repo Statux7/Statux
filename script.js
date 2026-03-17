@@ -9,6 +9,11 @@ function escAttr(v) {
 }
 
 const CARDS_JSON_URL = "data/cards.json";
+const SETTINGS_KEYS = {
+  fontSize: "statux:font-size",
+  noHover: "statux:no-hover",
+  focusMode: "statux:focus-mode"
+};
 let notificationTimeoutId = null;
 
 
@@ -702,6 +707,116 @@ document.addEventListener("click", function (e) {
   }
 });
 
+function isTouchDevice() {
+  return window.matchMedia("(pointer: coarse)").matches || "ontouchstart" in window || navigator.maxTouchPoints > 0;
+}
+
+function setFontSize(value) {
+  const numeric = Math.max(14, Math.min(22, Number(value) || 20));
+  document.body.style.setProperty("--statux-font", `${numeric}px`);
+  const valueEl = document.getElementById("font-size-value");
+  const slider = document.getElementById("font-size-control");
+  if (valueEl) valueEl.textContent = `${numeric}px`;
+  if (slider && String(slider.value) !== String(numeric)) slider.value = String(numeric);
+  localStorage.setItem(SETTINGS_KEYS.fontSize, String(numeric));
+}
+
+function applyNoHoverState(active) {
+  document.body.classList.toggle("no-hover", Boolean(active));
+  localStorage.setItem(SETTINGS_KEYS.noHover, active ? "1" : "0");
+}
+
+function applyFocusModeState(active) {
+  document.body.classList.toggle("focus-mode", Boolean(active));
+  localStorage.setItem(SETTINGS_KEYS.focusMode, active ? "1" : "0");
+}
+
+function setSwitchState(switchEl, active) {
+  if (!switchEl) return;
+  switchEl.classList.toggle("active", Boolean(active));
+  switchEl.setAttribute("aria-checked", active ? "true" : "false");
+}
+
+function enableSwitch(switchEl, onToggle) {
+  if (!switchEl) return;
+  const toggle = () => {
+    const active = !switchEl.classList.contains("active");
+    setSwitchState(switchEl, active);
+    onToggle(active);
+  };
+  switchEl.addEventListener("click", toggle);
+  switchEl.addEventListener("keydown", (e) => {
+    if (e.key !== "Enter" && e.key !== " ") return;
+    e.preventDefault();
+    toggle();
+  });
+}
+
+function initSettingsSystem() {
+  const fab = document.getElementById("settings-fab");
+  const overlay = document.getElementById("settings-overlay");
+  const modal = overlay?.querySelector(".setting-modal");
+  const fontSlider = document.getElementById("font-size-control");
+  const hoverSwitch = document.getElementById("hover-switch");
+  const focusSwitch = document.getElementById("focus-switch");
+  const refreshBtn = document.getElementById("settings-refresh-btn");
+  const codesBtn = document.getElementById("settings-codes-btn");
+  const clearBtn = document.getElementById("settings-clear-btn");
+
+  if (!fab || !overlay || !modal) return;
+
+  const openSettings = () => {
+    overlay.classList.add("active");
+    overlay.setAttribute("aria-hidden", "false");
+  };
+
+  const closeSettings = () => {
+    overlay.classList.remove("active");
+    overlay.setAttribute("aria-hidden", "true");
+  };
+
+  fab.addEventListener("click", openSettings);
+  overlay.addEventListener("click", closeSettings);
+  modal.addEventListener("click", (e) => e.stopPropagation());
+
+  if (fontSlider) {
+    const saved = Number(localStorage.getItem(SETTINGS_KEYS.fontSize) || 20);
+    setFontSize(saved);
+    fontSlider.addEventListener("input", () => setFontSize(fontSlider.value));
+  }
+
+  const touch = isTouchDevice();
+  const savedNoHover = localStorage.getItem(SETTINGS_KEYS.noHover) === "1";
+  const noHoverActive = touch || savedNoHover;
+  setSwitchState(hoverSwitch, noHoverActive);
+  applyNoHoverState(noHoverActive);
+
+  const focusActive = localStorage.getItem(SETTINGS_KEYS.focusMode) === "1";
+  setSwitchState(focusSwitch, focusActive);
+  applyFocusModeState(focusActive);
+
+  enableSwitch(hoverSwitch, applyNoHoverState);
+  enableSwitch(focusSwitch, applyFocusModeState);
+
+  refreshBtn?.addEventListener("click", () => window.location.reload());
+  codesBtn?.addEventListener("click", () => mostrarModal("Codes", "Funcionalidad en construcción (Parte 2)."));
+  clearBtn?.addEventListener("click", () => {
+    const ok = window.confirm("¿Seguro que quieres borrar los datos de Statux?");
+    if (!ok) return;
+
+    Object.values(SETTINGS_KEYS).forEach((key) => localStorage.removeItem(key));
+    for (let i = localStorage.length - 1; i >= 0; i--) {
+      const key = localStorage.key(i);
+      if (!key) continue;
+      if (key.toLowerCase().includes("statux")) {
+        localStorage.removeItem(key);
+      }
+    }
+
+    mostrarModal("Datos borrados", "Los ajustes de Statux se limpiaron correctamente.");
+  });
+}
+
 function markBodyLoaded() {
   document.body.classList.add("loaded");
 }
@@ -712,6 +827,7 @@ if (document.readyState !== "loading") {
   document.addEventListener("DOMContentLoaded", markBodyLoaded, { once: true });
 }
 window.addEventListener("load", markBodyLoaded, { once: true });
+initSettingsSystem();
 
 function cargarEbootuxDesdeCard(card) {
   const ebootux = document.querySelector(".ebootux-template");
