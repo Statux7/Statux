@@ -628,6 +628,8 @@ document.addEventListener("click", function (e) {
     const codigoValido = accesoLibre || codigoIngresado === codigoCorrecto;
 
     if (codigoValido) {
+      stxRuntime.saveUnlockedCodeFromCard(card, "ebootux", codigoCorrecto);
+
       const courseUrl = card.dataset.courseUrl || "";
       if (courseUrl) {
         window.location.href = courseUrl;
@@ -658,6 +660,7 @@ document.addEventListener("click", function (e) {
     const codigoValido = accesoLibre || codigoIngresado === codigoCorrecto;
 
     if (codigoValido) {
+      stxRuntime.saveUnlockedCodeFromCard(card, "plantitux", codigoCorrecto);
       abrirPromptDesdeCard(card);
     } else {
       mostrarModal("Código incorrecto ❌", "Verifica tu código e inténtalo de nuevo.");
@@ -1144,3 +1147,300 @@ async function downloadModule(moduleId) {
 }
 
 window.downloadModule = downloadModule;
+
+
+// ============================
+// STX UI + STORAGE + EVENTS
+// ============================
+const stxRuntime = (() => {
+  const stxKeys = {
+    codes: "stx_codes",
+    hover: "stx_hover",
+    focus: "stx_focus",
+    font: "stx_font"
+  };
+
+  const stxUi = {
+    settingsBtn: null,
+    settingsOverlay: null,
+    settingsModal: null,
+    libraryOverlay: null,
+    libraryModal: null,
+    tabs: [],
+    codesContainer: null,
+    switches: [],
+    fontItem: null,
+    advancedItem: null
+  };
+
+  const stxStorage = {
+    getCodes() {
+      const raw = localStorage.getItem(stxKeys.codes);
+      if (!raw) return [];
+      try {
+        const parsed = JSON.parse(raw);
+        return Array.isArray(parsed) ? parsed : [];
+      } catch (_) {
+        return [];
+      }
+    },
+    setCodes(list) {
+      localStorage.setItem(stxKeys.codes, JSON.stringify(list));
+    },
+    saveCode(entry) {
+      const current = stxStorage.getCodes();
+      const exists = current.some((item) => item.id === entry.id);
+      if (exists) return;
+      current.push(entry);
+      stxStorage.setCodes(current);
+    },
+    deleteCode(id) {
+      const current = stxStorage.getCodes();
+      const next = current.filter((item) => item.id !== id);
+      stxStorage.setCodes(next);
+    },
+    setFlag(key, value) {
+      localStorage.setItem(key, JSON.stringify(Boolean(value)));
+    },
+    getFlag(key, fallback = false) {
+      const raw = localStorage.getItem(key);
+      if (raw === null) return fallback;
+      try {
+        return Boolean(JSON.parse(raw));
+      } catch (_) {
+        return fallback;
+      }
+    },
+    setFont(value) {
+      localStorage.setItem(stxKeys.font, String(value));
+    },
+    getFont() {
+      return Number(localStorage.getItem(stxKeys.font) || 20);
+    }
+  };
+
+  function stxNormalizeType(type) {
+    const map = {
+      ebootux: "Ebootux",
+      getux: "Getux",
+      plantitux: "Plantitux",
+      movitux: "Movitux",
+      tracktux: "Tracktux",
+      soundtux: "Soundtux",
+      mindtux: "Mindtux",
+      marketux: "Marketux"
+    };
+    return map[String(type || "").toLowerCase()] || "Statux";
+  }
+
+  function stxBuildCodeId(card, type, code) {
+    const title = (card?.dataset?.ebootuxTitle || card?.dataset?.title || card?.querySelector("h3")?.textContent || "card").trim().toLowerCase();
+    return `${String(type || "statux").toLowerCase()}::${title.replace(/\s+/g, "-")}::${String(code || "").trim()}`;
+  }
+
+  function stxRenderCodes() {
+    if (!stxUi.codesContainer) return;
+    const items = stxStorage.getCodes();
+    if (!items.length) {
+      stxUi.codesContainer.innerHTML = '<div class="stx-code-item"><div class="stx-code-info"><span class="stx-card-name">Sin códigos guardados</span><span class="stx-card-type">Statux</span></div></div>';
+      return;
+    }
+
+    stxUi.codesContainer.innerHTML = items.map((item) => `
+      <div class="stx-code-item" data-stx-id="${escAttr(item.id)}">
+        <div class="stx-code-info">
+          <span class="stx-card-name">${escAttr(item.name)}</span>
+          <span class="stx-card-type">${escAttr(item.type)}</span>
+        </div>
+
+        <div class="stx-code-actions">
+          <button class="stx-icon-btn copy" data-stx-action="copy" data-stx-id="${escAttr(item.id)}">
+            <img src="" alt="copiar">
+          </button>
+          <button class="stx-icon-btn delete" data-stx-action="delete" data-stx-id="${escAttr(item.id)}">
+            <img src="" alt="eliminar">
+          </button>
+        </div>
+      </div>
+    `).join("");
+  }
+
+  async function stxCopyCode(id, button) {
+    const found = stxStorage.getCodes().find((item) => item.id === id);
+    if (!found || !found.code) return;
+    try {
+      await navigator.clipboard.writeText(found.code);
+      if (button) {
+        button.classList.add("stx-copied");
+        setTimeout(() => button.classList.remove("stx-copied"), 900);
+      }
+    } catch (_) {
+      mostrarModal("Copiado no disponible", "No se pudo copiar el código en este dispositivo.");
+    }
+  }
+
+  function stxApplyHoverState(active) {
+    document.body.classList.toggle("stx-no-hover", Boolean(active));
+    stxStorage.setFlag(stxKeys.hover, active);
+  }
+
+  function stxApplyFocusState(active) {
+    document.body.classList.toggle("stx-focus-mode", Boolean(active));
+    stxStorage.setFlag(stxKeys.focus, active);
+  }
+
+  function stxApplyFont(size) {
+    const bounded = Math.max(14, Math.min(22, Number(size) || 20));
+    document.body.style.fontSize = `${bounded}px`;
+    stxStorage.setFont(bounded);
+  }
+
+  function stxToggleSettings() {
+    if (!stxUi.settingsBtn || !stxUi.settingsOverlay) return;
+    stxUi.settingsBtn.classList.toggle("active");
+    stxUi.settingsOverlay.classList.toggle("active");
+  }
+
+  function stxCloseSettings() {
+    stxUi.settingsBtn?.classList.remove("active");
+    stxUi.settingsOverlay?.classList.remove("active");
+  }
+
+  function stxOpenLibrary() {
+    if (!stxUi.libraryOverlay) return;
+    stxRenderCodes();
+    stxUi.libraryOverlay.classList.add("active");
+  }
+
+  function stxCloseLibrary() {
+    stxUi.libraryOverlay?.classList.remove("active");
+  }
+
+  function stxBindTabs() {
+    stxUi.tabs.forEach((tab) => {
+      tab.addEventListener("click", () => {
+        const modal = tab.closest(".stx-library-modal");
+        if (!modal) return;
+
+        const target = tab.dataset.tab;
+        if (!target) return;
+
+        modal.querySelectorAll(".stx-tab").forEach((btn) => btn.classList.remove("active"));
+        modal.querySelectorAll(".stx-tab-content").forEach((content) => content.classList.remove("active"));
+
+        tab.classList.add("active");
+        const section = modal.querySelector(`#${target}`);
+        if (section) section.classList.add("active");
+      });
+    });
+  }
+
+  function stxBindEvents() {
+    stxUi.settingsBtn?.addEventListener("click", stxToggleSettings);
+
+    stxUi.settingsOverlay?.addEventListener("click", (e) => {
+      if (e.target === stxUi.settingsOverlay) stxCloseSettings();
+    });
+
+    stxUi.libraryOverlay?.addEventListener("click", (e) => {
+      if (e.target === stxUi.libraryOverlay) stxCloseLibrary();
+    });
+
+    stxUi.advancedItem?.addEventListener("click", () => {
+      stxCloseSettings();
+      stxOpenLibrary();
+    });
+
+    if (stxUi.switches[0]) {
+      stxUi.switches[0].addEventListener("click", () => {
+        stxUi.switches[0].classList.toggle("active");
+        stxApplyHoverState(stxUi.switches[0].classList.contains("active"));
+      });
+    }
+
+    if (stxUi.switches[1]) {
+      stxUi.switches[1].addEventListener("click", () => {
+        stxUi.switches[1].classList.toggle("active");
+        stxApplyFocusState(stxUi.switches[1].classList.contains("active"));
+      });
+    }
+
+    stxUi.fontItem?.addEventListener("click", () => {
+      const current = stxStorage.getFont();
+      const next = current >= 22 ? 14 : current + 1;
+      stxApplyFont(next);
+    });
+
+    stxUi.codesContainer?.addEventListener("click", (e) => {
+      const button = e.target.closest(".stx-icon-btn");
+      if (!button) return;
+
+      const action = button.dataset.stxAction;
+      const id = button.dataset.stxId;
+      if (!action || !id) return;
+
+      if (action === "copy") {
+        stxCopyCode(id, button);
+        return;
+      }
+
+      if (action === "delete") {
+        stxStorage.deleteCode(id);
+        stxRenderCodes();
+      }
+    });
+
+    stxBindTabs();
+  }
+
+  function stxBindUI() {
+    stxUi.settingsBtn = document.querySelector(".stx-settings-btn");
+    stxUi.settingsOverlay = document.querySelector(".stx-settings-overlay");
+    stxUi.settingsModal = document.querySelector(".stx-setting-modal");
+    stxUi.libraryOverlay = document.querySelector(".stx-library-overlay");
+    stxUi.libraryModal = document.querySelector(".stx-library-modal");
+    stxUi.tabs = Array.from(document.querySelectorAll(".stx-tab"));
+    stxUi.codesContainer = document.getElementById("codes");
+    stxUi.switches = Array.from(document.querySelectorAll(".stx-switch"));
+    stxUi.fontItem = document.querySelector(".stx-setting-item");
+    stxUi.advancedItem = document.querySelectorAll(".stx-setting-item")[3] || null;
+  }
+
+  function stxHydrateState() {
+    const hover = stxStorage.getFlag(stxKeys.hover, false);
+    const focus = stxStorage.getFlag(stxKeys.focus, false);
+    const font = stxStorage.getFont();
+
+    if (stxUi.switches[0]) stxUi.switches[0].classList.toggle("active", hover);
+    if (stxUi.switches[1]) stxUi.switches[1].classList.toggle("active", focus);
+
+    stxApplyHoverState(hover);
+    stxApplyFocusState(focus);
+    stxApplyFont(font);
+  }
+
+  function init() {
+    stxBindUI();
+    stxHydrateState();
+    stxBindEvents();
+    stxRenderCodes();
+  }
+
+  function saveUnlockedCodeFromCard(card, rawType, rawCode) {
+    const code = String(rawCode || "").trim();
+    if (!code) return;
+
+    const type = stxNormalizeType(rawType || card?.dataset?.section || card?.dataset?.type || "Statux");
+    const name = (card?.dataset?.ebootuxTitle || card?.dataset?.title || card?.querySelector("h3")?.textContent || "Sin nombre").trim();
+    const id = stxBuildCodeId(card, type, code);
+
+    stxStorage.saveCode({ id, name, type, code });
+  }
+
+  return {
+    init,
+    saveUnlockedCodeFromCard
+  };
+})();
+
+stxRuntime.init();
