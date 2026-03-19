@@ -2240,7 +2240,7 @@ h1 {
   }
   to {
     opacity: 1;
-    transform: translateY(0);
+    transform: translateX(0);
   }
 }
 
@@ -2264,7 +2264,7 @@ h1 {
   flex-direction: column;
   gap: 12px;
   align-items: center;
-  z-index: 1505;
+  z-index: 1400;
 }
 
 .floating-btn {
@@ -2309,23 +2309,6 @@ h1 {
   opacity: 1;
   transform: translateY(0);
   pointer-events: auto;
-}
-
-@media (max-width: 768px) {
-  .floating-container {
-    top: 16px;
-    right: 16px;
-    bottom: auto;
-    flex-direction: row;
-  }
-
-  .secondary-btn {
-    transform: translateX(20px);
-  }
-
-  .floating-container.active .secondary-btn {
-    transform: translateX(0);
-  }
 }
 
 /* ================= MODAL SETTINGS ================= */
