@@ -1254,10 +1254,10 @@ const stxRuntime = (() => {
 
         <div class="code-actions stx-code-actions">
           <button class="icon-btn stx-icon-btn copy" type="button" data-stx-action="copy" data-stx-id="${escAttr(item.id)}" aria-label="Copiar código">
-            <img src="iconos/content_copy_24dp_00FFFF_FILL0_wght400_GRAD0_opsz24.svg" alt="Copiar código">
+            <img src="https://statux.netlify.app/iconos/content_copy_24dp_00FFFF_FILL0_wght400_GRAD0_opsz24.svg" alt="Copiar código">
           </button>
           <button class="icon-btn stx-icon-btn delete" type="button" data-stx-action="delete" data-stx-id="${escAttr(item.id)}" aria-label="Eliminar código">
-            <img src="iconos/delete_24dp_FF0000_FILL0_wght400_GRAD0_opsz24.svg" alt="Eliminar código">
+            <img src="https://statux.netlify.app/Logout.svg" alt="Eliminar código">
           </button>
         </div>
       </div>
