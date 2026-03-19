@@ -827,7 +827,6 @@ if (document.readyState !== "loading") {
   document.addEventListener("DOMContentLoaded", markBodyLoaded, { once: true });
 }
 window.addEventListener("load", markBodyLoaded, { once: true });
-initSettingsSystem();
 
 function cargarEbootuxDesdeCard(card) {
   const ebootux = document.querySelector(".ebootux-template");
@@ -1247,18 +1246,18 @@ const stxRuntime = (() => {
     }
 
     stxUi.codesContainer.innerHTML = items.map((item) => `
-      <div class="stx-code-item" data-stx-id="${escAttr(item.id)}">
+      <div class="code-item stx-code-item" data-stx-id="${escAttr(item.id)}">
         <div class="stx-code-info">
           <span class="stx-card-name">${escAttr(item.name)}</span>
           <span class="stx-card-type">${escAttr(item.type)}</span>
         </div>
 
-        <div class="stx-code-actions">
-          <button class="stx-icon-btn copy" data-stx-action="copy" data-stx-id="${escAttr(item.id)}">
-            <img src="" alt="copiar">
+        <div class="code-actions stx-code-actions">
+          <button class="icon-btn stx-icon-btn copy" type="button" data-stx-action="copy" data-stx-id="${escAttr(item.id)}" aria-label="Copiar código">
+            <img src="https://statux.netlify.app/iconos/content_copy_24dp_00FFFF_FILL0_wght400_GRAD0_opsz24.svg" alt="Copiar código">
           </button>
-          <button class="stx-icon-btn delete" data-stx-action="delete" data-stx-id="${escAttr(item.id)}">
-            <img src="" alt="eliminar">
+          <button class="icon-btn stx-icon-btn delete" type="button" data-stx-action="delete" data-stx-id="${escAttr(item.id)}" aria-label="Eliminar código">
+            <img src="https://statux.netlify.app/Logout.svg" alt="Eliminar código">
           </button>
         </div>
       </div>
@@ -1297,23 +1296,35 @@ const stxRuntime = (() => {
 
   function stxToggleSettings() {
     if (!stxUi.settingsBtn || !stxUi.settingsOverlay) return;
-    stxUi.settingsBtn.classList.toggle("active");
-    stxUi.settingsOverlay.classList.toggle("active");
+    const willOpen = !stxUi.settingsOverlay.classList.contains("active");
+    if (willOpen) {
+      stxUi.settingsBtn.classList.add("active");
+      stxUi.settingsOverlay.classList.add("active");
+      stxUi.settingsOverlay.setAttribute("aria-hidden", "false");
+      document.querySelector(".floating-container")?.classList.add("active");
+      return;
+    }
+    stxCloseSettings();
   }
 
   function stxCloseSettings() {
     stxUi.settingsBtn?.classList.remove("active");
     stxUi.settingsOverlay?.classList.remove("active");
+    stxUi.settingsOverlay?.setAttribute("aria-hidden", "true");
+    document.querySelector(".floating-container")?.classList.remove("active");
   }
 
   function stxOpenLibrary() {
     if (!stxUi.libraryOverlay) return;
+    stxCloseSettings();
     stxRenderCodes();
     stxUi.libraryOverlay.classList.add("active");
+    stxUi.libraryOverlay.setAttribute("aria-hidden", "false");
   }
 
   function stxCloseLibrary() {
     stxUi.libraryOverlay?.classList.remove("active");
+    stxUi.libraryOverlay?.setAttribute("aria-hidden", "true");
   }
 
   function stxBindTabs() {
@@ -1336,39 +1347,27 @@ const stxRuntime = (() => {
   }
 
   function stxBindEvents() {
+    const closeBtn = document.getElementById("closeModal");
+    const libraryBtn = document.getElementById("libraryBtn");
+
     stxUi.settingsBtn?.addEventListener("click", stxToggleSettings);
+    closeBtn?.addEventListener("click", stxCloseSettings);
+    libraryBtn?.addEventListener("click", stxOpenLibrary);
 
     stxUi.settingsOverlay?.addEventListener("click", (e) => {
       if (e.target === stxUi.settingsOverlay) stxCloseSettings();
     });
 
+    stxUi.settingsModal?.addEventListener("click", (e) => e.stopPropagation());
+
     stxUi.libraryOverlay?.addEventListener("click", (e) => {
       if (e.target === stxUi.libraryOverlay) stxCloseLibrary();
     });
 
-    stxUi.advancedItem?.addEventListener("click", () => {
-      stxCloseSettings();
-      stxOpenLibrary();
-    });
-
-    if (stxUi.switches[0]) {
-      stxUi.switches[0].addEventListener("click", () => {
-        stxUi.switches[0].classList.toggle("active");
-        stxApplyHoverState(stxUi.switches[0].classList.contains("active"));
-      });
-    }
-
-    if (stxUi.switches[1]) {
-      stxUi.switches[1].addEventListener("click", () => {
-        stxUi.switches[1].classList.toggle("active");
-        stxApplyFocusState(stxUi.switches[1].classList.contains("active"));
-      });
-    }
+    stxUi.advancedItem?.addEventListener("click", stxOpenLibrary);
 
     stxUi.fontItem?.addEventListener("click", () => {
-      const current = stxStorage.getFont();
-      const next = current >= 22 ? 14 : current + 1;
-      stxApplyFont(next);
+      mostrarModal("Acesibilidad", "Seguimos con esta parte en el siguiente paso.");
     });
 
     stxUi.codesContainer?.addEventListener("click", (e) => {
@@ -1401,18 +1400,14 @@ const stxRuntime = (() => {
     stxUi.libraryModal = document.querySelector(".stx-library-modal");
     stxUi.tabs = Array.from(document.querySelectorAll(".stx-tab"));
     stxUi.codesContainer = document.getElementById("codes");
-    stxUi.switches = Array.from(document.querySelectorAll(".stx-switch"));
-    stxUi.fontItem = document.querySelector(".stx-setting-item");
-    stxUi.advancedItem = document.querySelectorAll(".stx-setting-item")[3] || null;
+    stxUi.fontItem = document.getElementById("settingsAccessibilityBtn");
+    stxUi.advancedItem = document.getElementById("settingsAdvancedBtn");
   }
 
   function stxHydrateState() {
     const hover = stxStorage.getFlag(stxKeys.hover, false);
     const focus = stxStorage.getFlag(stxKeys.focus, false);
     const font = stxStorage.getFont();
-
-    if (stxUi.switches[0]) stxUi.switches[0].classList.toggle("active", hover);
-    if (stxUi.switches[1]) stxUi.switches[1].classList.toggle("active", focus);
 
     stxApplyHoverState(hover);
     stxApplyFocusState(focus);

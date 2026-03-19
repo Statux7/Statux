@@ -573,42 +573,58 @@ Nada de improvisar por reflejo: primero se entiende, luego se avanza.
     <!-- End Footer de la pagina -->
     </footer>
 
-    <button class="settings-fab" id="settings-fab" type="button" aria-label="Abrir configuración">
-      <img src="iconos/settings_24dp_00FFFF_FILL0_wght400_GRAD0_opsz24.svg" alt="Configuración">
-    </button>
+    <div class="floating-container" aria-label="Acciones flotantes">
+      <button class="floating-btn secondary-btn" id="libraryBtn" type="button" aria-label="Abrir biblioteca">
+        <img src="https://statux.netlify.app/iconos/key_24dp_00FFFF_FILL0_wght400_GRAD0_opsz24.svg" alt="Abrir biblioteca de códigos">
+      </button>
 
-    <div class="settings-overlay" id="settings-overlay" aria-hidden="true">
-      <div class="setting-modal" role="dialog" aria-modal="true" aria-labelledby="settings-title">
-        <header class="settings-header">
-          <h3 id="settings-title">Ajustes</h3>
-        </header>
+      <button class="floating-btn settings-btn stx-settings-btn" id="settingsBtn" type="button" aria-label="Abrir configuración">
+        <img src="https://statux.netlify.app/iconos/settings_24dp_00FFFF_FILL0_wght400_GRAD0_opsz24.svg" alt="Configuración">
+      </button>
+    </div>
 
-        <div class="settings-option">
-          <div class="settings-label-row">
-            <label for="font-size-control">Tamaño de fuente</label>
-            <span id="font-size-value">20px</span>
-          </div>
-          <input id="font-size-control" type="range" min="14" max="22" step="1">
+    <div class="modal stx-settings-overlay" id="settingsModal" aria-hidden="true">
+      <div class="modal-content stx-setting-modal" role="dialog" aria-modal="true" aria-labelledby="settings-title">
+        <button class="close-btn" id="closeModal" type="button" aria-label="Cerrar configuración">
+          <img src="https://statux.netlify.app/Logout.svg" alt="Cerrar">
+        </button>
+        <div class="settings-modal">
+          <h2 id="settings-title">Configuración</h2>
+          <button class="settings-modal-item" type="button" id="settingsAccessibilityBtn">
+            <img src="https://statux.netlify.app/iconos/settings_24dp_00FFFF_FILL0_wght400_GRAD0_opsz24.svg" alt="">
+            <span>Acesibilidad</span>
+          </button>
+          <button class="settings-modal-item" type="button" id="settingsAdvancedBtn">
+            <img src="https://statux.netlify.app/iconos/settings_24dp_00FFFF_FILL0_wght400_GRAD0_opsz24.svg" alt="">
+            <span>Avanzado</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="library-modal-overlay stx-library-overlay" id="libraryModal" aria-hidden="true">
+      <div class="library-modal stx-library-modal" role="dialog" aria-modal="true" aria-labelledby="library-title">
+        <div class="library-header">
+          <button class="tab stx-tab active" type="button" data-tab="codes" id="library-title">Códigos</button>
+          <button class="tab stx-tab" type="button" data-tab="systux">Systux</button>
         </div>
 
-        <div class="settings-option settings-switch-row">
-          <span>Desactivar hover</span>
-          <div class="statux-switch" id="hover-switch" role="switch" aria-checked="false" tabindex="0">
-            <div class="switch-wheel"></div>
-          </div>
-        </div>
+        <div class="library-content">
+          <div class="tab-content stx-tab-content active" id="codes"></div>
 
-        <div class="settings-option settings-switch-row">
-          <span>Focus Mode</span>
-          <div class="statux-switch" id="focus-switch" role="switch" aria-checked="false" tabindex="0">
-            <div class="switch-wheel"></div>
+          <div class="tab-content stx-tab-content" id="systux">
+            <div class="systux-item">
+              <span class="systux-name">Próximamente</span>
+              <div class="code-actions">
+                <button class="icon-btn enter" type="button" aria-label="Entrar a Systux próximamente" disabled>
+                  <img src="https://statux.netlify.app/iconos/key_24dp_00FFFF_FILL0_wght400_GRAD0_opsz24.svg" alt="">
+                </button>
+                <button class="icon-btn delete" type="button" aria-label="Eliminar próximamente" disabled>
+                  <img src="https://statux.netlify.app/Logout.svg" alt="">
+                </button>
+              </div>
+            </div>
           </div>
-        </div>
-
-        <div class="settings-actions">
-          <button type="button" id="settings-refresh-btn">Refresh</button>
-          <button type="button" id="settings-codes-btn">Codes</button>
-          <button type="button" id="settings-clear-btn" class="danger">Clear Data</button>
         </div>
       </div>
     </div>
