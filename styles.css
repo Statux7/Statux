@@ -2264,7 +2264,7 @@ h1 {
   flex-direction: column;
   gap: 12px;
   align-items: center;
-  z-index: 1505;
+  z-index: 1400;
 }
 
 .floating-btn {
@@ -2297,7 +2297,7 @@ h1 {
 
 .secondary-btn {
   opacity: 0;
-  transform: translateX(20px);
+  transform: translateY(20px);
   pointer-events: none;
 }
 
@@ -2307,17 +2307,8 @@ h1 {
 
 .floating-container.active .secondary-btn {
   opacity: 1;
-  transform: translateX(0);
+  transform: translateY(0);
   pointer-events: auto;
-}
-
-@media (max-width: 768px) {
-  .floating-container {
-    top: 16px;
-    right: 16px;
-    bottom: auto;
-    flex-direction: row;
-  }
 }
 
 /* ================= MODAL SETTINGS ================= */
