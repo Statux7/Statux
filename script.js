@@ -16,6 +16,15 @@ const SETTINGS_KEYS = {
 };
 let notificationTimeoutId = null;
 
+function syncOverlayBodyLock() {
+  const hasActiveOverlay = Boolean(
+    document.querySelector(
+      ".stx-settings-overlay.active, .stx-library-overlay.active, .stx-access-overlay.active, .preview-cards.active"
+    )
+  );
+  document.body.classList.toggle("stx-overlay-open", hasActiveOverlay);
+}
+
 
 // ============================
 // UI NAVEGACIÓN
@@ -407,7 +416,18 @@ const previewDescription = previewModal?.querySelector(".preview-description");
 
 if (previewModal) {
   const closeBtn = previewModal.querySelector(".logout-btn");
-  if (closeBtn) closeBtn.addEventListener("click", () => previewModal.classList.remove("active"));
+  if (closeBtn) {
+    closeBtn.addEventListener("click", () => {
+      previewModal.classList.remove("active");
+      syncOverlayBodyLock();
+    });
+  }
+  const overlay = previewModal.querySelector(".preview-overlay");
+  overlay?.addEventListener("click", (event) => {
+    if (event.target !== overlay) return;
+    previewModal.classList.remove("active");
+    syncOverlayBodyLock();
+  });
 }
 
 document.addEventListener("click", (e) => {
@@ -456,6 +476,7 @@ document.addEventListener("click", (e) => {
   }
 
   previewModal.classList.add("active");
+  syncOverlayBodyLock();
 });
 
 // ============================
@@ -468,7 +489,16 @@ const plantituxPreviewTitle = $("#plantitux-preview-title");
 const plantituxPreviewBuy = $("#plantitux-preview-buy");
 const plantituxPreviewClose = $("#plantitux-preview-close");
 if (plantituxPreviewClose && plantituxPreviewModal) {
-  plantituxPreviewClose.addEventListener("click", () => plantituxPreviewModal.classList.remove("active"));
+  plantituxPreviewClose.addEventListener("click", () => {
+    plantituxPreviewModal.classList.remove("active");
+    syncOverlayBodyLock();
+  });
+  const overlay = plantituxPreviewModal.querySelector(".preview-overlay");
+  overlay?.addEventListener("click", (event) => {
+    if (event.target !== overlay) return;
+    plantituxPreviewModal.classList.remove("active");
+    syncOverlayBodyLock();
+  });
 }
 
 document.addEventListener("click", (e) => {
@@ -505,6 +535,7 @@ document.addEventListener("click", (e) => {
   }
 
   plantituxPreviewModal.classList.add("active");
+  syncOverlayBodyLock();
 });
 
 // ============================
@@ -1021,6 +1052,7 @@ function abrirPromptDesdeCard(card) {
   }
 
   promptModal.classList.add("active");
+  syncOverlayBodyLock();
   if (miniModal) miniModal.style.height = miniModal.scrollHeight + "px";
 }
 
@@ -1028,6 +1060,17 @@ if (promptClose) {
   promptClose.addEventListener("click", () => {
     if (promptModal) promptModal.classList.remove("active");
     resetCopyButtonState();
+    syncOverlayBodyLock();
+  });
+}
+
+if (promptModal) {
+  const promptOverlay = promptModal.querySelector(".preview-overlay");
+  promptOverlay?.addEventListener("click", (event) => {
+    if (event.target !== promptOverlay) return;
+    promptModal.classList.remove("active");
+    resetCopyButtonState();
+    syncOverlayBodyLock();
   });
 }
 
@@ -1160,7 +1203,8 @@ const stxRuntime = (() => {
     codes: "stx_codes",
     hover: "stx_hover",
     focus: "stx_focus",
-    font: "stx_font"
+    font: "stx_font",
+    reduceMotion: "stx_reduce_motion"
   };
 
   const stxUi = {
@@ -1292,6 +1336,11 @@ const stxRuntime = (() => {
     stxStorage.setFlag(stxKeys.focus, active);
   }
 
+  function stxApplyReduceMotionState(active) {
+    document.body.classList.toggle("stx-reduce-motion", Boolean(active));
+    stxStorage.setFlag(stxKeys.reduceMotion, active);
+  }
+
   function stxApplyFont(size) {
     const bounded = Math.max(14, Math.min(22, Number(size) || 20));
     document.body.style.fontSize = `${bounded}px`;
@@ -1306,6 +1355,7 @@ const stxRuntime = (() => {
       stxUi.settingsOverlay.classList.add("active");
       stxUi.settingsOverlay.setAttribute("aria-hidden", "false");
       document.querySelector(".floating-container")?.classList.add("active");
+      syncOverlayBodyLock();
       return;
     }
     stxCloseSettings();
@@ -1316,6 +1366,7 @@ const stxRuntime = (() => {
     stxUi.settingsOverlay?.classList.remove("active");
     stxUi.settingsOverlay?.setAttribute("aria-hidden", "true");
     document.querySelector(".floating-container")?.classList.remove("active");
+    syncOverlayBodyLock();
   }
 
   function stxOpenLibrary() {
@@ -1324,11 +1375,66 @@ const stxRuntime = (() => {
     stxRenderCodes();
     stxUi.libraryOverlay.classList.add("active");
     stxUi.libraryOverlay.setAttribute("aria-hidden", "false");
+    syncOverlayBodyLock();
   }
 
   function stxCloseLibrary() {
     stxUi.libraryOverlay?.classList.remove("active");
     stxUi.libraryOverlay?.setAttribute("aria-hidden", "true");
+    syncOverlayBodyLock();
+  }
+
+  function stxOpenAccessibility() {
+    const overlay = document.getElementById("accessibilityModal");
+    if (!overlay) return;
+    overlay.classList.add("active");
+    overlay.setAttribute("aria-hidden", "false");
+    syncOverlayBodyLock();
+  }
+
+  function stxCloseAccessibility() {
+    const overlay = document.getElementById("accessibilityModal");
+    if (!overlay) return;
+    overlay.classList.remove("active");
+    overlay.setAttribute("aria-hidden", "true");
+    syncOverlayBodyLock();
+  }
+
+  function stxApplyAccessibilityDefaults() {
+    const hoverDefault = isTouchDevice();
+    stxApplyHoverState(hoverDefault);
+    stxApplyReduceMotionState(false);
+
+    const hoverInput = document.getElementById("toggle-hover");
+    const reduceInput = document.getElementById("reduce-motion");
+    const textSizeInput = document.getElementById("text-size");
+
+    if (hoverInput) hoverInput.checked = hoverDefault;
+    if (reduceInput) reduceInput.checked = false;
+    if (textSizeInput) textSizeInput.value = "16";
+  }
+
+  function stxBindAccessibilityControls() {
+    const overlay = document.getElementById("accessibilityModal");
+    const closeBtn = document.getElementById("accessibilityCloseBtn");
+    const resetBtn = document.getElementById("accessibilityResetBtn");
+    const hoverInput = document.getElementById("toggle-hover");
+    const reduceInput = document.getElementById("reduce-motion");
+
+    hoverInput?.addEventListener("change", () => {
+      stxApplyHoverState(hoverInput.checked);
+    });
+
+    reduceInput?.addEventListener("change", () => {
+      stxApplyReduceMotionState(reduceInput.checked);
+    });
+
+    closeBtn?.addEventListener("click", stxCloseAccessibility);
+    overlay?.addEventListener("click", (event) => {
+      if (event.target === overlay) stxCloseAccessibility();
+    });
+    overlay?.querySelector(".stx-access-modal")?.addEventListener("click", (event) => event.stopPropagation());
+    resetBtn?.addEventListener("click", stxApplyAccessibilityDefaults);
   }
 
 
@@ -1383,9 +1489,7 @@ const stxRuntime = (() => {
       mostrarModal("Avanzado", "Seguimos con esta parte en el siguiente paso.");
     });
 
-    stxBindPseudoButton(stxUi.fontItem, () => {
-      mostrarModal("Acesibilidad", "Seguimos con esta parte en el siguiente paso.");
-    });
+    stxBindPseudoButton(stxUi.fontItem, stxOpenAccessibility);
 
     stxUi.codesContainer?.addEventListener("click", (e) => {
       const button = e.target.closest(".stx-icon-btn");
@@ -1422,17 +1526,25 @@ const stxRuntime = (() => {
   }
 
   function stxHydrateState() {
-    const hover = stxStorage.getFlag(stxKeys.hover, false);
+    const hover = stxStorage.getFlag(stxKeys.hover, isTouchDevice());
     const focus = stxStorage.getFlag(stxKeys.focus, false);
     const font = stxStorage.getFont();
+    const reduceMotion = stxStorage.getFlag(stxKeys.reduceMotion, false);
 
     stxApplyHoverState(hover);
     stxApplyFocusState(focus);
+    stxApplyReduceMotionState(reduceMotion);
     stxApplyFont(font);
+
+    const hoverInput = document.getElementById("toggle-hover");
+    const reduceInput = document.getElementById("reduce-motion");
+    if (hoverInput) hoverInput.checked = hover;
+    if (reduceInput) reduceInput.checked = reduceMotion;
   }
 
   function init() {
     stxBindUI();
+    stxBindAccessibilityControls();
     stxHydrateState();
     stxBindEvents();
     stxRenderCodes();

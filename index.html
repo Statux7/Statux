@@ -395,6 +395,7 @@ Nada de improvisar por reflejo: primero se entiende, luego se avanza.
         <!-- Preview of the Cards -->
 <div class="preview-cards" id="preview-modal">
   <div class="preview-overlay">
+    <p class="stx-overlay-hint">Toca cualquier lugar para continuar</p>
     <div class="box-preview">
       <div class="head-box">
         <h2>Statux</h2>
@@ -432,6 +433,7 @@ Nada de improvisar por reflejo: primero se entiende, luego se avanza.
         <!-- Modal preview de las plantillas -->
 <div class="preview-cards" id="plantitux-preview-modal">
   <div class="preview-overlay">
+    <p class="stx-overlay-hint">Toca cualquier lugar para continuar</p>
     <div class="box-preview">
       <div class="head-box">
         <h2 id="plantitux-preview-title">Statux</h2>
@@ -460,6 +462,7 @@ Nada de improvisar por reflejo: primero se entiende, luego se avanza.
 <!-- Modal de los movitux promts -->
 <div class="preview-cards" id="prompt-modal">
   <div class="preview-overlay">
+    <p class="stx-overlay-hint">Toca cualquier lugar para continuar</p>
     <div class="box-preview">
       <div class="head-box">
         <h2>Prompt Premium</h2>
@@ -589,6 +592,7 @@ Nada de improvisar por reflejo: primero se entiende, luego se avanza.
     </div>
 
     <div class="modal stx-settings-overlay" id="settingsModal" aria-hidden="true">
+      <p class="stx-overlay-hint">Toca cualquier lugar para continuar</p>
       <div class="modal-content stx-setting-modal" role="dialog" aria-modal="true" aria-labelledby="settings-title">
         <button class="close-btn" id="closeModal" type="button" aria-label="Cerrar configuración">
           <img src="Logout.svg" alt="Cerrar">
@@ -607,7 +611,53 @@ Nada de improvisar por reflejo: primero se entiende, luego se avanza.
       </div>
     </div>
 
+    <div class="stx-access-overlay" id="accessibilityModal" aria-hidden="true">
+      <p class="stx-overlay-hint">Toca cualquier lugar para continuar</p>
+      <div class="stx-access-modal" role="dialog" aria-modal="true" aria-labelledby="accessibility-title">
+        <div class="stx-access-header">
+          <h2 class="stx-access-title" id="accessibility-title">Accesibilidad</h2>
+          <button class="stx-access-close" id="accessibilityCloseBtn" type="button" aria-label="Cerrar accesibilidad">
+            <img src="Logout.svg" alt="Cerrar">
+          </button>
+        </div>
+
+        <div class="stx-access-content">
+          <label class="stx-access-item">
+            <div class="stx-access-text">
+              <span>Desactivar efectos hover</span>
+              <small>Evita animaciones al pasar el cursor</small>
+            </div>
+            <input type="checkbox" class="stx-access-checkbox" id="toggle-hover">
+          </label>
+
+          <div class="stx-access-item column">
+            <div class="stx-access-text">
+              <span>Tamaño del texto</span>
+              <small>Ajusta la legibilidad</small>
+            </div>
+            <input type="range" min="14" max="24" value="16" class="stx-access-range" id="text-size">
+          </div>
+
+          <label class="stx-access-item">
+            <div class="stx-access-text">
+              <span>Reducir animaciones</span>
+              <small>Menos movimiento en la interfaz</small>
+            </div>
+            <input type="checkbox" class="stx-access-checkbox" id="reduce-motion">
+          </label>
+        </div>
+
+        <div class="stx-access-footer">
+          <button class="stx-access-reset" id="accessibilityResetBtn" type="button">
+            <img src="iconos/refresh_24dp_00FFFF_FILL0_wght400_GRAD0_opsz24.svg" alt="Reset">
+            <span>Restablecer</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
     <div class="library-modal-overlay stx-library-overlay" id="libraryModal" aria-hidden="true">
+      <p class="stx-overlay-hint">Toca cualquier lugar para continuar</p>
       <div class="library-modal stx-library-modal" role="dialog" aria-modal="true" aria-labelledby="library-title">
         <div class="library-header">
           <button class="tab stx-tab active" type="button" data-tab="codes" id="library-title">Códigos</button>
