@@ -294,8 +294,8 @@ footer {
 }
 
 .statux-hero-loader {
-  width: 420px;
-  height: 420px;
+  width: 300px;
+  height: 300px;
   animation: statux-aparecer-logo 0.8s ease-out forwards;
 }
 
@@ -2520,10 +2520,12 @@ h1 {
 .library-modal {
   width: min(340px, calc(100vw - 32px));
   background: #111;
-  border: 3px solid #333;
+  border: 1px solid #bbb;
   border-radius: 20px;
   padding: 16px;
   color: #bbb;
+  max-height: min(80vh, 680px);
+  overflow-y: auto;
 }
 
 .library-header {
@@ -2540,7 +2542,6 @@ h1 {
   cursor: pointer;
   border-bottom: 2px solid transparent;
   transition: 0.3s;
-  font-family: ubuntu;
 }
 
 .tab.active {
@@ -2630,6 +2631,252 @@ h1 {
   color: #0ff;
   font-size: 14px;
   word-break: break-word;
+}
+
+/* =========================
+   ACCESSIBILITY MODAL
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1470;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.stx-access-overlay.active {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+.stx-access-modal {
+  width: 90%;
+  max-width: 420px;
+  max-height: min(84vh, 760px);
+  overflow-y: auto;
+  background: #000;
+  border: 3px solid #333;
+  border-radius: 20px;
+  padding: 20px;
+  box-shadow: 0 0 40px rgba(0,0,0,0.8);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.stx-access-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.stx-access-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #fff;
+}
+
+.stx-access-close {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  opacity: 0.7;
+  transition: opacity 0.2s ease;
+}
+
+.stx-access-close:hover {
+  opacity: 1;
+}
+
+.stx-access-close img {
+  width: 24px;
+  height: 24px;
+}
+
+.stx-access-content {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.stx-access-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #050505;
+  border: 1px solid #111;
+  padding: 14px;
+  border-radius: 14px;
+}
+
+.stx-access-item.column {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.stx-access-text span {
+  color: #fff;
+  font-size: 14px;
+  display: block;
+}
+
+.stx-access-text small {
+  color: #666;
+  font-size: 12px;
+}
+
+.stx-access-checkbox {
+  appearance: none;
+  width: 38px;
+  height: 20px;
+  background: #111;
+  border-radius: 20px;
+  position: relative;
+  cursor: pointer;
+  transition: background 0.25s ease;
+  border: 1px solid #222;
+}
+
+.stx-access-checkbox::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 3px;
+  transform: translateY(-50%);
+  width: 14px;
+  height: 14px;
+  background: #555;
+  border-radius: 50%;
+  transition: all 0.25s ease;
+}
+
+.stx-access-checkbox:checked {
+  background: #fff;
+}
+
+.stx-access-checkbox:checked::before {
+  left: 20px;
+  background: #000;
+}
+
+.stx-access-range {
+  width: 100%;
+  appearance: none;
+  height: 4px;
+  background: #111;
+  border-radius: 10px;
+  outline: none;
+}
+
+.stx-access-range::-webkit-slider-thumb {
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  background: #fff;
+  border-radius: 50%;
+  cursor: pointer;
+  border: none;
+}
+
+.stx-access-range::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  background: #fff;
+  border-radius: 50%;
+  cursor: pointer;
+  border: none;
+}
+
+.stx-access-footer {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.stx-access-reset {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #050505;
+  border: 1px solid #111;
+  color: #fff;
+  padding: 10px 14px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.stx-access-reset img {
+  width: 16px;
+  height: 16px;
+}
+
+.stx-access-reset:hover {
+  background: #0a0a0a;
+  border-color: #222;
+}
+
+/* lock interaction behind overlays */
+body.overlay-open {
+  overflow: hidden;
+}
+
+body.overlay-open header,
+body.overlay-open main,
+body.overlay-open footer {
+  pointer-events: none;
+}
+
+body.overlay-open .floating-container,
+body.overlay-open .modal,
+body.overlay-open .library-modal-overlay,
+body.overlay-open .stx-access-overlay,
+body.overlay-open .preview-cards,
+body.overlay-open .modal-ebootux {
+  pointer-events: auto;
+}
+
+/* overlay hint */
+.modal::after,
+.library-modal-overlay::after,
+.stx-access-overlay::after,
+.modal-ebootux::after,
+.preview-overlay::after {
+  content: "Toca cualquier lugar para continuar";
+  position: fixed;
+  left: 50%;
+  bottom: 24px;
+  transform: translateX(-50%);
+  color: #bbb;
+  font-size: 13px;
+  background: rgba(0,0,0,0.55);
+  border: 1px solid #333;
+  padding: 6px 10px;
+  border-radius: 10px;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.modal .modal-content::after,
+.library-modal-overlay .library-modal::after,
+.stx-access-overlay .stx-access-modal::after,
+.preview-overlay .preview-content::after,
+.modal-ebootux .modal-ebootux-content::after {
+  content: none;
+}
+
+body.stx-high-contrast {
+  filter: contrast(1.2) saturate(1.1);
+}
+
+body.stx-reduce-motion *,
+body.stx-reduce-motion *::before,
+body.stx-reduce-motion *::after {
+  animation-duration: 0.2s !important;
+  transition-duration: 0.2s !important;
+  scroll-behavior: auto !important;
 }
 
 body.no-hover *:hover,
