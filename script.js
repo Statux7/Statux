@@ -16,6 +16,33 @@ const SETTINGS_KEYS = {
 };
 let notificationTimeoutId = null;
 
+const OVERLAY_STATE_SELECTORS = [
+  ".preview-cards.active",
+  ".stx-settings-overlay.active",
+  ".stx-library-overlay.active",
+  ".stx-access-overlay.active",
+  ".modal-ebootux:not(.hidden)"
+];
+
+function updateBodyOverlayLock() {
+  const hasVisibleOverlay = OVERLAY_STATE_SELECTORS.some((selector) => document.querySelector(selector));
+  document.body.classList.toggle("stx-overlay-open", hasVisibleOverlay);
+}
+
+function initOverlayStateWatcher() {
+  const observed = [
+    ...document.querySelectorAll(".preview-cards"),
+    document.getElementById("modal-ebootux"),
+    document.querySelector(".stx-settings-overlay"),
+    document.querySelector(".stx-library-overlay"),
+    document.querySelector(".stx-access-overlay")
+  ].filter(Boolean);
+
+  const observer = new MutationObserver(() => updateBodyOverlayLock());
+  observed.forEach((el) => observer.observe(el, { attributes: true, attributeFilter: ["class", "aria-hidden"] }));
+  updateBodyOverlayLock();
+}
+
 
 // ============================
 // UI NAVEGACIÓN
@@ -408,6 +435,14 @@ const previewDescription = previewModal?.querySelector(".preview-description");
 if (previewModal) {
   const closeBtn = previewModal.querySelector(".logout-btn");
   if (closeBtn) closeBtn.addEventListener("click", () => previewModal.classList.remove("active"));
+  const overlay = previewModal.querySelector(".preview-overlay");
+  const content = previewModal.querySelector(".box-preview");
+  overlay?.addEventListener("pointerdown", (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (e.target === overlay) previewModal.classList.remove("active");
+  });
+  content?.addEventListener("pointerdown", (e) => e.stopPropagation());
 }
 
 document.addEventListener("click", (e) => {
@@ -469,6 +504,14 @@ const plantituxPreviewBuy = $("#plantitux-preview-buy");
 const plantituxPreviewClose = $("#plantitux-preview-close");
 if (plantituxPreviewClose && plantituxPreviewModal) {
   plantituxPreviewClose.addEventListener("click", () => plantituxPreviewModal.classList.remove("active"));
+  const overlay = plantituxPreviewModal.querySelector(".preview-overlay");
+  const content = plantituxPreviewModal.querySelector(".box-preview");
+  overlay?.addEventListener("pointerdown", (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (e.target === overlay) plantituxPreviewModal.classList.remove("active");
+  });
+  content?.addEventListener("pointerdown", (e) => e.stopPropagation());
 }
 
 document.addEventListener("click", (e) => {
@@ -580,7 +623,11 @@ ${mensaje}`); } catch (_) {}
   };
 
   const stopNotificationClose = (ev) => ev.stopPropagation();
-  const closeNotificationByOverlay = () => closeNow();
+  const closeNotificationByOverlay = (ev) => {
+    ev.preventDefault();
+    ev.stopPropagation();
+    closeNow();
+  };
 
   if (notificationTimeoutId) {
     clearTimeout(notificationTimeoutId);
@@ -1031,6 +1078,20 @@ if (promptClose) {
   });
 }
 
+if (promptModal) {
+  const overlay = promptModal.querySelector(".preview-overlay");
+  const content = promptModal.querySelector(".box-preview");
+  overlay?.addEventListener("pointerdown", (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (e.target === overlay) {
+      promptModal.classList.remove("active");
+      resetCopyButtonState();
+    }
+  });
+  content?.addEventListener("pointerdown", (e) => e.stopPropagation());
+}
+
 if (copyPromptBtn && promptTextarea) {
   copyPromptBtn.addEventListener("click", () => {
     const prompt = promptTextarea.value || "";
@@ -1160,7 +1221,9 @@ const stxRuntime = (() => {
     codes: "stx_codes",
     hover: "stx_hover",
     focus: "stx_focus",
-    font: "stx_font"
+    font: "stx_font",
+    contrast: "stx_contrast",
+    motion: "stx_motion"
   };
 
   const stxUi = {
@@ -1173,7 +1236,15 @@ const stxRuntime = (() => {
     codesContainer: null,
     switches: [],
     fontItem: null,
-    advancedItem: null
+    advancedItem: null,
+    accessOverlay: null,
+    accessModal: null,
+    accessCloseBtn: null,
+    hoverInput: null,
+    fontInput: null,
+    contrastInput: null,
+    motionInput: null,
+    resetBtn: null
   };
 
   const stxStorage = {
@@ -1218,7 +1289,7 @@ const stxRuntime = (() => {
       localStorage.setItem(stxKeys.font, String(value));
     },
     getFont() {
-      return Number(localStorage.getItem(stxKeys.font) || 20);
+      return Number(localStorage.getItem(stxKeys.font) || 16);
     }
   };
 
@@ -1292,10 +1363,21 @@ const stxRuntime = (() => {
     stxStorage.setFlag(stxKeys.focus, active);
   }
 
+  function stxApplyContrastState(active) {
+    document.body.classList.toggle("stx-high-contrast", Boolean(active));
+    stxStorage.setFlag(stxKeys.contrast, active);
+  }
+
+  function stxApplyMotionState(active) {
+    document.body.classList.toggle("stx-reduce-motion", Boolean(active));
+    stxStorage.setFlag(stxKeys.motion, active);
+  }
+
   function stxApplyFont(size) {
-    const bounded = Math.max(14, Math.min(22, Number(size) || 20));
+    const bounded = Math.max(14, Math.min(24, Number(size) || 16));
     document.body.style.fontSize = `${bounded}px`;
     stxStorage.setFont(bounded);
+    if (stxUi.fontInput) stxUi.fontInput.value = String(bounded);
   }
 
   function stxToggleSettings() {
@@ -1318,6 +1400,18 @@ const stxRuntime = (() => {
     document.querySelector(".floating-container")?.classList.remove("active");
   }
 
+  function stxOpenAccess() {
+    if (!stxUi.accessOverlay) return;
+    stxCloseSettings();
+    stxUi.accessOverlay.classList.add("active");
+    stxUi.accessOverlay.setAttribute("aria-hidden", "false");
+  }
+
+  function stxCloseAccess() {
+    stxUi.accessOverlay?.classList.remove("active");
+    stxUi.accessOverlay?.setAttribute("aria-hidden", "true");
+  }
+
   function stxOpenLibrary() {
     if (!stxUi.libraryOverlay) return;
     stxCloseSettings();
@@ -1329,6 +1423,23 @@ const stxRuntime = (() => {
   function stxCloseLibrary() {
     stxUi.libraryOverlay?.classList.remove("active");
     stxUi.libraryOverlay?.setAttribute("aria-hidden", "true");
+  }
+
+  function stxResetAccessibility() {
+    const defaultHover = isTouchDevice();
+    const defaultFont = 16;
+    const defaultContrast = false;
+    const defaultMotion = false;
+
+    if (stxUi.hoverInput) stxUi.hoverInput.checked = defaultHover;
+    if (stxUi.fontInput) stxUi.fontInput.value = String(defaultFont);
+    if (stxUi.contrastInput) stxUi.contrastInput.checked = defaultContrast;
+    if (stxUi.motionInput) stxUi.motionInput.checked = defaultMotion;
+
+    stxApplyHoverState(defaultHover);
+    stxApplyFont(defaultFont);
+    stxApplyContrastState(defaultContrast);
+    stxApplyMotionState(defaultMotion);
   }
 
 
@@ -1384,8 +1495,20 @@ const stxRuntime = (() => {
     });
 
     stxBindPseudoButton(stxUi.fontItem, () => {
-      mostrarModal("Acesibilidad", "Seguimos con esta parte en el siguiente paso.");
+      stxOpenAccess();
     });
+
+    stxUi.accessCloseBtn?.addEventListener("click", stxCloseAccess);
+    stxUi.accessOverlay?.addEventListener("click", (e) => {
+      if (e.target === stxUi.accessOverlay) stxCloseAccess();
+    });
+    stxUi.accessModal?.addEventListener("click", (e) => e.stopPropagation());
+
+    stxUi.hoverInput?.addEventListener("change", () => stxApplyHoverState(stxUi.hoverInput.checked));
+    stxUi.fontInput?.addEventListener("input", () => stxApplyFont(stxUi.fontInput.value));
+    stxUi.contrastInput?.addEventListener("change", () => stxApplyContrastState(stxUi.contrastInput.checked));
+    stxUi.motionInput?.addEventListener("change", () => stxApplyMotionState(stxUi.motionInput.checked));
+    stxUi.resetBtn?.addEventListener("click", stxResetAccessibility);
 
     stxUi.codesContainer?.addEventListener("click", (e) => {
       const button = e.target.closest(".stx-icon-btn");
@@ -1419,16 +1542,33 @@ const stxRuntime = (() => {
     stxUi.codesContainer = document.getElementById("codes");
     stxUi.fontItem = document.getElementById("settingsAccessibilityBtn");
     stxUi.advancedItem = document.getElementById("settingsAdvancedBtn");
+    stxUi.accessOverlay = document.getElementById("stxAccessModal");
+    stxUi.accessModal = stxUi.accessOverlay?.querySelector(".stx-access-modal") || null;
+    stxUi.accessCloseBtn = document.getElementById("stxAccessClose");
+    stxUi.hoverInput = document.getElementById("toggle-hover");
+    stxUi.fontInput = document.getElementById("text-size");
+    stxUi.contrastInput = document.getElementById("high-contrast");
+    stxUi.motionInput = document.getElementById("reduce-motion");
+    stxUi.resetBtn = document.getElementById("stxAccessReset");
   }
 
   function stxHydrateState() {
-    const hover = stxStorage.getFlag(stxKeys.hover, false);
+    const hover = stxStorage.getFlag(stxKeys.hover, isTouchDevice());
     const focus = stxStorage.getFlag(stxKeys.focus, false);
     const font = stxStorage.getFont();
+    const contrast = stxStorage.getFlag(stxKeys.contrast, false);
+    const motion = stxStorage.getFlag(stxKeys.motion, false);
 
     stxApplyHoverState(hover);
     stxApplyFocusState(focus);
     stxApplyFont(font);
+    stxApplyContrastState(contrast);
+    stxApplyMotionState(motion);
+
+    if (stxUi.hoverInput) stxUi.hoverInput.checked = hover;
+    if (stxUi.fontInput) stxUi.fontInput.value = String(Math.max(14, Math.min(24, font || 16)));
+    if (stxUi.contrastInput) stxUi.contrastInput.checked = contrast;
+    if (stxUi.motionInput) stxUi.motionInput.checked = motion;
   }
 
   function init() {
@@ -1456,3 +1596,4 @@ const stxRuntime = (() => {
 })();
 
 stxRuntime.init();
+initOverlayStateWatcher();
