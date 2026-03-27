@@ -16,27 +16,6 @@ const SETTINGS_KEYS = {
 };
 let notificationTimeoutId = null;
 
-function syncGlobalOverlayLock() {
-  const hasOverlay =
-    Boolean(document.querySelector(".modal.active")) ||
-    Boolean(document.querySelector(".library-modal-overlay.active")) ||
-    Boolean(document.querySelector(".stx-access-overlay.active")) ||
-    Boolean(document.querySelector(".preview-cards.active")) ||
-    Boolean(document.querySelector(".modal-ebootux:not(.hidden)"));
-
-  document.body.classList.toggle("overlay-open", hasOverlay);
-}
-
-const overlayStateObserver = new MutationObserver(() => {
-  syncGlobalOverlayLock();
-});
-
-overlayStateObserver.observe(document.body, {
-  attributes: true,
-  subtree: true,
-  attributeFilter: ["class", "aria-hidden"]
-});
-
 
 // ============================
 // UI NAVEGACIÓN
@@ -428,10 +407,7 @@ const previewDescription = previewModal?.querySelector(".preview-description");
 
 if (previewModal) {
   const closeBtn = previewModal.querySelector(".logout-btn");
-  if (closeBtn) closeBtn.addEventListener("click", () => {
-    previewModal.classList.remove("active");
-    syncGlobalOverlayLock();
-  });
+  if (closeBtn) closeBtn.addEventListener("click", () => previewModal.classList.remove("active"));
 }
 
 document.addEventListener("click", (e) => {
@@ -480,7 +456,6 @@ document.addEventListener("click", (e) => {
   }
 
   previewModal.classList.add("active");
-  syncGlobalOverlayLock();
 });
 
 // ============================
@@ -493,10 +468,7 @@ const plantituxPreviewTitle = $("#plantitux-preview-title");
 const plantituxPreviewBuy = $("#plantitux-preview-buy");
 const plantituxPreviewClose = $("#plantitux-preview-close");
 if (plantituxPreviewClose && plantituxPreviewModal) {
-  plantituxPreviewClose.addEventListener("click", () => {
-    plantituxPreviewModal.classList.remove("active");
-    syncGlobalOverlayLock();
-  });
+  plantituxPreviewClose.addEventListener("click", () => plantituxPreviewModal.classList.remove("active"));
 }
 
 document.addEventListener("click", (e) => {
@@ -533,7 +505,6 @@ document.addEventListener("click", (e) => {
   }
 
   plantituxPreviewModal.classList.add("active");
-  syncGlobalOverlayLock();
 });
 
 // ============================
@@ -606,7 +577,6 @@ ${mensaje}`); } catch (_) {}
       clearTimeout(notificationTimeoutId);
       notificationTimeoutId = null;
     }
-    syncGlobalOverlayLock();
   };
 
   const stopNotificationClose = (ev) => ev.stopPropagation();
@@ -620,7 +590,6 @@ ${mensaje}`); } catch (_) {}
   modalTitle.textContent = titulo;
   modalMessage.textContent = mensaje;
   modal.classList.remove("hidden");
-  syncGlobalOverlayLock();
 
   modalContent.addEventListener("pointerdown", stopNotificationClose);
   modal.addEventListener("pointerdown", closeNotificationByOverlay);
@@ -1191,9 +1160,7 @@ const stxRuntime = (() => {
     codes: "stx_codes",
     hover: "stx_hover",
     focus: "stx_focus",
-    font: "stx_font",
-    contrast: "stx_contrast",
-    motion: "stx_reduce_motion"
+    font: "stx_font"
   };
 
   const stxUi = {
@@ -1206,15 +1173,7 @@ const stxRuntime = (() => {
     codesContainer: null,
     switches: [],
     fontItem: null,
-    advancedItem: null,
-    accessOverlay: null,
-    accessModal: null,
-    accessClose: null,
-    accessReset: null,
-    hoverToggle: null,
-    fontRange: null,
-    contrastToggle: null,
-    motionToggle: null
+    advancedItem: null
   };
 
   const stxStorage = {
@@ -1299,10 +1258,10 @@ const stxRuntime = (() => {
 
         <div class="code-actions stx-code-actions">
           <button class="icon-btn stx-icon-btn copy" type="button" data-stx-action="copy" data-stx-id="${escAttr(item.id)}" aria-label="Copiar código">
-            <img src="" alt="Copiar código">
+            <img src="content_copy.svg" alt="Copiar código">
           </button>
           <button class="icon-btn stx-icon-btn delete" type="button" data-stx-action="delete" data-stx-id="${escAttr(item.id)}" aria-label="Eliminar código">
-            <img src="" alt="Eliminar código">
+            <img src="iconos/delete_24dp_FF0000_FILL0_wght400_GRAD0_opsz24.svg" alt="Eliminar código">
           </button>
         </div>
       </div>
@@ -1326,7 +1285,6 @@ const stxRuntime = (() => {
   function stxApplyHoverState(active) {
     document.body.classList.toggle("stx-no-hover", Boolean(active));
     stxStorage.setFlag(stxKeys.hover, active);
-    if (stxUi.hoverToggle) stxUi.hoverToggle.checked = Boolean(active);
   }
 
   function stxApplyFocusState(active) {
@@ -1335,22 +1293,9 @@ const stxRuntime = (() => {
   }
 
   function stxApplyFont(size) {
-    const bounded = Math.max(14, Math.min(24, Number(size) || 20));
+    const bounded = Math.max(14, Math.min(22, Number(size) || 20));
     document.body.style.fontSize = `${bounded}px`;
     stxStorage.setFont(bounded);
-    if (stxUi.fontRange) stxUi.fontRange.value = String(bounded);
-  }
-
-  function stxApplyContrastState(active) {
-    document.body.classList.toggle("stx-high-contrast", Boolean(active));
-    stxStorage.setFlag(stxKeys.contrast, active);
-    if (stxUi.contrastToggle) stxUi.contrastToggle.checked = Boolean(active);
-  }
-
-  function stxApplyReduceMotionState(active) {
-    document.body.classList.toggle("stx-reduce-motion", Boolean(active));
-    stxStorage.setFlag(stxKeys.motion, active);
-    if (stxUi.motionToggle) stxUi.motionToggle.checked = Boolean(active);
   }
 
   function stxToggleSettings() {
@@ -1361,7 +1306,6 @@ const stxRuntime = (() => {
       stxUi.settingsOverlay.classList.add("active");
       stxUi.settingsOverlay.setAttribute("aria-hidden", "false");
       document.querySelector(".floating-container")?.classList.add("active");
-      syncGlobalOverlayLock();
       return;
     }
     stxCloseSettings();
@@ -1372,7 +1316,6 @@ const stxRuntime = (() => {
     stxUi.settingsOverlay?.classList.remove("active");
     stxUi.settingsOverlay?.setAttribute("aria-hidden", "true");
     document.querySelector(".floating-container")?.classList.remove("active");
-    syncGlobalOverlayLock();
   }
 
   function stxOpenLibrary() {
@@ -1381,35 +1324,11 @@ const stxRuntime = (() => {
     stxRenderCodes();
     stxUi.libraryOverlay.classList.add("active");
     stxUi.libraryOverlay.setAttribute("aria-hidden", "false");
-    syncGlobalOverlayLock();
   }
 
   function stxCloseLibrary() {
     stxUi.libraryOverlay?.classList.remove("active");
     stxUi.libraryOverlay?.setAttribute("aria-hidden", "true");
-    syncGlobalOverlayLock();
-  }
-
-  function stxOpenAccessibility() {
-    if (!stxUi.accessOverlay) return;
-    stxCloseSettings();
-    stxUi.accessOverlay.classList.add("active");
-    stxUi.accessOverlay.setAttribute("aria-hidden", "false");
-    syncGlobalOverlayLock();
-  }
-
-  function stxCloseAccessibility() {
-    stxUi.accessOverlay?.classList.remove("active");
-    stxUi.accessOverlay?.setAttribute("aria-hidden", "true");
-    syncGlobalOverlayLock();
-  }
-
-  function stxResetAccessibility() {
-    const hoverDefault = isTouchDevice();
-    stxApplyHoverState(hoverDefault);
-    stxApplyFont(20);
-    stxApplyContrastState(false);
-    stxApplyReduceMotionState(false);
   }
 
 
@@ -1460,24 +1379,12 @@ const stxRuntime = (() => {
       if (e.target === stxUi.libraryOverlay) stxCloseLibrary();
     });
 
-    stxUi.accessClose?.addEventListener("click", stxCloseAccessibility);
-    stxUi.accessOverlay?.addEventListener("click", (e) => {
-      if (e.target === stxUi.accessOverlay) stxCloseAccessibility();
-    });
-    stxUi.accessModal?.addEventListener("click", (e) => e.stopPropagation());
-
-    stxUi.hoverToggle?.addEventListener("change", () => stxApplyHoverState(stxUi.hoverToggle.checked));
-    stxUi.fontRange?.addEventListener("input", () => stxApplyFont(stxUi.fontRange.value));
-    stxUi.contrastToggle?.addEventListener("change", () => stxApplyContrastState(stxUi.contrastToggle.checked));
-    stxUi.motionToggle?.addEventListener("change", () => stxApplyReduceMotionState(stxUi.motionToggle.checked));
-    stxUi.accessReset?.addEventListener("click", stxResetAccessibility);
-
     stxBindPseudoButton(stxUi.advancedItem, () => {
       mostrarModal("Avanzado", "Seguimos con esta parte en el siguiente paso.");
     });
 
     stxBindPseudoButton(stxUi.fontItem, () => {
-      stxOpenAccessibility();
+      mostrarModal("Acesibilidad", "Seguimos con esta parte en el siguiente paso.");
     });
 
     stxUi.codesContainer?.addEventListener("click", (e) => {
@@ -1512,28 +1419,16 @@ const stxRuntime = (() => {
     stxUi.codesContainer = document.getElementById("codes");
     stxUi.fontItem = document.getElementById("settingsAccessibilityBtn");
     stxUi.advancedItem = document.getElementById("settingsAdvancedBtn");
-    stxUi.accessOverlay = document.getElementById("stxAccessOverlay");
-    stxUi.accessModal = stxUi.accessOverlay?.querySelector(".stx-access-modal") || null;
-    stxUi.accessClose = document.getElementById("stxAccessClose");
-    stxUi.accessReset = document.getElementById("stxAccessReset");
-    stxUi.hoverToggle = document.getElementById("toggle-hover");
-    stxUi.fontRange = document.getElementById("text-size");
-    stxUi.contrastToggle = document.getElementById("high-contrast");
-    stxUi.motionToggle = document.getElementById("reduce-motion");
   }
 
   function stxHydrateState() {
-    const hover = stxStorage.getFlag(stxKeys.hover, isTouchDevice());
+    const hover = stxStorage.getFlag(stxKeys.hover, false);
     const focus = stxStorage.getFlag(stxKeys.focus, false);
     const font = stxStorage.getFont();
-    const contrast = stxStorage.getFlag(stxKeys.contrast, false);
-    const motion = stxStorage.getFlag(stxKeys.motion, false);
 
     stxApplyHoverState(hover);
     stxApplyFocusState(focus);
     stxApplyFont(font);
-    stxApplyContrastState(contrast);
-    stxApplyReduceMotionState(motion);
   }
 
   function init() {
