@@ -607,6 +607,50 @@ Nada de improvisar por reflejo: primero se entiende, luego se avanza.
       </div>
     </div>
 
+    <div class="stx-access-overlay" id="accessModal" aria-hidden="true">
+      <div class="stx-access-modal" role="dialog" aria-modal="true" aria-labelledby="access-title">
+        <div class="stx-access-header">
+          <h2 class="stx-access-title" id="access-title">Accesibilidad</h2>
+          <button class="stx-access-close" id="accessCloseBtn" type="button" aria-label="Cerrar accesibilidad">
+            <img src="Logout.svg" alt="Cerrar">
+          </button>
+        </div>
+
+        <div class="stx-access-content">
+          <label class="stx-access-item" for="toggle-hover">
+            <div class="stx-access-text">
+              <span>Desactivar efectos hover</span>
+              <small>Evita animaciones al pasar el cursor</small>
+            </div>
+            <input type="checkbox" class="stx-access-checkbox" id="toggle-hover">
+          </label>
+
+          <div class="stx-access-item column">
+            <div class="stx-access-text">
+              <span>Tamaño del texto</span>
+              <small>Próximamente</small>
+            </div>
+            <input type="range" min="14" max="24" value="16" class="stx-access-range" id="text-size" disabled>
+          </div>
+
+          <label class="stx-access-item" for="reduce-motion">
+            <div class="stx-access-text">
+              <span>Reducir animaciones</span>
+              <small>Menos movimiento en la interfaz</small>
+            </div>
+            <input type="checkbox" class="stx-access-checkbox" id="reduce-motion">
+          </label>
+        </div>
+
+        <div class="stx-access-footer">
+          <button class="stx-access-reset" id="accessResetBtn" type="button">
+            <img src="iconos/refresh_24dp_00FFFF_FILL0_wght400_GRAD0_opsz24.svg" alt="Reset">
+            <span>Restablecer</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
     <div class="library-modal-overlay stx-library-overlay" id="libraryModal" aria-hidden="true">
       <div class="library-modal stx-library-modal" role="dialog" aria-modal="true" aria-labelledby="library-title">
         <div class="library-header">

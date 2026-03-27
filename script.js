@@ -1160,7 +1160,8 @@ const stxRuntime = (() => {
     codes: "stx_codes",
     hover: "stx_hover",
     focus: "stx_focus",
-    font: "stx_font"
+    font: "stx_font",
+    reduceMotion: "stx_reduce_motion"
   };
 
   const stxUi = {
@@ -1169,11 +1170,17 @@ const stxRuntime = (() => {
     settingsModal: null,
     libraryOverlay: null,
     libraryModal: null,
+    accessOverlay: null,
+    accessModal: null,
     tabs: [],
     codesContainer: null,
     switches: [],
     fontItem: null,
-    advancedItem: null
+    advancedItem: null,
+    accessCloseBtn: null,
+    accessHoverToggle: null,
+    accessReduceMotionToggle: null,
+    accessResetBtn: null
   };
 
   const stxStorage = {
@@ -1298,6 +1305,53 @@ const stxRuntime = (() => {
     stxStorage.setFont(bounded);
   }
 
+  function stxApplyReduceMotionState(active) {
+    document.body.classList.toggle("stx-reduce-motion", Boolean(active));
+    stxStorage.setFlag(stxKeys.reduceMotion, active);
+  }
+
+  function stxSyncOverlayLock() {
+    const hasOpenOverlay = [
+      stxUi.settingsOverlay,
+      stxUi.libraryOverlay,
+      stxUi.accessOverlay,
+      previewModal,
+      plantituxPreviewModal,
+      document.getElementById("modal-ebootux")
+    ].some((overlay) => overlay && overlay.classList.contains("active") && !overlay.classList.contains("hidden"));
+
+    document.body.classList.toggle("stx-overlay-open", hasOpenOverlay);
+  }
+
+  function stxSyncAccessControls() {
+    if (stxUi.accessHoverToggle) stxUi.accessHoverToggle.checked = document.body.classList.contains("stx-no-hover");
+    if (stxUi.accessReduceMotionToggle) stxUi.accessReduceMotionToggle.checked = document.body.classList.contains("stx-reduce-motion");
+  }
+
+  function stxOpenAccess() {
+    if (!stxUi.accessOverlay) return;
+    stxCloseSettings();
+    stxSyncAccessControls();
+    stxUi.accessOverlay.classList.add("active");
+    stxUi.accessOverlay.setAttribute("aria-hidden", "false");
+    stxSyncOverlayLock();
+  }
+
+  function stxCloseAccess() {
+    stxUi.accessOverlay?.classList.remove("active");
+    stxUi.accessOverlay?.setAttribute("aria-hidden", "true");
+    stxSyncOverlayLock();
+  }
+
+  function stxResetAccessSettings() {
+    const defaultNoHover = isTouchDevice();
+    stxApplyHoverState(defaultNoHover);
+    stxApplyReduceMotionState(false);
+    stxApplyFocusState(false);
+    stxApplyFont(20);
+    stxSyncAccessControls();
+  }
+
   function stxToggleSettings() {
     if (!stxUi.settingsBtn || !stxUi.settingsOverlay) return;
     const willOpen = !stxUi.settingsOverlay.classList.contains("active");
@@ -1306,6 +1360,7 @@ const stxRuntime = (() => {
       stxUi.settingsOverlay.classList.add("active");
       stxUi.settingsOverlay.setAttribute("aria-hidden", "false");
       document.querySelector(".floating-container")?.classList.add("active");
+      stxSyncOverlayLock();
       return;
     }
     stxCloseSettings();
@@ -1316,19 +1371,23 @@ const stxRuntime = (() => {
     stxUi.settingsOverlay?.classList.remove("active");
     stxUi.settingsOverlay?.setAttribute("aria-hidden", "true");
     document.querySelector(".floating-container")?.classList.remove("active");
+    stxSyncOverlayLock();
   }
 
   function stxOpenLibrary() {
     if (!stxUi.libraryOverlay) return;
     stxCloseSettings();
+    stxCloseAccess();
     stxRenderCodes();
     stxUi.libraryOverlay.classList.add("active");
     stxUi.libraryOverlay.setAttribute("aria-hidden", "false");
+    stxSyncOverlayLock();
   }
 
   function stxCloseLibrary() {
     stxUi.libraryOverlay?.classList.remove("active");
     stxUi.libraryOverlay?.setAttribute("aria-hidden", "true");
+    stxSyncOverlayLock();
   }
 
 
@@ -1384,7 +1443,28 @@ const stxRuntime = (() => {
     });
 
     stxBindPseudoButton(stxUi.fontItem, () => {
-      mostrarModal("Acesibilidad", "Seguimos con esta parte en el siguiente paso.");
+      stxOpenAccess();
+    });
+
+    stxUi.accessCloseBtn?.addEventListener("click", stxCloseAccess);
+
+    stxUi.accessOverlay?.addEventListener("click", (e) => {
+      if (e.target === stxUi.accessOverlay) stxCloseAccess();
+    });
+
+    stxUi.accessModal?.addEventListener("click", (e) => e.stopPropagation());
+
+    stxUi.accessHoverToggle?.addEventListener("change", (event) => {
+      stxApplyHoverState(Boolean(event.target.checked));
+    });
+
+    stxUi.accessReduceMotionToggle?.addEventListener("change", (event) => {
+      stxApplyReduceMotionState(Boolean(event.target.checked));
+    });
+
+    stxUi.accessResetBtn?.addEventListener("click", () => {
+      stxResetAccessSettings();
+      stxCloseAccess();
     });
 
     stxUi.codesContainer?.addEventListener("click", (e) => {
@@ -1415,20 +1495,30 @@ const stxRuntime = (() => {
     stxUi.settingsModal = document.querySelector(".stx-setting-modal");
     stxUi.libraryOverlay = document.querySelector(".stx-library-overlay");
     stxUi.libraryModal = document.querySelector(".stx-library-modal");
+    stxUi.accessOverlay = document.querySelector(".stx-access-overlay");
+    stxUi.accessModal = document.querySelector(".stx-access-modal");
     stxUi.tabs = Array.from(document.querySelectorAll(".stx-tab"));
     stxUi.codesContainer = document.getElementById("codes");
     stxUi.fontItem = document.getElementById("settingsAccessibilityBtn");
     stxUi.advancedItem = document.getElementById("settingsAdvancedBtn");
+    stxUi.accessCloseBtn = document.getElementById("accessCloseBtn");
+    stxUi.accessHoverToggle = document.getElementById("toggle-hover");
+    stxUi.accessReduceMotionToggle = document.getElementById("reduce-motion");
+    stxUi.accessResetBtn = document.getElementById("accessResetBtn");
   }
 
   function stxHydrateState() {
-    const hover = stxStorage.getFlag(stxKeys.hover, false);
+    const hover = stxStorage.getFlag(stxKeys.hover, isTouchDevice());
     const focus = stxStorage.getFlag(stxKeys.focus, false);
     const font = stxStorage.getFont();
+    const reduceMotion = stxStorage.getFlag(stxKeys.reduceMotion, false);
 
     stxApplyHoverState(hover);
     stxApplyFocusState(focus);
     stxApplyFont(font);
+    stxApplyReduceMotionState(reduceMotion);
+    stxSyncAccessControls();
+    stxSyncOverlayLock();
   }
 
   function init() {

@@ -2495,6 +2495,238 @@ h1 {
   height: 20px;
 }
 
+
+
+body.stx-overlay-open {
+  overflow: hidden;
+}
+
+.stx-settings-overlay,
+.stx-library-overlay,
+.stx-access-overlay,
+.preview-overlay {
+  overscroll-behavior: contain;
+}
+
+.stx-settings-overlay.active::before,
+.stx-library-overlay.active::before,
+.stx-access-overlay.active::before,
+.preview-overlay.active::before {
+  content: "Toca cualquier lugar para continuar";
+  position: fixed;
+  top: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: #fff;
+  background: rgba(0, 0, 0, 0.65);
+  border: 1px solid #333;
+  border-radius: 12px;
+  padding: 7px 12px;
+  font-size: 12px;
+  z-index: 1600;
+  pointer-events: none;
+}
+
+/* ================= ACCESSIBILITY MODAL ================= */
+.stx-access-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1470;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.25s ease, visibility 0.25s ease;
+}
+
+.stx-access-overlay.active {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+.stx-access-modal {
+  width: min(420px, calc(100vw - 32px));
+  max-height: min(88vh, 640px);
+  overflow-y: auto;
+  background: #000;
+  border: 3px solid #333;
+  border-radius: 20px;
+  padding: 20px;
+  box-shadow: 0 0 40px rgba(0,0,0,0.8);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  color: #fff;
+}
+
+.stx-access-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.stx-access-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #fff;
+  margin: 0;
+}
+
+.stx-access-close {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  opacity: 0.7;
+  transition: opacity 0.2s ease;
+}
+
+.stx-access-close:hover { opacity: 1; }
+
+.stx-access-close img {
+  width: 24px;
+  height: 24px;
+}
+
+.stx-access-content {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.stx-access-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #050505;
+  border: 1px solid #111;
+  padding: 14px;
+  border-radius: 14px;
+  gap: 12px;
+}
+
+.stx-access-item.column {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.stx-access-text span {
+  color: #fff;
+  font-size: 14px;
+  display: block;
+}
+
+.stx-access-text small {
+  color: #666;
+  font-size: 12px;
+}
+
+.stx-access-checkbox {
+  appearance: none;
+  width: 38px;
+  height: 20px;
+  background: #111;
+  border-radius: 20px;
+  position: relative;
+  cursor: pointer;
+  transition: background 0.25s ease;
+  border: 1px solid #222;
+  flex: 0 0 auto;
+}
+
+.stx-access-checkbox::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 3px;
+  transform: translateY(-50%);
+  width: 14px;
+  height: 14px;
+  background: #555;
+  border-radius: 50%;
+  transition: left 0.25s ease, background 0.25s ease;
+}
+
+.stx-access-checkbox:checked { background: #fff; }
+
+.stx-access-checkbox:checked::before {
+  left: 20px;
+  background: #000;
+}
+
+.stx-access-range {
+  width: 100%;
+  appearance: none;
+  height: 4px;
+  background: #111;
+  border-radius: 10px;
+  outline: none;
+}
+
+.stx-access-range::-webkit-slider-thumb {
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  background: #fff;
+  border-radius: 50%;
+  border: none;
+}
+
+.stx-access-range::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  background: #fff;
+  border-radius: 50%;
+  border: none;
+}
+
+.stx-access-range:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.stx-access-footer {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.stx-access-reset {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #050505;
+  border: 1px solid #111;
+  color: #fff;
+  padding: 10px 14px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.stx-access-reset img {
+  width: 16px;
+  height: 16px;
+}
+
+.stx-access-reset:hover {
+  background: #0a0a0a;
+  border-color: #222;
+}
+
+body.stx-reduce-motion *,
+body.stx-reduce-motion *::before,
+body.stx-reduce-motion *::after {
+  animation: none !important;
+  transition-duration: 0.01ms !important;
+  transition-delay: 0ms !important;
+  scroll-behavior: auto !important;
+}
+
 /* ================= LIBRARY MODAL ================= */
 .library-modal-overlay {
   position: fixed;
@@ -2549,6 +2781,9 @@ h1 {
 
 .library-content {
   margin-top: 16px;
+  max-height: min(52vh, 460px);
+  overflow-y: auto;
+  padding-right: 4px;
 }
 
 .tab-content {
