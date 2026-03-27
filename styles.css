@@ -2632,9 +2632,16 @@ h1 {
   word-break: break-word;
 }
 
+body.no-hover *,
+body.stx-no-hover * {
+  transition: none !important;
+}
+
 body.no-hover *:hover,
 body.stx-no-hover *:hover {
-  all: unset;
+  transform: none !important;
+  box-shadow: none !important;
+  filter: none !important;
 }
 
 body.focus-mode .barra-de-navegacion,
