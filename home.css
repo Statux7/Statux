@@ -1,3 +1,13 @@
+:root {
+  --home-bg: #000000;
+  --home-accent: #00f2ff;
+}
+
+[data-home-root] {
+  display: block;
+  min-height: 60vh;
+}
+
 .home-loading,
 .home-loading-error {
   margin: 24px 0;
@@ -7,4 +17,72 @@
 
 .home-loading-error {
   color: #ff5a5a;
+}
+
+[data-home-root] .body {
+  margin: 0;
+  height: 100%;
+  background: var(--home-bg);
+}
+
+[data-home-root] .scanner-container {
+  position: relative;
+  width: 100%;
+  height: 250px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+[data-home-root] .content-layer {
+  text-align: center;
+  z-index: 1;
+  padding: 0 20px;
+}
+
+[data-home-root] .statux-hero h1 {
+  font-size: clamp(2rem, 7vw, 6rem);
+  letter-spacing: clamp(4px, 1vw, 15px);
+  color: #fff;
+  margin: 0;
+  text-shadow: 0 0 20px rgba(0, 242, 255, 0.2);
+}
+
+[data-home-root] .scanner-mask {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  z-index: 2;
+  pointer-events: none;
+  --mask-x: 50%;
+  --mask-y: 50%;
+  mask-image: radial-gradient(circle 150px at var(--mask-x) var(--mask-y), transparent 0%, black 100%);
+  -webkit-mask-image: radial-gradient(circle 150px at var(--mask-x) var(--mask-y), transparent 0%, black 100%);
+}
+
+@media (max-width: 768px) {
+  [data-home-root] {
+    min-height: 52vh;
+  }
+
+  [data-home-root] .scanner-container {
+    height: 180px;
+    padding: 0 8px;
+  }
+
+  [data-home-root] .statux-hero h1 {
+    font-size: clamp(1.6rem, 10vw, 2.8rem);
+    letter-spacing: clamp(3px, 1.5vw, 7px);
+    line-height: 1.15;
+  }
+
+  [data-home-root] .scanner-mask {
+    mask-image: radial-gradient(circle 95px at var(--mask-x) var(--mask-y), transparent 0%, black 100%);
+    -webkit-mask-image: radial-gradient(circle 95px at var(--mask-x) var(--mask-y), transparent 0%, black 100%);
+  }
 }

@@ -98,6 +98,15 @@ footer {
   color: #bbb;
 }
 
+footer.stx-footer-pending {
+  opacity: 0;
+}
+
+footer.stx-footer-ready {
+  opacity: 1;
+  transition: opacity 0.2s ease;
+}
+
 .caja-del-footer {
   display: flex;
   width: 20%;
