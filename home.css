@@ -65,6 +65,121 @@
   -webkit-mask-image: radial-gradient(circle 150px at var(--mask-x) var(--mask-y), transparent 0%, black 100%);
 }
 
+[data-home-root] .body-bento {
+  background-color: var(--home-bg);
+  color: #ffffff;
+  margin: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 15px;
+}
+
+[data-home-root] .bento-grid {
+  background-color: #fff;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: repeat(2, 220px);
+  gap: 16px;
+  width: 90%;
+  max-width: 1100px;
+  padding: 20px;
+  border-radius: 36px;
+}
+
+[data-home-root] .card-1 { grid-column: span 2; grid-row: span 2; }
+[data-home-root] .card-2 { grid-column: span 2; }
+[data-home-root] .card-3 { grid-column: span 1; }
+[data-home-root] .card-4 { grid-column: span 1; }
+[data-home-root] .card-5 { grid-column: span 2; }
+
+[data-home-root] .statux-card {
+  background: #0a0a0a;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 24px;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+  cursor: pointer;
+  display: flex;
+}
+
+[data-home-root] .card-inner {
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  position: relative;
+  z-index: 2;
+}
+
+[data-home-root] .icon-placeholder {
+  width: 44px;
+  height: 44px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  margin-bottom: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+[data-home-root] .bento-grid .title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  margin: 0;
+  color: #fff;
+}
+
+[data-home-root] .bento-grid .desc {
+  font-size: 0.95rem;
+  color: #666;
+  margin: 8px 0 0 0;
+  line-height: 1.5;
+}
+
+[data-home-root] .statux-card:hover {
+  transform: translateY(-4px) scale(1.01);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), 0 0 20px rgba(0, 242, 255, 0.05);
+}
+
+[data-home-root] .statux-card::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(600px circle at var(--x, 50%) var(--y, 50%), rgba(0, 242, 255, 0.06), transparent 40%);
+  opacity: 0;
+  transition: opacity 0.5s;
+  pointer-events: none;
+}
+
+[data-home-root] .statux-card:hover::after {
+  opacity: 1;
+}
+
+[data-home-root] .card-bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 1;
+  filter: grayscale(100%) contrast(120%);
+  pointer-events: none;
+}
+
+[data-home-root] .icon-placeholder img {
+  width: 60%;
+  height: 60%;
+  object-fit: contain;
+  opacity: 0.8;
+}
+
 @media (max-width: 768px) {
   [data-home-root] {
     min-height: 52vh;
@@ -84,5 +199,40 @@
   [data-home-root] .scanner-mask {
     mask-image: radial-gradient(circle 95px at var(--mask-x) var(--mask-y), transparent 0%, black 100%);
     -webkit-mask-image: radial-gradient(circle 95px at var(--mask-x) var(--mask-y), transparent 0%, black 100%);
+  }
+
+  [data-home-root] .body-bento {
+    padding: 8px;
+  }
+
+  [data-home-root] .bento-grid {
+    width: 100%;
+    padding: 12px;
+    border-radius: 24px;
+    gap: 10px;
+    grid-template-columns: 1fr;
+    grid-template-rows: none;
+  }
+
+  [data-home-root] .card-1,
+  [data-home-root] .card-2,
+  [data-home-root] .card-3,
+  [data-home-root] .card-4,
+  [data-home-root] .card-5 {
+    grid-column: span 1;
+    grid-row: span 1;
+    min-height: 180px;
+  }
+
+  [data-home-root] .card-inner {
+    padding: 20px;
+  }
+
+  [data-home-root] .bento-grid .title {
+    font-size: 1.05rem;
+  }
+
+  [data-home-root] .bento-grid .desc {
+    font-size: 0.9rem;
   }
 }
