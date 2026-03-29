@@ -1,0 +1,35 @@
+[
+  {
+    "id": 1,
+    "title": "Plantillas que aceleran",
+    "desc": "Estructuras listas para producir más rápido y con menos desgaste mental.",
+    "icon": "Plantitux.svg",
+    "bg": "fondo.de.la.web.jpeg"
+  },
+  {
+    "id": 2,
+    "title": "Conocimiento aplicable",
+    "desc": "Aprendizaje práctico para tomar decisiones limpias y ejecutar con criterio.",
+    "icon": "Conocimiento.svg",
+    "bg": "card.jpg"
+  },
+  {
+    "id": 3,
+    "title": "Paquetes inteligentes",
+    "desc": "Recursos agrupados para resolver rápido sin perder foco.",
+    "icon": "Empaquetux.svg",
+    "bg": "fondo.de.la.web.jpeg"
+  },
+  {
+    "id": 4,
+    "title": "Novedades semanales",
+    "icon": "Tracktux.svg",
+    "bg": "card.jpg"
+  },
+  {
+    "id": 5,
+    "title": "Actualizaciones en vivo",
+    "icon": "Getux.svg",
+    "bg": "fondo.de.la.web.jpeg"
+  }
+]
