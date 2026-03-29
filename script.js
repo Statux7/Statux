@@ -28,6 +28,7 @@ const items = $all(".item");
 const navItems = $all(".item");
 const sections = $all(".app-section");
 let navigationLocked = false;
+let lastSectionBeforeEbootux = "Home";
 
 items.forEach(item => {
   item.addEventListener("click", () => {
@@ -170,7 +171,7 @@ function buildEbootuxLikeCard(product) {
         <h3>${escAttr(product.title || "Producto")}</h3>
         <img src="${escAttr(lockIcon)}" alt="estado de acceso">
         ${hasCode ? `<input type="password" class="input-codigo-ebootux" placeholder="Ingresa el código...">` : ""}
-        <button class="btn-acceder-ebootux" type="button">Entrar</button>
+        <button class="btn-acceder-ebootux" type="button"><img src="Login.svg" alt="" class="icono-btn-entrar"><span>Entrar</span></button>
       </div>
 
       <div class="contenedor-de-btn-de-compra">
@@ -408,6 +409,7 @@ const previewYes = previewModal?.querySelector(".preview-si");
 const previewNo = previewModal?.querySelector(".preview-no");
 const previewBuyBtn = previewModal?.querySelector(".btn-de-compra");
 const previewDescription = previewModal?.querySelector(".preview-description");
+let previewSourceCard = null;
 
 if (previewModal) {
   const closeBtn = previewModal.querySelector(".logout-btn");
@@ -427,6 +429,7 @@ document.addEventListener("click", (e) => {
   const yesList = (btn.dataset.yes || "").split(",");
   const noList = (btn.dataset.no || "").split(",");
   const link = btn.dataset.link || "#";
+  previewSourceCard = btn.closest(".ebootux-cards");
 
   if (previewTitle) previewTitle.textContent = title;
   if (previewImage) previewImage.src = image;
@@ -461,6 +464,20 @@ document.addEventListener("click", (e) => {
 
   previewModal.classList.add("active");
 });
+
+if (previewBuyBtn) {
+  previewBuyBtn.addEventListener("click", (e) => {
+    const card = previewSourceCard;
+    if (!card) return;
+    const rawPrice = String(card.dataset.price || "").trim();
+    if (!isFreeProduct(rawPrice)) return;
+
+    e.preventDefault();
+    previewModal?.classList.remove("active");
+    const enterBtn = card.querySelector(".btn-acceder-ebootux");
+    if (enterBtn) enterBtn.click();
+  });
+}
 
 // ============================
 // PREVIEW PLANTITUX
@@ -747,7 +764,7 @@ document.addEventListener("click", async function (e) {
     ebootux.classList.remove("active");
     navigationLocked = false;
     toggleFooterVisibility(true);
-    showSection("Home");
+    showSection(lastSectionBeforeEbootux || "Home");
   }
 });
 
@@ -960,6 +977,8 @@ function toggleFooterVisibility(show) {
 function entrarEnEbootux() {
   const ebootux = document.querySelector(".ebootux-template");
   const appSections = document.querySelectorAll(".app-section");
+  const activeSection = document.querySelector(".app-section.active-section");
+  lastSectionBeforeEbootux = activeSection?.id || lastSectionBeforeEbootux || "Home";
 
   appSections.forEach(section => section.classList.remove("active-section"));
   navItems.forEach(item => item.classList.remove("active"));

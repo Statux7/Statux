@@ -97,6 +97,39 @@ function setupExploreWindow() {
   startAutoSwitch();
 }
 
+let floatingLinesIntervalId = null;
+
+function setupFloatingLines() {
+  const lines = document.querySelectorAll('[data-home-root] .floating-line');
+  if (!lines.length) return;
+
+  const phrases = [
+    '<span class="tag">Domina</span> <span class="attr">el</span> <span class="val">sistema</span>.',
+    '<span class="tag">No</span> <span class="attr">consumas</span>, <span class="val">construye</span>.',
+    '<span class="tag">Menos</span> <span class="attr">ruido</span>, <span class="val">más control</span>.',
+    '<span class="tag">Diseña</span> <span class="attr">tu</span> <span class="val">ventaja</span>.'
+  ];
+
+  const updateText = () => {
+    lines.forEach((line) => {
+      line.classList.add('fade');
+      setTimeout(() => {
+        const random = phrases[Math.floor(Math.random() * phrases.length)];
+        line.innerHTML = random;
+        line.classList.remove('fade');
+      }, 300);
+    });
+  };
+
+  if (floatingLinesIntervalId) {
+    clearInterval(floatingLinesIntervalId);
+    floatingLinesIntervalId = null;
+  }
+
+  updateText();
+  floatingLinesIntervalId = setInterval(updateText, 4000);
+}
+
 async function loadHomeNovedades() {
   const cards = document.querySelectorAll('[data-home-root] .statux-card');
   if (!cards.length) return;
@@ -156,6 +189,7 @@ async function loadHomeSection() {
     setupBentoPointerGlow();
     await loadHomeNovedades();
     setupExploreWindow();
+    setupFloatingLines();
     setFooterReadyState(true);
   } catch (error) {
     target.innerHTML = '<p class="home-loading-error">No se pudo cargar la sección Home.</p>';

@@ -667,6 +667,9 @@ h1 {
 }
 
 .btn-acceder-ebootux {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
   padding: 10px 16px;
   border-radius: 16px;
   border: 3px solid #777;
@@ -832,6 +835,9 @@ h1 {
 }
 
 .btn-acceder-plantitux {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
   padding: 10px 16px;
   border-radius: 16px;
   border: 3px solid #777;
@@ -846,6 +852,12 @@ h1 {
   box-shadow: 0px 0px 10px #0ff;
   color: #0ff;
   border: 3px solid #0ff;
+}
+
+.icono-btn-entrar {
+  width: 17px;
+  height: 17px;
+  object-fit: contain;
 }
 
 /* ================= BOTONES ================= */

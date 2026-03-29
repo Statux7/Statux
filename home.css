@@ -310,6 +310,56 @@
   margin: 0 0 8px 0;
 }
 
+[data-home-root] .canvas {
+  position: relative;
+  width: 100%;
+  height: 500px;
+  background: #000;
+  overflow: hidden;
+}
+
+[data-home-root] .floating-window {
+  position: absolute;
+  top: var(--top);
+  left: var(--left);
+  transform: translate(-50%, -50%);
+  background: rgba(25, 25, 25, 0.7);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  padding: 15px;
+  width: 260px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+  font-family: "Fira Code", monospace;
+  animation: floatingWindows 6s ease-in-out infinite;
+}
+
+[data-home-root] .floating-header {
+  margin-bottom: 10px;
+  color: #666;
+  font-size: 0.75rem;
+}
+
+[data-home-root] .floating-code {
+  font-size: 0.9rem;
+  color: #bbb;
+  min-height: 40px;
+  transition: opacity 0.3s ease;
+}
+
+[data-home-root] .floating-line.fade {
+  opacity: 0;
+}
+
+[data-home-root] .tag { color: #ff0; }
+[data-home-root] .val { color: #00f; }
+[data-home-root] .attr { color: #f00; }
+
+@keyframes floatingWindows {
+  0%, 100% { transform: translate(-50%, -50%) translateY(0px); }
+  50% { transform: translate(-50%, -50%) translateY(-10px); }
+}
+
 @media (max-width: 768px) {
   [data-home-root] {
     min-height: 52vh;
@@ -393,5 +443,19 @@
 
   [data-home-root] .window {
     width: 100%;
+  }
+
+  [data-home-root] .canvas {
+    height: auto;
+    padding: 14px 8px 4px;
+    display: grid;
+    gap: 10px;
+  }
+
+  [data-home-root] .floating-window {
+    position: static;
+    transform: none;
+    width: 100%;
+    animation: none;
   }
 }
