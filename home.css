@@ -76,7 +76,7 @@
 }
 
 [data-home-root] .bento-grid {
-  background-color: #fff;
+  background-color: #333;
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   grid-template-rows: repeat(2, 220px);
