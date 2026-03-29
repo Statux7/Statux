@@ -654,6 +654,7 @@ h1 {
   background: #000;
   color: #0ff;
   font-size: 17px;
+  font-family: 'ubuntu';
   outline: none;
 }
 
@@ -676,6 +677,7 @@ h1 {
   background: transparent;
   color: #777;
   font-size: 17px;
+  font-family: 'ubuntu';
   cursor: pointer;
   transition: 0.55s;
 }
