@@ -2070,6 +2070,10 @@ h1 {
     padding: 10px;
   }
 
+  .ebootux-exit-btn {
+    right: auto;
+  }    
+
   /* Footer */
   footer {
     margin-left: 0;
