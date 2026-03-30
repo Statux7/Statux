@@ -166,6 +166,17 @@
   opacity: 1;
 }
 
+body.no-hover [data-home-root] .statux-card:hover,
+body.stx-no-hover [data-home-root] .statux-card:hover {
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+body.no-hover [data-home-root] .statux-card:hover::after,
+body.stx-no-hover [data-home-root] .statux-card:hover::after {
+  opacity: 0 !important;
+}
+
 [data-home-root] .card-bg {
   position: absolute;
   inset: 10px;

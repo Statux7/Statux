@@ -51,6 +51,43 @@ body.loaded {
   height: 100%;
 }
 
+.loader--stopped .statux-path {
+  animation: none !important;
+  stroke-dashoffset: 0;
+  opacity: 0.4;
+}
+
+.loader-status-text {
+  margin: 8px 0 10px;
+  text-align: center;
+  color: #bbb;
+  font-size: 1rem;
+}
+
+.refrescar {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  width: 140px;
+  background-color: #000000;
+  border: 1px solid #fff;
+  border-radius: 20px;
+  font-size: 1.1rem;
+  color: #bbb;
+  padding: 5px;
+  margin: 0 auto;
+  cursor: pointer;
+}
+
+.refrescar img {
+  width: 24px;
+  height: 24px;
+}
+
+.refrescar p {
+  margin: 0;
+}
+
 .statux-path {
   fill: none;
   stroke: #fff;
@@ -2965,6 +3002,23 @@ body.stx-reduce-motion *::after {
   height: 18px;
 }
 
+.stx-icon-btn.copy {
+  position: relative;
+}
+
+.stx-icon-btn.copy .icon-check {
+  display: none;
+}
+
+.stx-icon-btn.copy.stx-copied .icon-copy {
+  display: none;
+}
+
+.stx-icon-btn.copy.stx-copied .icon-check {
+  display: inline-block;
+  animation: pop 0.25s ease;
+}
+
 .icon-btn:hover, .stx-icon-btn:hover {
   border-color: #0ff;
   color: #0ff;
@@ -3002,6 +3056,50 @@ body.stx-no-hover *:hover {
   transform: none !important;
   box-shadow: none !important;
   filter: none !important;
+}
+
+body.no-hover .redes-sociales:hover,
+body.stx-no-hover .redes-sociales:hover {
+  color: #bbb !important;
+}
+
+body.no-hover .item:hover,
+body.stx-no-hover .item:hover {
+  border-color: transparent !important;
+  color: #777777 !important;
+}
+
+body.no-hover .btn-acceder-ebootux:hover,
+body.no-hover .btn-de-compra:hover,
+body.no-hover .btn-de-vista-previa:hover,
+body.no-hover .btn-acceder-plantitux:hover,
+body.no-hover .btn-de-vista-previa-plantitux:hover,
+body.no-hover .btn-modal-ebootux:hover,
+body.no-hover .settings-modal-item:hover,
+body.no-hover .icon-btn:hover,
+body.no-hover .stx-icon-btn:hover,
+body.no-hover .dwl-statux:hover,
+body.stx-no-hover .btn-acceder-ebootux:hover,
+body.stx-no-hover .btn-de-compra:hover,
+body.stx-no-hover .btn-de-vista-previa:hover,
+body.stx-no-hover .btn-acceder-plantitux:hover,
+body.stx-no-hover .btn-de-vista-previa-plantitux:hover,
+body.stx-no-hover .btn-modal-ebootux:hover,
+body.stx-no-hover .settings-modal-item:hover,
+body.stx-no-hover .icon-btn:hover,
+body.stx-no-hover .stx-icon-btn:hover,
+body.stx-no-hover .dwl-statux:hover {
+  color: #777 !important;
+  border-color: #777 !important;
+  background-color: transparent !important;
+}
+
+body.no-hover .icon-btn.delete:hover,
+body.no-hover .stx-icon-btn.delete:hover,
+body.stx-no-hover .icon-btn.delete:hover,
+body.stx-no-hover .stx-icon-btn.delete:hover {
+  color: #bbb !important;
+  border-color: #444 !important;
 }
 
 body.focus-mode .barra-de-navegacion,
