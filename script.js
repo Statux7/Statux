@@ -238,6 +238,43 @@ function sectionContainer(section) {
   return $(`.contenedor-de-todos-los-${section}`) || $(`[data-json-section="${section}"]`);
 }
 
+let lazyAnimationObserver = null;
+
+function initLazyAnimationObserver() {
+  if (lazyAnimationObserver) return lazyAnimationObserver;
+  lazyAnimationObserver = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (!entry.isIntersecting) return;
+      entry.target.classList.add("activo");
+      lazyAnimationObserver.unobserve(entry.target);
+    });
+  }, { threshold: 0.15 });
+  return lazyAnimationObserver;
+}
+
+function observeLazyAnimations(root = document) {
+  const observer = initLazyAnimationObserver();
+  const selectors = [
+    ".ebootux-cards",
+    ".getux-cards",
+    ".plantitux-cards",
+    ".movitux-cards",
+    ".tracktux-cards",
+    ".mindtux-cards",
+    ".soundtux-cards",
+    ".marketux-cards",
+    ".empaquetux-cards",
+    ".ebootux-block",
+    ".statux-card"
+  ];
+
+  root.querySelectorAll(selectors.join(",")).forEach((element) => {
+    if (element.classList.contains("animar") && element.classList.contains("activo")) return;
+    element.classList.add("animar");
+    observer.observe(element);
+  });
+}
+
 function renderProducts(products) {
   const knownSections = ["ebootux", "getux", "plantitux", "movitux"];
   knownSections.forEach((section) => {
@@ -264,6 +301,7 @@ function renderProducts(products) {
     }).join("\n");
   });
 
+  observeLazyAnimations(document);
 }
 
 
@@ -345,6 +383,28 @@ async function fetchAndRenderCards() {
   const candidates = [`${CARDS_JSON_URL}?${cacheBuster}`, `/${CARDS_JSON_URL}?${cacheBuster}`, CARDS_JSON_URL, `/${CARDS_JSON_URL}`];
   let lastError = null;
   const knownSections = ["ebootux", "getux", "plantitux", "movitux"];
+  let loadingTimedOut = false;
+  let loadingFinished = false;
+  let loadingTimeoutId = null;
+
+  const stopLoadingAnimationAndShowRetry = () => {
+    if (loadingFinished) return;
+    loadingTimedOut = true;
+    knownSections.forEach((section) => {
+      const container = sectionContainer(section);
+      if (!container) return;
+      container.querySelector(".loader--draw")?.classList.add("loader--stopped");
+      const label = container.querySelector(".loader-status-text");
+      if (label) label.textContent = "Intentar otra vez";
+      const retryBtn = container.querySelector(".refrescar");
+      if (!retryBtn) return;
+      retryBtn.hidden = false;
+      retryBtn.addEventListener("click", () => {
+        fetchAndRenderCards();
+      }, { once: true });
+    });
+  };
+
   const showLoaders = () => {
     knownSections.forEach((section) => {
       const container = sectionContainer(section);
@@ -354,10 +414,21 @@ async function fetchAndRenderCards() {
         <svg viewBox="0 0 500 500" aria-hidden="true" focusable="false">
           <path class="statux-path" d="M225.999908,329.843475 C208.754364,329.843475 192.008804,329.843475 174.326538,329.843475 C183.611938,341.056976 192.271851,351.515106 201.261032,362.370880 C198.201035,364.906006 195.220856,367.375000 191.866653,370.153839 C162.266953,334.482910 132.839920,299.020081 103.021248,263.085266 C106.050591,260.508453 109.014664,257.987183 112.288124,255.202759 C123.075844,268.182800 133.683395,280.943848 144.288391,293.707062 C150.143509,300.753723 155.873627,307.910797 161.941696,314.768921 C163.266907,316.266693 165.789505,317.506073 167.764267,317.511322 C222.420624,317.657349 277.077484,317.644531 331.734070,317.558258 C333.576935,317.555359 335.885620,317.044189 337.189117,315.884308 C353.355225,301.499847 369.375000,286.950897 385.765564,272.143280 C384.529877,271.209564 383.585388,270.391602 382.544098,269.724823 C368.535309,260.754486 354.548309,251.748917 340.451202,242.919220 C338.612091,241.767288 336.192261,240.988205 334.037231,240.978699 C305.376312,240.852310 276.714447,240.848129 248.053604,240.980316 C245.716446,240.991104 243.135544,241.783005 241.090210,242.951279 C224.796158,252.258209 208.604172,261.743835 192.237350,271.258118 C154.250488,236.330368 116.254845,201.394531 77.970634,166.193390 C80.767830,163.147354 83.423027,160.255966 86.187958,157.245056 C95.312439,165.605209 104.133522,173.687347 113.192673,181.987640 C139.652328,158.549835 165.922913,135.279526 192.507385,111.731171 C195.126694,114.674324 197.713943,117.581436 200.576889,120.798340 C193.693237,126.946930 186.950073,132.970047 179.546585,139.582977 C225.233124,139.582977 269.891693,139.582977 316.079834,139.582977 C305.787048,133.226379 296.696075,127.611984 287.241547,121.773094 C289.378204,118.239273 291.391663,114.909187 293.531769,111.369659 C323.998322,130.067764 354.320984,148.677551 384.869934,167.426239 C382.716797,170.945099 380.661011,174.304886 378.509949,177.820343 C365.633148,169.905273 352.947998,161.983688 340.103790,154.329025 C337.825287,152.971115 334.886292,152.067215 332.249664,152.060959 C278.093140,151.932190 223.936127,151.926331 169.779755,152.085236 C167.281876,152.092560 164.276749,153.270981 162.376389,154.910614 C149.017395,166.436722 135.886520,178.227234 122.291122,190.280457 C124.253517,192.145004 125.982010,193.833664 127.759735,195.468811 C138.674179,205.507919 149.487091,215.663086 160.621109,225.452835 C162.729492,227.306671 166.117020,228.585266 168.931488,228.617218 C191.257889,228.870651 213.589355,228.856125 235.916687,228.646942 C239.058304,228.617493 242.523361,227.688934 245.263626,226.151535 C259.913574,217.932327 274.475555,209.543991 288.845490,200.846649 C292.481537,198.645935 294.928314,199.068649 298.237244,201.202606 C328.990509,221.035446 359.838196,240.721878 390.662048,260.445282 C392.184418,261.419434 393.739471,262.342529 395.423279,263.377930 C404.486969,255.199051 413.382843,247.171646 422.686096,238.776596 C425.335449,241.677872 427.970490,244.563492 430.894501,247.765564 C385.515686,288.799805 340.207825,329.769928 294.767517,370.859802 C291.938629,367.680725 289.408600,364.837463 286.673309,361.763519 C298.251312,351.268311 309.629120,340.954590 321.886566,329.843475 C289.317291,329.843475 257.908600,329.843475 225.999908,329.843475 Z"></path>
         </svg>
-      </div>`;
+      </div>
+      <p class="loader-status-text">Cargando...</p>
+      <button class="refrescar" type="button" hidden>
+        <p>Refrescar</p><img src="iconos/refresh_24dp_00FFFF_FILL0_wght400_GRAD0_opsz24.svg" alt="Refrescar">
+      </button>`;
     });
+    if (loadingTimeoutId) clearTimeout(loadingTimeoutId);
+    loadingTimeoutId = setTimeout(stopLoadingAnimationAndShowRetry, 7000);
   };
   const hideLoaders = () => {
+    loadingFinished = true;
+    if (loadingTimeoutId) {
+      clearTimeout(loadingTimeoutId);
+      loadingTimeoutId = null;
+    }
     knownSections.forEach((section) => {
       const container = sectionContainer(section);
       if (!container) return;
@@ -395,7 +466,9 @@ async function fetchAndRenderCards() {
     }
   }
 
-  hideLoaders();
+  if (!loadingTimedOut) {
+    hideLoaders();
+  }
   console.info("cards.json no disponible; se usan cards estáticas si existen.", lastError);
 }
 
@@ -759,6 +832,10 @@ document.addEventListener("click", async function (e) {
   if (e.target.closest(".ebootux-exit-btn")) {
     const ebootux = document.querySelector(".ebootux-template");
     if (!ebootux) return;
+    if (typeof ebootuxHeaderCleanup === "function") {
+      ebootuxHeaderCleanup();
+      ebootuxHeaderCleanup = null;
+    }
 
     ebootux.classList.add("hidden");
     ebootux.classList.remove("active");
@@ -880,6 +957,7 @@ function initSettingsSystem() {
 
 function markBodyLoaded() {
   document.body.classList.add("loaded");
+  observeLazyAnimations(document);
 }
 
 if (document.readyState !== "loading") {
@@ -888,6 +966,8 @@ if (document.readyState !== "loading") {
   document.addEventListener("DOMContentLoaded", markBodyLoaded, { once: true });
 }
 window.addEventListener("load", markBodyLoaded, { once: true });
+
+let ebootuxHeaderCleanup = null;
 
 function cargarEbootuxDesdeCard(card) {
   const ebootux = document.querySelector(".ebootux-template");
@@ -898,9 +978,12 @@ function cargarEbootuxDesdeCard(card) {
 
   const h1 = ebootux.querySelector("[data-ebootux-h1]");
   const subtitle = ebootux.querySelector("[data-ebootux-subtitle]");
+  const headerTitle = ebootux.querySelector("[data-ebootux-header-title]");
+  const titulo = card.dataset.ebootuxTitle || "";
 
-  if (h1) h1.textContent = card.dataset.ebootuxTitle || "";
+  if (h1) h1.textContent = titulo;
   if (subtitle) subtitle.textContent = card.dataset.ebootuxSubtitle || "";
+  if (headerTitle) headerTitle.textContent = titulo;
 
   content.innerHTML = "";
 
@@ -912,6 +995,7 @@ function cargarEbootuxDesdeCard(card) {
     .filter(n => n !== null);
 
   const totalBlocks = blockNumbers.length ? Math.max(...blockNumbers) : 0;
+  const blockTitlesForRange = [];
 
   for (let i = 1; i <= totalBlocks; i++) {
     const clone = template.content.cloneNode(true);
@@ -929,6 +1013,10 @@ function cargarEbootuxDesdeCard(card) {
     const mediaContainer = clone.querySelector("[data-media-container]");
     const imgTag = clone.querySelector("[data-media-img]");
     const videoTag = clone.querySelector("[data-media-video]");
+    const article = clone.querySelector("article");
+
+    if (article) article.dataset.blockIndex = String(i);
+    blockTitlesForRange.push(title || `Bloque ${i}`);
 
     if (h2) {
       if (title) { h2.textContent = title; h2.style.display = "block"; }
@@ -966,6 +1054,10 @@ function cargarEbootuxDesdeCard(card) {
     if (mediaContainer) mediaContainer.hidden = !hayMedia;
     content.appendChild(clone);
   }
+
+  ebootux.dataset.blockTitles = JSON.stringify(blockTitlesForRange);
+  ebootux.dataset.totalBlocks = String(totalBlocks);
+  observeLazyAnimations(ebootux);
 }
 
 function toggleFooterVisibility(show) {
@@ -991,6 +1083,100 @@ function entrarEnEbootux() {
   navigationLocked = true;
   toggleFooterVisibility(false);
   window.scrollTo({ top: 0, behavior: "smooth" });
+  initEbootuxHeader();
+}
+
+function initEbootuxHeader() {
+  const ebootux = document.querySelector(".ebootux-template");
+  if (!ebootux) return;
+
+  if (typeof ebootuxHeaderCleanup === "function") {
+    ebootuxHeaderCleanup();
+    ebootuxHeaderCleanup = null;
+  }
+
+  const progressFill = document.getElementById("ebootuxProgressFill");
+  const navBtn = document.getElementById("ebootuxNavBtn");
+  const navPanel = document.getElementById("ebootuxNavPanel");
+  const range = document.getElementById("ebootuxRange");
+  const rangeNum = document.getElementById("ebootuxRangeNum");
+  const navTarget = document.getElementById("ebootuxNavTarget");
+  const content = document.getElementById("ebootux-content");
+  const settingsOpenBtn = document.getElementById("ebootuxSettingsBtn");
+
+  const totalBlocks = parseInt(ebootux.dataset.totalBlocks || "0", 10);
+  const safeTotal = Math.max(totalBlocks, 1);
+  let blockTitles = [];
+  try {
+    blockTitles = JSON.parse(ebootux.dataset.blockTitles || "[]");
+  } catch (_) {
+    blockTitles = [];
+  }
+
+  if (range) {
+    range.min = "1";
+    range.max = String(safeTotal);
+    range.value = "1";
+  }
+  if (rangeNum) rangeNum.textContent = `1 / ${safeTotal}`;
+  if (navTarget) navTarget.textContent = blockTitles[0] || `Bloque 1`;
+  if (progressFill) progressFill.style.width = "0%";
+  if (navPanel) navPanel.classList.add("hidden");
+  if (navBtn) {
+    navBtn.classList.remove("active");
+    navBtn.setAttribute("aria-expanded", "false");
+  }
+
+  const handleNavToggle = () => {
+    if (!navPanel || !navBtn) return;
+    const isHidden = navPanel.classList.contains("hidden");
+    navPanel.classList.toggle("hidden", !isHidden);
+    navBtn.classList.toggle("active", isHidden);
+    navBtn.setAttribute("aria-expanded", isHidden ? "true" : "false");
+  };
+
+  const handleRangeInput = () => {
+    if (!range) return;
+    const val = parseInt(range.value, 10) || 1;
+    if (rangeNum) rangeNum.textContent = `${val} / ${safeTotal}`;
+    if (navTarget) navTarget.textContent = blockTitles[val - 1] || `Bloque ${val}`;
+
+    const allBlocks = content?.querySelectorAll(".ebootux-block");
+    allBlocks?.forEach((block) => block.classList.remove("ebootux-block--target"));
+    const target = content?.querySelector(`[data-block-index="${val}"]`);
+    if (target) {
+      target.classList.add("ebootux-block--target");
+      target.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    if (progressFill) progressFill.style.width = `${Math.round((val / safeTotal) * 100)}%`;
+  };
+
+  const onScroll = () => {
+    const doc = document.scrollingElement || document.documentElement;
+    const scrolled = doc.scrollTop;
+    const total = doc.scrollHeight - doc.clientHeight;
+    const pct = total > 0 ? Math.round((scrolled / total) * 100) : 0;
+    if (progressFill) progressFill.style.width = `${pct}%`;
+  };
+
+  const handleSettingsOpen = () => {
+    const mainSettingsBtn = document.querySelector(".floating-btn.settings-btn");
+    mainSettingsBtn?.click();
+  };
+
+  navBtn?.addEventListener("click", handleNavToggle);
+  range?.addEventListener("input", handleRangeInput);
+  window.addEventListener("scroll", onScroll, { passive: true });
+  settingsOpenBtn?.addEventListener("click", handleSettingsOpen);
+
+  ebootuxHeaderCleanup = () => {
+    navBtn?.removeEventListener("click", handleNavToggle);
+    range?.removeEventListener("input", handleRangeInput);
+    settingsOpenBtn?.removeEventListener("click", handleSettingsOpen);
+    window.removeEventListener("scroll", onScroll);
+    if (progressFill) progressFill.style.width = "0%";
+  };
 }
 
 // ===============================
@@ -1324,7 +1510,8 @@ const stxRuntime = (() => {
 
         <div class="code-actions stx-code-actions">
           <button class="icon-btn stx-icon-btn copy" type="button" data-stx-action="copy" data-stx-id="${escAttr(item.id)}" aria-label="Copiar código">
-            <img src="content_copy.svg" alt="Copiar código">
+            <img src="content_copy.svg" class="icon-copy" alt="Copiar código">
+            <img src="check_circle.svg" class="icon-check" alt="Copiado">
           </button>
           <button class="icon-btn stx-icon-btn delete" type="button" data-stx-action="delete" data-stx-id="${escAttr(item.id)}" aria-label="Eliminar código">
             <img src="iconos/delete_24dp_FF0000_FILL0_wght400_GRAD0_opsz24.svg" alt="Eliminar código">
@@ -1341,7 +1528,7 @@ const stxRuntime = (() => {
       await navigator.clipboard.writeText(found.code);
       if (button) {
         button.classList.add("stx-copied");
-        setTimeout(() => button.classList.remove("stx-copied"), 900);
+        setTimeout(() => button.classList.remove("stx-copied"), 2000);
       }
     } catch (_) {
       mostrarModal("Copiado no disponible", "No se pudo copiar el código en este dispositivo.");

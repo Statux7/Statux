@@ -51,6 +51,54 @@ body.loaded {
   height: 100%;
 }
 
+.loader--stopped .statux-path {
+  animation: none !important;
+  stroke-dashoffset: 0;
+  opacity: 0.4;
+}
+
+.loader-status-text {
+  margin: 8px 0 10px;
+  text-align: center;
+  color: #bbb;
+  font-size: 1rem;
+}
+
+.refrescar {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  width: 140px;
+  background-color: #000000;
+  border: 1px solid #fff;
+  border-radius: 20px;
+  font-size: 1.1rem;
+  color: #bbb;
+  padding: 5px;
+  margin: 0 auto;
+  cursor: pointer;
+}
+
+.refrescar img {
+  width: 24px;
+  height: 24px;
+}
+
+.refrescar p {
+  margin: 0;
+}
+
+.animar {
+  opacity: 0;
+  transform: translateY(50px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+.animar.activo {
+  opacity: 1;
+  transform: translateY(0);
+}
+
 .statux-path {
   fill: none;
   stroke: #fff;
@@ -1708,9 +1756,170 @@ h1 {
   color: #fff;
   width: 100%;
   min-height: 100vh;
-  padding: 40px 20px;
+  padding: 0 20px 40px;
   box-sizing: border-box;
   font-family: 'ubuntu';
+}
+
+.ebootux-header-bar {
+  position: sticky;
+  top: 0;
+  z-index: 500;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  background: #111;
+  border-bottom: 1px solid #1f1f1f;
+  padding: 0 16px;
+  height: 56px;
+}
+
+.ebootux-header-title {
+  flex: 1;
+  text-align: center;
+  font-size: 15px;
+  font-weight: 500;
+  color: #e0e0e0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ebootux-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ebootux-header-bar .ebootux-exit-btn {
+  position: static;
+  width: 36px;
+  height: 36px;
+  padding: 6px;
+  border: 1px solid #2a2a2a;
+  border-radius: 10px;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: border-color 0.3s;
+}
+
+.ebootux-header-bar .ebootux-exit-btn img {
+  width: 20px;
+  height: 20px;
+}
+
+.ebootux-nav-btn {
+  width: 36px;
+  height: 36px;
+  border: 1px solid #2a2a2a;
+  border-radius: 10px;
+  background: transparent;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #777;
+  transition: border-color 0.3s, color 0.3s;
+  flex-shrink: 0;
+}
+
+.ebootux-nav-btn svg {
+  width: 18px;
+  height: 18px;
+}
+
+.ebootux-header-bar .ebootux-cfg-btn {
+  width: 36px;
+  height: 36px;
+  border: 1px solid #2a2a2a;
+  border-radius: 10px;
+  background: transparent;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: border-color 0.3s;
+}
+
+.ebootux-header-bar .ebootux-cfg-btn img {
+  width: 20px;
+  height: 20px;
+}
+
+.ebootux-nav-btn.active {
+  border-color: #0ff;
+  color: #0ff;
+}
+
+.ebootux-progress-track {
+  position: sticky;
+  top: 56px;
+  z-index: 499;
+  height: 2px;
+  background: #1a1a1a;
+}
+
+.ebootux-progress-fill {
+  height: 100%;
+  width: 0%;
+  background: #00ffff;
+  border-radius: 1px;
+  transition: width 0.2s ease;
+}
+
+.ebootux-nav-panel {
+  position: sticky;
+  top: 58px;
+  z-index: 498;
+  background: #0d0d0d;
+  border-bottom: 1px solid #1a1a1a;
+  padding: 12px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.ebootux-nav-panel.hidden {
+  display: none;
+}
+
+.ebootux-nav-label {
+  font-size: 11px;
+  color: #444;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.ebootux-nav-target {
+  font-size: 13px;
+  color: #00ffff;
+  min-height: 18px;
+  font-weight: 500;
+}
+
+.ebootux-nav-range-wrap {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.ebootux-range {
+  flex: 1;
+  accent-color: #00ffff;
+  cursor: pointer;
+}
+
+.ebootux-range-num {
+  font-size: 12px;
+  color: #555;
+  min-width: 42px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
 }
 
 .ebootux-hero {
@@ -1776,6 +1985,23 @@ h1 {
 
 /* RESPONSIVE */
 @media (max-width: 768px) {
+  .ebootux-header-title {
+    font-size: 13px;
+  }
+
+  .ebootux-header-bar {
+    padding: 0 10px;
+    height: 50px;
+  }
+
+  .ebootux-progress-track {
+    top: 50px;
+  }
+
+  .ebootux-nav-panel {
+    top: 52px;
+  }
+
   .ebootux-hero {
     padding: 28px;
   }
@@ -1830,19 +2056,20 @@ h1 {
 }
 
 .ebootux-exit-btn {
-  position: fixed;
-  top: 20px;
-  right: 20px;
   background: transparent;
   border: 3px solid #0ff;
   border-radius: 12px;
   padding: 6px;
   cursor: pointer;
-  z-index: 9999;
 }
 
 .ebootux-exit-btn img {
   width: 32px;
+}
+
+.ebootux-block.ebootux-block--target {
+  border-color: rgba(0, 255, 255, 0.2);
+  transition: border-color 0.4s ease;
 }
 
 
@@ -2072,7 +2299,7 @@ h1 {
 
   .ebootux-exit-btn {
     right: auto;
-  }    
+  }
 
   /* Footer */
   footer {
@@ -2166,6 +2393,15 @@ h1 {
     margin: auto
   }
 
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .ebootux-header-bar .ebootux-exit-btn:hover,
+  .ebootux-header-bar .ebootux-cfg-btn:hover,
+  .ebootux-nav-btn:hover {
+    border-color: #0ff;
+    color: #0ff;
+  }
 }
   
   
@@ -2965,6 +3201,23 @@ body.stx-reduce-motion *::after {
   height: 18px;
 }
 
+.stx-icon-btn.copy {
+  position: relative;
+}
+
+.stx-icon-btn.copy .icon-check {
+  display: none;
+}
+
+.stx-icon-btn.copy.stx-copied .icon-copy {
+  display: none;
+}
+
+.stx-icon-btn.copy.stx-copied .icon-check {
+  display: inline-block;
+  animation: pop 0.25s ease;
+}
+
 .icon-btn:hover, .stx-icon-btn:hover {
   border-color: #0ff;
   color: #0ff;
@@ -3002,6 +3255,50 @@ body.stx-no-hover *:hover {
   transform: none !important;
   box-shadow: none !important;
   filter: none !important;
+}
+
+body.no-hover .redes-sociales:hover,
+body.stx-no-hover .redes-sociales:hover {
+  color: #bbb !important;
+}
+
+body.no-hover .item:hover,
+body.stx-no-hover .item:hover {
+  border-color: transparent !important;
+  color: #777777 !important;
+}
+
+body.no-hover .btn-acceder-ebootux:hover,
+body.no-hover .btn-de-compra:hover,
+body.no-hover .btn-de-vista-previa:hover,
+body.no-hover .btn-acceder-plantitux:hover,
+body.no-hover .btn-de-vista-previa-plantitux:hover,
+body.no-hover .btn-modal-ebootux:hover,
+body.no-hover .settings-modal-item:hover,
+body.no-hover .icon-btn:hover,
+body.no-hover .stx-icon-btn:hover,
+body.no-hover .dwl-statux:hover,
+body.stx-no-hover .btn-acceder-ebootux:hover,
+body.stx-no-hover .btn-de-compra:hover,
+body.stx-no-hover .btn-de-vista-previa:hover,
+body.stx-no-hover .btn-acceder-plantitux:hover,
+body.stx-no-hover .btn-de-vista-previa-plantitux:hover,
+body.stx-no-hover .btn-modal-ebootux:hover,
+body.stx-no-hover .settings-modal-item:hover,
+body.stx-no-hover .icon-btn:hover,
+body.stx-no-hover .stx-icon-btn:hover,
+body.stx-no-hover .dwl-statux:hover {
+  color: #777 !important;
+  border-color: #777 !important;
+  background-color: transparent !important;
+}
+
+body.no-hover .icon-btn.delete:hover,
+body.no-hover .stx-icon-btn.delete:hover,
+body.stx-no-hover .icon-btn.delete:hover,
+body.stx-no-hover .stx-icon-btn.delete:hover {
+  color: #bbb !important;
+  border-color: #444 !important;
 }
 
 body.focus-mode .barra-de-navegacion,

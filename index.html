@@ -352,10 +352,38 @@
         
                  <!-- PLANTILLA BASE EBOOTUX (SPA / SCROLL / REUTILIZABLE) -->
 <section class="ebootux-template hidden">
+  <div class="ebootux-header-bar">
+    <button class="ebootux-exit-btn" aria-label="Salir">
+      <img src="Logout.svg" alt="Salir">
+    </button>
 
-  <button class="ebootux-exit-btn">
-    <img src="Logout.svg" alt="Salir">
-  </button>
+    <span class="ebootux-header-title" data-ebootux-header-title></span>
+
+    <div class="ebootux-header-actions">
+      <button class="ebootux-nav-btn" id="ebootuxNavBtn" aria-label="Ir a bloque" aria-expanded="false" type="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+          <circle cx="12" cy="5" r="1.2"/><circle cx="12" cy="12" r="1.2"/><circle cx="12" cy="19" r="1.2"/>
+          <line x1="15" y1="5" x2="21" y2="5"/><line x1="15" y1="12" x2="21" y2="12"/><line x1="15" y1="19" x2="21" y2="19"/>
+        </svg>
+      </button>
+      <button class="ebootux-cfg-btn" id="ebootuxSettingsBtn" type="button" aria-label="Configuración">
+        <img src="iconos/settings_24dp_00FFFF_FILL0_wght400_GRAD0_opsz24.svg" alt="Configuración">
+      </button>
+    </div>
+  </div>
+
+  <div class="ebootux-progress-track">
+    <div class="ebootux-progress-fill" id="ebootuxProgressFill"></div>
+  </div>
+
+  <div class="ebootux-nav-panel hidden" id="ebootuxNavPanel">
+    <span class="ebootux-nav-label">ir al bloque</span>
+    <span class="ebootux-nav-target" id="ebootuxNavTarget"></span>
+    <div class="ebootux-nav-range-wrap">
+      <input type="range" class="ebootux-range" id="ebootuxRange" min="1" max="1" value="1" step="1">
+      <span class="ebootux-range-num" id="ebootuxRangeNum">1 / 1</span>
+    </div>
+  </div>
 
   <!-- HERO -->
   <header class="ebootux-hero">
