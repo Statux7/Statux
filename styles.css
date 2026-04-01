@@ -251,8 +251,7 @@ footer.stx-footer-ready {
   flex-shrink: 0;
   display: flex;
   width: 90%;
-  height: 48px;
-  border: 3px solid transparent;
+  height: 55px;
   border-radius: 12px;
   align-items: center;
   text-decoration: none;
@@ -267,14 +266,15 @@ footer.stx-footer-ready {
 }
 
 .item.active {
-  border: 3px solid #00ffff;
+  background-color: #111;
   color: #00ffff;
 }
 
 .item:hover{
-  border: 3px solid #000000;
+  background-color: #222;
   color: #00ffff;
 }
+
 
 .iconos-de-navegacion {
   width: 32px;

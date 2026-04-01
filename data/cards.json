@@ -132,16 +132,16 @@
       "blocks": []
     },
     {
-      "type": "",
-      "section": "",
-      "title": "Psicología Oscura",
+      "type": "getux",
+      "section": "getux",
+      "title": "Domina el storytelling",
       "subtitle": "",
       "code": "",
       "price": "",
       "image": "",
-      "description": "Este Getux no está aquí para convertirte en alguien que no eres. Está aquí para ayudarte a dejar de sabotearte y empezar a jugar en tu mejor nivel.",
-      "yes": "✔ Acceso inmediato",
-      "no": "❌ Videos,❌ Imagenes,❌ Archivo descargable",
+      "description": "",
+      "yes": "✔ ,✔ ,✔ ",
+      "no": "❌ ,❌ ,❌ ",
       "link": "#",
       "blocks": [
         {
@@ -180,7 +180,7 @@
       "title": "Arquitectura Mental",
       "subtitle": "El cerebro piensa. La mente decide qué pensamientos gobiernan tu vida.",
       "code": "2JRRrc-84DN",
-      "price": "2.99",
+      "price": "5.99",
       "image": "portadas/hjt2345tgb.jpeg",
       "description": "Tu mente no percibe la realidad de forma neutral. Filtra, interpreta y distorsiona constantemente la información que recibe. En este Ebóotux descubrirás los mecanismos psicológicos que influyen en cómo piensas, decides y recuerdas. Una guía clara para entender los efectos invisibles que moldean tu mente.",
       "yes": "✔ Acceso inmediato",
