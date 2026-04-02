@@ -205,24 +205,27 @@ async function loadHomeSection() {
   function ready(fn) { if (document.readyState !== 'loading') fn(); else document.addEventListener('DOMContentLoaded', fn); }
   // 1. OFFLINE MODAL
   ready(() => {
-    const btnAdvanced = document.getElementById('settingsAdvancedBtn');
     const offlineModal = document.getElementById('stx-offline-modal');
+    if (!offlineModal) return;
     const btnClose = document.getElementById('stx-offline-close');
     const overlay = offlineModal?.querySelector('.stx-modal-overlay');
     const chk = document.getElementById('stx-offline-toggle');
-    // Limpia eventos
-    if (btnAdvanced) {
-      btnAdvanced.replaceWith(btnAdvanced.cloneNode(true));
-    }
     const btnAdv = document.getElementById('settingsAdvancedBtn');
     btnAdv?.addEventListener('click', (e)=>{
       e.preventDefault();
+      e.stopPropagation();
       offlineModal.classList.remove('stx-invisible');
       setTimeout(()=>offlineModal.classList.add('stx-active'),10);
+      const url = new URL(window.location.href);
+      url.searchParams.set('modal', 'offline');
+      window.history.pushState({}, '', url);
     });
     function closeOfflineModal() {
       offlineModal.classList.remove('stx-active');
       setTimeout(()=>offlineModal.classList.add('stx-invisible'),170);
+      const url = new URL(window.location.href);
+      url.searchParams.delete('modal');
+      window.history.replaceState({}, '', url);
     }
     btnClose?.addEventListener('click', closeOfflineModal);
     overlay?.addEventListener('click', closeOfflineModal);
@@ -241,6 +244,7 @@ async function loadHomeSection() {
   // 2. MODAL CONFIRMACIÓN ELIMINAR CÓDIGO
   ready(() => {
     const confirmModal = document.getElementById('stx-confirm-modal');
+    if (!confirmModal) return;
     const btnClose = document.getElementById('stx-confirm-close');
     const overlay = confirmModal?.querySelector('.stx-modal-overlay');
     const btnCancel = document.getElementById('stx-confirm-cancel');
@@ -260,11 +264,17 @@ async function loadHomeSection() {
       confirmDeleteCodeId = codeId;
       confirmModal.classList.remove('stx-invisible');
       setTimeout(()=>confirmModal.classList.add('stx-active'),10);
+      const url = new URL(window.location.href);
+      url.searchParams.set('modal', 'confirm-delete');
+      window.history.pushState({}, '', url);
     }
     function closeConfirmModal() {
       confirmModal.classList.remove('stx-active');
       setTimeout(()=>confirmModal.classList.add('stx-invisible'),180);
       confirmDeleteCodeId = null;
+      const url = new URL(window.location.href);
+      url.searchParams.delete('modal');
+      window.history.replaceState({}, '', url);
     }
     btnClose?.addEventListener('click', closeConfirmModal);
     btnCancel?.addEventListener('click', closeConfirmModal);

@@ -1773,6 +1773,10 @@ h1 {
   border-bottom: 1px solid #1f1f1f;
   padding: 0 16px;
   height: 56px;
+  width: min(980px, calc(100vw - 26px));
+  margin: 0 auto;
+  border-radius: 0 0 18px 18px;
+  box-sizing: border-box;
 }
 
 .ebootux-header-title {
@@ -1790,6 +1794,29 @@ h1 {
   display: flex;
   align-items: center;
   gap: 8px;
+}
+
+.ebootux-float-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: #8f8f8f;
+  user-select: none;
+}
+
+.ebootux-float-toggle input {
+  accent-color: #00ffff;
+}
+
+.ebootux-template:not(.header-floating) .ebootux-header-bar {
+  top: 0;
+  width: 100%;
+  border-radius: 0;
+}
+
+.ebootux-template.header-floating .ebootux-header-bar {
+  top: 12px;
 }
 
 .ebootux-header-bar .ebootux-exit-btn {
@@ -1992,6 +2019,7 @@ h1 {
   .ebootux-header-bar {
     padding: 0 10px;
     height: 50px;
+    width: calc(100vw - 12px);
   }
 
   .ebootux-progress-track {
@@ -2607,6 +2635,19 @@ h1 {
   gap: 12px;
   align-items: center;
   z-index: 1505;
+}
+
+body.in-ebootux .floating-container {
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(12px);
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+body.in-ebootux .floating-container.ebootux-floating-visible {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
 }
 
 .floating-btn {

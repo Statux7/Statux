@@ -29,6 +29,7 @@ const navItems = $all(".item");
 const sections = $all(".app-section");
 let navigationLocked = false;
 let lastSectionBeforeEbootux = "Home";
+let currentCardSlug = "";
 
 items.forEach(item => {
   item.addEventListener("click", () => {
@@ -90,7 +91,35 @@ function showSection(id) {
     mezclarCardsEnSeccion(target);
   }
   updateNavActiveForSection(id);
+  setUrlState({ section: id, keepCard: false, keepModal: false, replace: true });
   window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+function slugify(value) {
+  return String(value || "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
+function setUrlState({ section, modal, card, keepCard = true, keepModal = true, replace = false } = {}) {
+  const nextUrl = new URL(window.location.href);
+  if (section) nextUrl.hash = `#${section}`;
+
+  const keepCardValue = keepCard ? nextUrl.searchParams.get("card") : null;
+  const keepModalValue = keepModal ? nextUrl.searchParams.get("modal") : null;
+  nextUrl.search = "";
+
+  const finalCard = card !== undefined ? card : keepCardValue;
+  const finalModal = modal !== undefined ? modal : keepModalValue;
+
+  if (finalCard) nextUrl.searchParams.set("card", finalCard);
+  if (finalModal) nextUrl.searchParams.set("modal", finalModal);
+
+  const method = replace ? "replaceState" : "pushState";
+  window.history[method]({}, "", nextUrl);
 }
 
 function navigateInternalLink(anchor, absoluteUrl) {
@@ -130,7 +159,8 @@ document.addEventListener("click", (e) => {
   navigateInternalLink(anchor, url);
 });
 
-showSection("Home");
+const initialSection = (window.location.hash || "#Home").replace("#", "") || "Home";
+showSection(initialSection);
 
 // ============================
 // RENDER DINÁMICO DESDE JSON
@@ -486,7 +516,10 @@ let previewSourceCard = null;
 
 if (previewModal) {
   const closeBtn = previewModal.querySelector(".logout-btn");
-  if (closeBtn) closeBtn.addEventListener("click", () => previewModal.classList.remove("active"));
+  if (closeBtn) closeBtn.addEventListener("click", () => {
+    previewModal.classList.remove("active");
+    setUrlState({ modal: null, keepCard: false, replace: true });
+  });
 }
 
 document.addEventListener("click", (e) => {
@@ -503,6 +536,7 @@ document.addEventListener("click", (e) => {
   const noList = (btn.dataset.no || "").split(",");
   const link = btn.dataset.link || "#";
   previewSourceCard = btn.closest(".ebootux-cards");
+  currentCardSlug = slugify(title);
 
   if (previewTitle) previewTitle.textContent = title;
   if (previewImage) previewImage.src = image;
@@ -536,6 +570,7 @@ document.addEventListener("click", (e) => {
   }
 
   previewModal.classList.add("active");
+  setUrlState({ modal: "preview", card: currentCardSlug, replace: false });
 });
 
 if (previewBuyBtn) {
@@ -547,6 +582,7 @@ if (previewBuyBtn) {
 
     e.preventDefault();
     previewModal?.classList.remove("active");
+    setUrlState({ modal: null, keepCard: false, replace: true });
     const enterBtn = card.querySelector(".btn-acceder-ebootux");
     if (enterBtn) enterBtn.click();
   });
@@ -562,7 +598,10 @@ const plantituxPreviewTitle = $("#plantitux-preview-title");
 const plantituxPreviewBuy = $("#plantitux-preview-buy");
 const plantituxPreviewClose = $("#plantitux-preview-close");
 if (plantituxPreviewClose && plantituxPreviewModal) {
-  plantituxPreviewClose.addEventListener("click", () => plantituxPreviewModal.classList.remove("active"));
+  plantituxPreviewClose.addEventListener("click", () => {
+    plantituxPreviewModal.classList.remove("active");
+    setUrlState({ modal: null, keepCard: false, replace: true });
+  });
 }
 
 document.addEventListener("click", (e) => {
@@ -578,6 +617,7 @@ document.addEventListener("click", (e) => {
   const title = card.dataset.title || "";
   const price = card.dataset.price || "";
   const link = card.dataset.link || "#";
+  currentCardSlug = slugify(title);
 
   if (plantituxPreviewTitle) plantituxPreviewTitle.textContent = title;
 
@@ -599,6 +639,7 @@ document.addEventListener("click", (e) => {
   }
 
   plantituxPreviewModal.classList.add("active");
+  setUrlState({ modal: "asset-preview", card: currentCardSlug, replace: false });
 });
 
 // ============================
@@ -671,6 +712,7 @@ ${mensaje}`); } catch (_) {}
       clearTimeout(notificationTimeoutId);
       notificationTimeoutId = null;
     }
+    setUrlState({ modal: null, keepCard: false, replace: true });
   };
 
   const stopNotificationClose = (ev) => ev.stopPropagation();
@@ -684,6 +726,7 @@ ${mensaje}`); } catch (_) {}
   modalTitle.textContent = titulo;
   modalMessage.textContent = mensaje;
   modal.classList.remove("hidden");
+  setUrlState({ modal: "message", card: slugify(titulo), replace: false });
 
   modalContent.addEventListener("pointerdown", stopNotificationClose);
   modal.addEventListener("pointerdown", closeNotificationByOverlay);
@@ -839,8 +882,11 @@ document.addEventListener("click", async function (e) {
 
     ebootux.classList.add("hidden");
     ebootux.classList.remove("active");
+    document.body.classList.remove("in-ebootux");
+    document.querySelector(".floating-container")?.classList.remove("ebootux-floating-visible");
     navigationLocked = false;
     toggleFooterVisibility(true);
+    setUrlState({ section: lastSectionBeforeEbootux || "Home", keepCard: false, keepModal: false, replace: true });
     showSection(lastSectionBeforeEbootux || "Home");
   }
 });
@@ -1081,7 +1127,9 @@ function entrarEnEbootux() {
   }
 
   navigationLocked = true;
+  document.body.classList.add("in-ebootux");
   toggleFooterVisibility(false);
+  setUrlState({ section: "ebootux-template", card: currentCardSlug || null, keepModal: false, replace: false });
   window.scrollTo({ top: 0, behavior: "smooth" });
   initEbootuxHeader();
 }
@@ -1103,6 +1151,11 @@ function initEbootuxHeader() {
   const navTarget = document.getElementById("ebootuxNavTarget");
   const content = document.getElementById("ebootux-content");
   const settingsOpenBtn = document.getElementById("ebootuxSettingsBtn");
+  const floatToggle = document.getElementById("ebootuxFloatToggle");
+  const floatingContainer = document.querySelector(".floating-container");
+  if (floatToggle) {
+    ebootux.classList.toggle("header-floating", floatToggle.checked);
+  }
 
   const totalBlocks = parseInt(ebootux.dataset.totalBlocks || "0", 10);
   const safeTotal = Math.max(totalBlocks, 1);
@@ -1162,18 +1215,25 @@ function initEbootuxHeader() {
 
   const handleSettingsOpen = () => {
     const mainSettingsBtn = document.querySelector(".floating-btn.settings-btn");
+    floatingContainer?.classList.toggle("ebootux-floating-visible");
     mainSettingsBtn?.click();
+  };
+  const handleFloatToggle = () => {
+    if (!floatToggle) return;
+    ebootux.classList.toggle("header-floating", floatToggle.checked);
   };
 
   navBtn?.addEventListener("click", handleNavToggle);
   range?.addEventListener("input", handleRangeInput);
   window.addEventListener("scroll", onScroll, { passive: true });
   settingsOpenBtn?.addEventListener("click", handleSettingsOpen);
+  floatToggle?.addEventListener("change", handleFloatToggle);
 
   ebootuxHeaderCleanup = () => {
     navBtn?.removeEventListener("click", handleNavToggle);
     range?.removeEventListener("input", handleRangeInput);
     settingsOpenBtn?.removeEventListener("click", handleSettingsOpen);
+    floatToggle?.removeEventListener("change", handleFloatToggle);
     window.removeEventListener("scroll", onScroll);
     if (progressFill) progressFill.style.width = "0%";
   };
@@ -1340,6 +1400,15 @@ document.addEventListener("keydown", (e) => {
       e.preventDefault();
       btn.click();
     }
+  }
+});
+
+document.addEventListener("click", () => {
+  if (!document.body.classList.contains("in-ebootux")) return;
+  const overlay = document.querySelector(".stx-settings-overlay");
+  const floating = document.querySelector(".floating-container");
+  if (!overlay?.classList.contains("active")) {
+    floating?.classList.remove("ebootux-floating-visible");
   }
 });
 
@@ -1685,7 +1754,10 @@ const stxRuntime = (() => {
     });
 
     stxBindPseudoButton(stxUi.advancedItem, () => {
-      mostrarModal("Avanzado", "Seguimos con esta parte en el siguiente paso.");
+      const offlineModal = document.getElementById("stx-offline-modal");
+      if (!offlineModal) {
+        mostrarModal("Avanzado", "Seguimos con esta parte en el siguiente paso.");
+      }
     });
 
     stxBindPseudoButton(stxUi.fontItem, () => {
@@ -1727,6 +1799,7 @@ const stxRuntime = (() => {
       }
 
       if (action === "delete") {
+        if (document.getElementById("stx-confirm-modal")) return;
         stxStorage.deleteCode(id);
         stxRenderCodes();
       }
