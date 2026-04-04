@@ -1508,8 +1508,13 @@ const stxRuntime = (() => {
     accessCloseBtn: null,
     accessHoverToggle: null,
     accessReduceMotionToggle: null,
-    accessResetBtn: null
+    accessResetBtn: null,
+    confirmModal: null,
+    confirmCancelBtn: null,
+    confirmAcceptBtn: null,
+    confirmCloseBtn: null
   };
+  let stxPendingDeleteId = null;
 
   const stxStorage = {
     getCodes() {
@@ -1719,6 +1724,32 @@ const stxRuntime = (() => {
     stxSyncOverlayLock();
   }
 
+  function stxOpenDeleteConfirm(id) {
+    if (!id || !stxUi.confirmModal) return;
+    stxPendingDeleteId = id;
+    stxUi.confirmModal.classList.remove("stx-invisible");
+    stxUi.confirmModal.classList.add("stx-active");
+    stxUi.confirmModal.setAttribute("aria-hidden", "false");
+  }
+
+  function stxCloseDeleteConfirm() {
+    if (!stxUi.confirmModal) return;
+    stxUi.confirmModal.classList.remove("stx-active");
+    stxUi.confirmModal.classList.add("stx-invisible");
+    stxUi.confirmModal.setAttribute("aria-hidden", "true");
+    stxPendingDeleteId = null;
+  }
+
+  function stxConfirmDeleteCode() {
+    if (!stxPendingDeleteId) {
+      stxCloseDeleteConfirm();
+      return;
+    }
+    stxStorage.deleteCode(stxPendingDeleteId);
+    stxRenderCodes();
+    stxCloseDeleteConfirm();
+  }
+
 
   function stxBindPseudoButton(element, handler) {
     if (!element) return;
@@ -1768,7 +1799,7 @@ const stxRuntime = (() => {
     });
 
     stxBindPseudoButton(stxUi.advancedItem, () => {
-      // La apertura del modal offline se gestiona por delegación en home.js.
+      mostrarModal("No disponible", "No disponible");
     });
 
     stxBindPseudoButton(stxUi.fontItem, () => {
@@ -1796,6 +1827,21 @@ const stxRuntime = (() => {
       stxCloseAccess();
     });
 
+    stxUi.confirmCancelBtn?.addEventListener("click", stxCloseDeleteConfirm);
+    stxUi.confirmCloseBtn?.addEventListener("click", stxCloseDeleteConfirm);
+    stxUi.confirmAcceptBtn?.addEventListener("click", stxConfirmDeleteCode);
+
+    stxUi.confirmModal?.addEventListener("click", (e) => {
+      if (e.target === stxUi.confirmModal || e.target.classList.contains("stx-modal-overlay")) {
+        stxCloseDeleteConfirm();
+      }
+    });
+
+    document.addEventListener("keydown", (event) => {
+      if (event.key !== "Escape" || !stxUi.confirmModal?.classList.contains("stx-active")) return;
+      stxCloseDeleteConfirm();
+    });
+
     stxUi.codesContainer?.addEventListener("click", (e) => {
       const button = e.target.closest(".stx-icon-btn");
       if (!button) return;
@@ -1810,9 +1856,7 @@ const stxRuntime = (() => {
       }
 
       if (action === "delete") {
-        if (document.getElementById("stx-confirm-modal")) return;
-        stxStorage.deleteCode(id);
-        stxRenderCodes();
+        stxOpenDeleteConfirm(id);
       }
     });
 
@@ -1835,6 +1879,10 @@ const stxRuntime = (() => {
     stxUi.accessHoverToggle = document.getElementById("toggle-hover");
     stxUi.accessReduceMotionToggle = document.getElementById("reduce-motion");
     stxUi.accessResetBtn = document.getElementById("accessResetBtn");
+    stxUi.confirmModal = document.getElementById("stx-confirm-modal");
+    stxUi.confirmCancelBtn = document.getElementById("stx-confirm-cancel");
+    stxUi.confirmAcceptBtn = document.getElementById("stx-confirm-accept");
+    stxUi.confirmCloseBtn = document.getElementById("stx-confirm-close");
   }
 
   function stxHydrateState() {
