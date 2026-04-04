@@ -1775,7 +1775,7 @@ h1 {
   border-top: 0;
   padding: 0 14px;
   min-height: 58px;
-  width: min(var(--ebootux-shell-width), calc(100vw - 26px));
+  width: min(980px, calc(100vw - 26px));
   margin: 0 auto;
   border-radius: 0 0 18px 18px;
   box-sizing: border-box;
@@ -1851,13 +1851,36 @@ h1 {
 
 .ebootux-template:not(.header-floating) .ebootux-header-bar {
   top: 0;
-  border-radius: 0 0 18px 18px;
-  box-shadow: none;
+  width: 100%;
+  border-radius: 0;
 }
 
 .ebootux-template.header-floating .ebootux-header-bar {
   top: 12px;
   box-shadow: 0 10px 28px rgba(0, 0, 0, 0.45);
+}
+
+.ebootux-float-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: #8f8f8f;
+  user-select: none;
+}
+
+.ebootux-float-toggle input {
+  accent-color: #00ffff;
+}
+
+.ebootux-template:not(.header-floating) .ebootux-header-bar {
+  top: 0;
+  width: 100%;
+  border-radius: 0;
+}
+
+.ebootux-template.header-floating .ebootux-header-bar {
+  top: 12px;
 }
 
 .ebootux-header-bar .ebootux-exit-btn {

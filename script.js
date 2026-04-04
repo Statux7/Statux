@@ -166,19 +166,6 @@ document.addEventListener("click", (e) => {
 function syncSectionFromLocation() {
   const sectionFromHash = (window.location.hash || "#Home").replace("#", "") || "Home";
   if (!document.getElementById(sectionFromHash)) return;
-  const ebootux = document.querySelector(".ebootux-template");
-  if (ebootux?.classList.contains("active")) {
-    if (typeof ebootuxHeaderCleanup === "function") {
-      ebootuxHeaderCleanup();
-      ebootuxHeaderCleanup = null;
-    }
-    ebootux.classList.add("hidden");
-    ebootux.classList.remove("active");
-    document.body.classList.remove("in-ebootux");
-    document.querySelector(".floating-container")?.classList.remove("ebootux-floating-visible");
-    navigationLocked = false;
-    toggleFooterVisibility(true);
-  }
   syncingSectionFromHistory = true;
   showSection(sectionFromHash, { updateUrl: false });
   syncingSectionFromHistory = false;
@@ -913,6 +900,7 @@ document.addEventListener("click", async function (e) {
     document.querySelector(".floating-container")?.classList.remove("ebootux-floating-visible");
     navigationLocked = false;
     toggleFooterVisibility(true);
+    setUrlState({ section: lastSectionBeforeEbootux || "Home", keepCard: false, keepModal: false, replace: true });
     showSection(lastSectionBeforeEbootux || "Home");
   }
 });
@@ -1155,6 +1143,7 @@ function entrarEnEbootux() {
   navigationLocked = true;
   document.body.classList.add("in-ebootux");
   toggleFooterVisibility(false);
+  setUrlState({ section: "ebootux-template", card: currentCardSlug || null, keepModal: false, replace: false });
   window.scrollTo({ top: 0, behavior: "smooth" });
   initEbootuxHeader();
 }
@@ -1821,7 +1810,9 @@ const stxRuntime = (() => {
       }
 
       if (action === "delete") {
-        return;
+        if (document.getElementById("stx-confirm-modal")) return;
+        stxStorage.deleteCode(id);
+        stxRenderCodes();
       }
     });
 

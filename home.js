@@ -275,81 +275,34 @@ async function loadHomeSection() {
   });
 
   // 2. MODAL CONFIRMACIÓN ELIMINAR CÓDIGO
-  let confirmDeleteCodeId = null;
-  function ensureConfirmModal() {
-    let modal = document.getElementById('stx-confirm-modal');
-    if (modal) return modal;
-    const wrapper = document.createElement('div');
-    wrapper.innerHTML = `
-      <div id="stx-confirm-modal" class="stx-modal stx-invisible">
-        <div class="stx-modal-overlay" tabindex="-1"></div>
-        <div class="stx-modal-box" role="dialog" aria-labelledby="stx-confirm-title" aria-modal="true">
-          <button class="stx-modal-close" id="stx-confirm-close" aria-label="Cancelar">
-            <img src="Logout.svg" alt="Cancelar">
-          </button>
-          <h3 id="stx-confirm-title">¿Eliminar código guardado?</h3>
-          <p id="stx-confirm-message">¿Estás seguro de borrar este código? Esta acción no se puede deshacer.</p>
-          <div class="stx-confirm-actions">
-            <button class="stx-btn stx-cancel-btn" id="stx-confirm-cancel" type="button">Cancelar</button>
-            <button class="stx-btn stx-confirm-btn" id="stx-confirm-accept" type="button">Confirmar</button>
-          </div>
-        </div>
-      </div>`;
-    modal = wrapper.firstElementChild;
-    if (modal) document.body.appendChild(modal);
-    return modal;
-  }
-  function getConfirmModal() {
-    return document.getElementById('stx-confirm-modal') || ensureConfirmModal();
-  }
-  function openConfirmModal(codeId) {
-    const confirmModal = getConfirmModal();
+  ready(() => {
+    const confirmModal = document.getElementById('stx-confirm-modal');
     if (!confirmModal) return;
-    confirmDeleteCodeId = codeId;
-    confirmModal.classList.remove('stx-invisible');
-    setTimeout(()=>confirmModal.classList.add('stx-active'),10);
-    const url = new URL(window.location.href);
-    url.searchParams.set('modal', 'confirm-delete');
-    window.history.pushState({}, '', url);
-  }
-  function closeConfirmModal() {
-    const confirmModal = getConfirmModal();
-    if (!confirmModal) return;
-    confirmModal.classList.remove('stx-active');
-    setTimeout(()=>confirmModal.classList.add('stx-invisible'),180);
-    confirmDeleteCodeId = null;
-    const url = new URL(window.location.href);
-    url.searchParams.delete('modal');
-    window.history.replaceState({}, '', url);
-  }
-  function acceptConfirmDelete() {
-    if (!confirmDeleteCodeId) return closeConfirmModal();
-    if (window.stxRuntime && typeof stxRuntime !== 'undefined') {
-      if(stxRuntime.stxStorage) {
-        stxRuntime.stxStorage.deleteCode(confirmDeleteCodeId);
-        if (typeof stxRuntime.stxRenderCodes === "function") stxRuntime.stxRenderCodes();
-      } else if(stxRuntime.deleteCode && typeof stxRuntime.deleteCode === 'function') {
-        stxRuntime.deleteCode(confirmDeleteCodeId);
-        if (stxRuntime.renderCodes) stxRuntime.renderCodes();
-      }
-    }
+    const btnClose = document.getElementById('stx-confirm-close');
+    const overlay = confirmModal?.querySelector('.stx-modal-overlay');
+    const btnCancel = document.getElementById('stx-confirm-cancel');
+    const btnAccept = document.getElementById('stx-confirm-accept');
+    let confirmDeleteCodeId = null;
     const codesContainer = document.getElementById('codes');
     if (codesContainer) {
       const el = codesContainer.querySelector(`[data-stx-id=\"${confirmDeleteCodeId}\"]`);
       if(el) el.remove();
     }
-    closeConfirmModal();
-  }
-  document.addEventListener('click', (e) => {
-    const btnDelete = e.target.closest('.stx-icon-btn.delete,.icon-btn.delete');
-    if (btnDelete && btnDelete.hasAttribute('data-stx-id')) {
-      e.preventDefault();
-      openConfirmModal(btnDelete.getAttribute('data-stx-id'));
-      return;
+    function openConfirmModal(codeId) {
+      confirmDeleteCodeId = codeId;
+      confirmModal.classList.remove('stx-invisible');
+      setTimeout(()=>confirmModal.classList.add('stx-active'),10);
+      const url = new URL(window.location.href);
+      url.searchParams.set('modal', 'confirm-delete');
+      window.history.pushState({}, '', url);
     }
-    if (e.target.closest('#stx-confirm-close') || e.target.closest('#stx-confirm-cancel') || e.target.closest('#stx-confirm-modal .stx-modal-overlay')) {
-      closeConfirmModal();
-      return;
+    function closeConfirmModal() {
+      confirmModal.classList.remove('stx-active');
+      setTimeout(()=>confirmModal.classList.add('stx-invisible'),180);
+      confirmDeleteCodeId = null;
+      const url = new URL(window.location.href);
+      url.searchParams.delete('modal');
+      window.history.replaceState({}, '', url);
     }
     if (e.target.closest('#stx-confirm-accept')) {
       acceptConfirmDelete();
