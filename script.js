@@ -383,9 +383,30 @@ function normalizarProductsDesdeJSON(json) {
     return out;
   }
 
+  // Formato 2b: { cards: [...] }
+  if (Array.isArray(json?.cards)) {
+    json.cards.forEach((p) => {
+      const n = normalizeProduct(p);
+      if (n) out.push(n);
+    });
+    return out;
+  }
+
   // Formato 3: { products: { categoria: [...] } }
   if (json?.products && typeof json.products === "object") {
     Object.entries(json.products).forEach(([category, arr]) => {
+      if (!Array.isArray(arr)) return;
+      arr.forEach((item) => {
+        const n = normalizeProduct(item, category);
+        if (n) out.push(n);
+      });
+    });
+    if (out.length) return out;
+  }
+
+  // Formato 3b: { cards: { categoria: [...] } }
+  if (json?.cards && typeof json.cards === "object") {
+    Object.entries(json.cards).forEach(([category, arr]) => {
       if (!Array.isArray(arr)) return;
       arr.forEach((item) => {
         const n = normalizeProduct(item, category);
@@ -428,6 +449,19 @@ function formatPriceText(price) {
 }
 
 async function fetchAndRenderCards() {
+  const parseCardsJson = (raw) => {
+    const text = String(raw || "").replace(/^\uFEFF/, "");
+    try {
+      return JSON.parse(text);
+    } catch (_) {
+      const sanitized = text
+        .replace(/\/\*[\s\S]*?\*\//g, "")
+        .replace(/^\s*\/\/.*$/gm, "")
+        .replace(/,\s*([}\]])/g, "$1");
+      return JSON.parse(sanitized);
+    }
+  };
+
   const cacheBuster = `v=${Date.now()}`;
   const candidates = [`${CARDS_JSON_URL}?${cacheBuster}`, `/${CARDS_JSON_URL}?${cacheBuster}`, CARDS_JSON_URL, `/${CARDS_JSON_URL}`];
   let lastError = null;
@@ -495,12 +529,12 @@ async function fetchAndRenderCards() {
       const raw = await res.text();
       let json;
       try {
-        json = JSON.parse(raw);
+        json = parseCardsJson(raw);
       } catch (parseError) {
         console.error("cards.json inválido:", parseError);
         mostrarModal(
           "Error en cards.json",
-          "Hay un error de sintaxis en data/cards.json. Revisa comas, comillas y puntos extra (por ejemplo: previewVideo con un punto extra al final)."
+          "Hay un error de sintaxis en data/cards.json. Revisa comas, comillas o formato del objeto principal."
         );
         throw parseError;
       }

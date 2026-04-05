@@ -185,6 +185,25 @@ footer.stx-footer-ready {
   color: #0ff;
 }
 
+.red-social-icon {
+  width: 58px;
+  height: 58px;
+  min-width: 58px;
+  border-radius: 14px;
+  border: 1px solid #1c2727;
+  background: #0f1314;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px;
+}
+
+.red-social-icon img {
+  width: 28px;
+  height: 28px;
+  display: block;
+}
+
 .btn-a-info-web {
   width: 90%;
   border: 3px solid #00ffff;
