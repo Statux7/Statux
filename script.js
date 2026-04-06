@@ -444,7 +444,7 @@ function getLockIconByCode(code) {
 
 function formatPriceText(price) {
   const raw = String(price || "").trim();
-  if (!raw) return "Gratis";
+  if (!raw) return "Entrar";
   return raw;
 }
 
@@ -598,8 +598,10 @@ document.addEventListener("click", (e) => {
 
   if (previewBuyBtn) {
     const isFree = !String(price || "").trim() || isFreeProduct(price);
-    if (previewBuyWrap) previewBuyWrap.style.display = isFree ? "none" : "";
-    if (!isFree) {
+    const hasLink = Boolean(String(link || "").trim()) && String(link || "").trim() !== "#";
+    const shouldHideBuy = isFree || !hasLink;
+    if (previewBuyWrap) previewBuyWrap.style.display = shouldHideBuy ? "none" : "";
+    if (!shouldHideBuy) {
       const priceText = formatPriceText(price);
       previewBuyBtn.innerHTML = `<img src="shopping_cart_24dp_777777.svg" class="img-de-carrito-de-compra"/>${priceText ? `$${escAttr(priceText)}` : ""}`;
       previewBuyBtn.href = link;
@@ -692,8 +694,10 @@ document.addEventListener("click", (e) => {
 
   if (plantituxPreviewBuy) {
     const isFree = !String(price || "").trim() || isFreeProduct(price);
-    if (plantituxPreviewBuyWrap) plantituxPreviewBuyWrap.style.display = isFree ? "none" : "";
-    if (!isFree) {
+    const hasLink = Boolean(String(link || "").trim()) && String(link || "").trim() !== "#";
+    const shouldHideBuy = isFree || !hasLink;
+    if (plantituxPreviewBuyWrap) plantituxPreviewBuyWrap.style.display = shouldHideBuy ? "none" : "";
+    if (!shouldHideBuy) {
       const priceText = formatPriceText(price);
       plantituxPreviewBuy.innerHTML = `<img src="shopping_cart_24dp_777777.svg" class="img-de-carrito-de-compra"/>${priceText ? `$${escAttr(priceText)}` : ""}`;
       plantituxPreviewBuy.href = link;
