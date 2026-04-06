@@ -444,7 +444,7 @@ function getLockIconByCode(code) {
 
 function formatPriceText(price) {
   const raw = String(price || "").trim();
-  if (!raw) return "Gratis";
+  if (!raw) return "Entrar";
   return raw;
 }
 
@@ -565,6 +565,7 @@ const previewYes = previewModal?.querySelector(".preview-si");
 const previewNo = previewModal?.querySelector(".preview-no");
 const previewBuyBtn = previewModal?.querySelector(".btn-de-compra");
 const previewDescription = previewModal?.querySelector(".preview-description");
+const previewBuyWrap = previewBuyBtn?.closest(".box-preview-btn-buy");
 let previewSourceCard = null;
 
 if (previewModal) {
@@ -596,10 +597,16 @@ document.addEventListener("click", (e) => {
   if (previewDescription) previewDescription.textContent = description;
 
   if (previewBuyBtn) {
-    const priceText = formatPriceText(price);
-    previewBuyBtn.innerHTML = `<img src="shopping_cart_24dp_777777.svg" class="img-de-carrito-de-compra"/>${priceText ? `$${escAttr(priceText)}` : ""}`;
-    previewBuyBtn.href = link;
-    previewBuyBtn.target = "_self";
+    const isFree = !String(price || "").trim() || isFreeProduct(price);
+    const hasLink = Boolean(String(link || "").trim()) && String(link || "").trim() !== "#";
+    const shouldHideBuy = isFree || !hasLink;
+    if (previewBuyWrap) previewBuyWrap.style.display = shouldHideBuy ? "none" : "";
+    if (!shouldHideBuy) {
+      const priceText = formatPriceText(price);
+      previewBuyBtn.innerHTML = `<img src="shopping_cart_24dp_777777.svg" class="img-de-carrito-de-compra"/>${priceText ? `$${escAttr(priceText)}` : ""}`;
+      previewBuyBtn.href = link;
+      previewBuyBtn.target = "_self";
+    }
   }
 
   if (previewYes) {
@@ -649,6 +656,7 @@ const plantituxPreviewImg = $("#plantitux-preview-img");
 const plantituxPreviewVideo = $("#plantitux-preview-video");
 const plantituxPreviewTitle = $("#plantitux-preview-title");
 const plantituxPreviewBuy = $("#plantitux-preview-buy");
+const plantituxPreviewBuyWrap = plantituxPreviewBuy?.closest(".box-preview-btn-buy");
 const plantituxPreviewClose = $("#plantitux-preview-close");
 if (plantituxPreviewClose && plantituxPreviewModal) {
   plantituxPreviewClose.addEventListener("click", () => {
@@ -685,10 +693,16 @@ document.addEventListener("click", (e) => {
   }
 
   if (plantituxPreviewBuy) {
-    const priceText = formatPriceText(price);
-    plantituxPreviewBuy.innerHTML = `<img src="shopping_cart_24dp_777777.svg" class="img-de-carrito-de-compra"/>${priceText ? `$${escAttr(priceText)}` : ""}`;
-    plantituxPreviewBuy.href = link;
-    plantituxPreviewBuy.target = "_self";
+    const isFree = !String(price || "").trim() || isFreeProduct(price);
+    const hasLink = Boolean(String(link || "").trim()) && String(link || "").trim() !== "#";
+    const shouldHideBuy = isFree || !hasLink;
+    if (plantituxPreviewBuyWrap) plantituxPreviewBuyWrap.style.display = shouldHideBuy ? "none" : "";
+    if (!shouldHideBuy) {
+      const priceText = formatPriceText(price);
+      plantituxPreviewBuy.innerHTML = `<img src="shopping_cart_24dp_777777.svg" class="img-de-carrito-de-compra"/>${priceText ? `$${escAttr(priceText)}` : ""}`;
+      plantituxPreviewBuy.href = link;
+      plantituxPreviewBuy.target = "_self";
+    }
   }
 
   plantituxPreviewModal.classList.add("active");
