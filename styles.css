@@ -161,7 +161,7 @@ footer.stx-footer-ready {
   height: 350px;
   padding: 10px;
   flex-direction: column;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   justify-content: space-around;
   align-items: center;
   text-align: center;
