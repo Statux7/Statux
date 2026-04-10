@@ -1,8 +1,8 @@
 [
   {
     "id": 1,
-    "title": "Tarjetas Gratis",
-    "desc": "Today's gift",
+    "title": "Bienvenido a Statux",
+    "desc": "Acceso concedido. Mantenga el criterio.",
     "icon": "verified_24dp_00FFFF.svg",
     "bg": "fondo.de.la.web.jpeg"
   },
@@ -22,7 +22,7 @@
   },
   {
     "id": 4,
-    "title": "",
+    "title": "Descubre y construye",
     "icon": "Tracktux.svg",
     "bg": "card.jpg"
   },
