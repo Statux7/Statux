@@ -531,6 +531,7 @@ footer.stx-footer-ready {
   overflow: hidden;
   font-size: 24px;
   color: #0ff;
+  box-shadow: 0 0 30px #000;
 }
 
 .header-ebootux-cards img {
