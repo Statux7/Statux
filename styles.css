@@ -559,7 +559,8 @@ footer.stx-footer-ready {
   color: #bbb;
   font-size: 17px;
   font-family: 'ubuntu';
-  outline: none;
+  outline: none; 
+  transition: .30s;
 }
 
 .input-codigo-ebootux::placeholder {
@@ -721,7 +722,8 @@ footer.stx-footer-ready {
   background: #000;
   color: #bbb;
   font-size: 17px;
-  outline: none;
+  outline: none; 
+  transition: .30s;
 }
 
 .input-codigo-plantitux::placeholder {
