@@ -634,18 +634,29 @@
   // Variable global para almacenar los datos de los músculos
   let MUSCLE_DATA = {};
 
-  // Cargar el archivo JSON al iniciar
-  fetch('Systux/Getux/muscle.json')
-    .then(response => response.json())
-    .then(data => {
-      MUSCLE_DATA = data;
-      console.log('✅ Datos de músculos cargados correctamente');
-      initMuscleEvents();
-    })
-    .catch(error => {
-      console.error('❌ Error al cargar muscles.json:', error);
-      alert('No se pudieron cargar los datos de los músculos. Asegúrate de que el archivo muscles.json esté en la misma carpeta.');
-    });
+  // Esperar a que el DOM esté completamente cargado
+  document.addEventListener('DOMContentLoaded', function() {
+    // Cargar el archivo JSON al iniciar
+    fetch('Systux/Getux/muscle.json')
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Archivo no encontrado o inválido');
+        }
+        return response.json();
+      })
+      .then(data => {
+        MUSCLE_DATA = data;
+        console.log('✅ Datos de músculos cargados correctamente');
+        // Inicializar eventos DESPUÉS de cargar los datos
+        initMuscleEvents();
+      })
+      .catch(error => {
+        console.error('❌ Error al cargar muscles.json:', error);
+        alert('No se pudieron cargar los datos de los músculos.\n\n' + error.message);
+        // Aún así inicializar eventos para que al menos el hover funcione
+        initMuscleEvents();
+      });
+  });
 
   let selectedMuscle = null;
 
@@ -658,8 +669,10 @@
 
   function setHoverInput(name) {
     const inp = document.getElementById('stxHoverInput');
-    inp.value = name || 'Pasa el cursor...';
-    inp.classList.toggle('active', !!name);
+    if (inp) {
+      inp.value = name || 'Pasa el cursor...';
+      inp.classList.toggle('active', !!name);
+    }
   }
 
   function selectMuscle(muscleKey) {
@@ -679,6 +692,15 @@
     const data = MUSCLE_DATA[muscleKey];
     if (!data) {
       console.warn(`No hay datos para el músculo: ${muscleKey}`);
+      // Mostrar mensaje en el panel derecho
+      document.getElementById('stxWelcome').style.display = 'none';
+      document.getElementById('stxDetail').classList.add('visible');
+      document.getElementById('detailTitle').textContent = muscleKey;
+      document.getElementById('detailSub').textContent = 'DATOS NO DISPONIBLES';
+      document.getElementById('detailParts').innerHTML = '';
+      document.getElementById('detailExGrid').innerHTML = '<p style="color:#666;padding:1rem;">Próximamente...</p>';
+      document.getElementById('detailBenefits').innerHTML = '';
+      document.getElementById('detailInfo').innerHTML = '';
       return;
     }
 
@@ -701,8 +723,10 @@
 
     document.getElementById('detailTrainBtn').textContent = `Entrenar ${data.name} →`;
 
-    document.getElementById('detailBenefits').innerHTML = data.benefits || '';
-    document.getElementById('detailInfo').innerHTML = data.info || '';
+    const benefitsEl = document.getElementById('detailBenefits');
+    const infoEl = document.getElementById('detailInfo');
+    if (benefitsEl) benefitsEl.innerHTML = data.benefits || '';
+    if (infoEl) infoEl.innerHTML = data.info || '';
 
     document.getElementById('stxRight').scrollTop = 0;
   }
@@ -717,18 +741,27 @@
   function openVideo(url) {
     const overlay = document.getElementById('stxOverlay');
     const frame = document.getElementById('stxVideoFrame');
-    frame.src = url;
-    overlay.classList.add('open');
+    if (overlay && frame) {
+      frame.src = url;
+      overlay.classList.add('open');
+    } else {
+      // Fallback si no existe el overlay
+      window.open(url, '_blank');
+    }
   }
 
   function closeVideo() {
     const overlay = document.getElementById('stxOverlay');
     const frame = document.getElementById('stxVideoFrame');
-    overlay.classList.remove('open');
-    frame.src = ''; // Detener reproducción
+    if (overlay && frame) {
+      overlay.classList.remove('open');
+      frame.src = '';
+    }
   }
 
   function initMuscleEvents() {
+    console.log('Inicializando eventos para', document.querySelectorAll('.muscle-grp').length, 'grupos musculares');
+    
     document.querySelectorAll('.muscle-grp').forEach(group => {
       const key = group.dataset.muscle;
 
