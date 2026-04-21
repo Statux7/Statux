@@ -76,6 +76,15 @@ h1, h2, h3 { margin: 0 0 .7rem; }
 .btn-soft { background: var(--c4); }
 .btn-danger { background: #c1e8ff; }
 
+.btn-back-official {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  z-index: 9999;
+  border: 1px solid #0a3a7a;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.35);
+}
+
 .message { min-height: 1.2rem; margin: .7rem 0 0; color: #ffb3b3; }
 
 .grid-two {
@@ -157,4 +166,9 @@ h1, h2, h3 { margin: 0 0 .7rem; }
 
 @media (max-width: 860px) {
   .grid-two, .image-grid { grid-template-columns: 1fr; }
+  .btn-back-official {
+    right: 12px;
+    bottom: 12px;
+    padding: .62rem .85rem;
+  }
 }

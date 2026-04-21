@@ -165,7 +165,12 @@ document.addEventListener("click", (e) => {
 
 function syncSectionFromLocation() {
   const sectionFromHash = (window.location.hash || "#Home").replace("#", "") || "Home";
+  if (sectionFromHash === "ebootux-template") return;
   if (!document.getElementById(sectionFromHash)) return;
+  if (document.body.classList.contains("in-ebootux")) {
+    closeEbootuxTemplate({ targetSection: sectionFromHash, updateUrl: false });
+    return;
+  }
   syncingSectionFromHistory = true;
   showSection(sectionFromHash, { updateUrl: false });
   syncingSectionFromHistory = false;
@@ -378,9 +383,30 @@ function normalizarProductsDesdeJSON(json) {
     return out;
   }
 
+  // Formato 2b: { cards: [...] }
+  if (Array.isArray(json?.cards)) {
+    json.cards.forEach((p) => {
+      const n = normalizeProduct(p);
+      if (n) out.push(n);
+    });
+    return out;
+  }
+
   // Formato 3: { products: { categoria: [...] } }
   if (json?.products && typeof json.products === "object") {
     Object.entries(json.products).forEach(([category, arr]) => {
+      if (!Array.isArray(arr)) return;
+      arr.forEach((item) => {
+        const n = normalizeProduct(item, category);
+        if (n) out.push(n);
+      });
+    });
+    if (out.length) return out;
+  }
+
+  // Formato 3b: { cards: { categoria: [...] } }
+  if (json?.cards && typeof json.cards === "object") {
+    Object.entries(json.cards).forEach(([category, arr]) => {
       if (!Array.isArray(arr)) return;
       arr.forEach((item) => {
         const n = normalizeProduct(item, category);
@@ -418,11 +444,24 @@ function getLockIconByCode(code) {
 
 function formatPriceText(price) {
   const raw = String(price || "").trim();
-  if (!raw) return "Gratis";
+  if (!raw) return "Entrar";
   return raw;
 }
 
 async function fetchAndRenderCards() {
+  const parseCardsJson = (raw) => {
+    const text = String(raw || "").replace(/^\uFEFF/, "");
+    try {
+      return JSON.parse(text);
+    } catch (_) {
+      const sanitized = text
+        .replace(/\/\*[\s\S]*?\*\//g, "")
+        .replace(/^\s*\/\/.*$/gm, "")
+        .replace(/,\s*([}\]])/g, "$1");
+      return JSON.parse(sanitized);
+    }
+  };
+
   const cacheBuster = `v=${Date.now()}`;
   const candidates = [`${CARDS_JSON_URL}?${cacheBuster}`, `/${CARDS_JSON_URL}?${cacheBuster}`, CARDS_JSON_URL, `/${CARDS_JSON_URL}`];
   let lastError = null;
@@ -490,12 +529,12 @@ async function fetchAndRenderCards() {
       const raw = await res.text();
       let json;
       try {
-        json = JSON.parse(raw);
+        json = parseCardsJson(raw);
       } catch (parseError) {
         console.error("cards.json inválido:", parseError);
         mostrarModal(
           "Error en cards.json",
-          "Hay un error de sintaxis en data/cards.json. Revisa comas, comillas y puntos extra (por ejemplo: previewVideo con un punto extra al final)."
+          "Hay un error de sintaxis en data/cards.json. Revisa comas, comillas o formato del objeto principal."
         );
         throw parseError;
       }
@@ -526,6 +565,7 @@ const previewYes = previewModal?.querySelector(".preview-si");
 const previewNo = previewModal?.querySelector(".preview-no");
 const previewBuyBtn = previewModal?.querySelector(".btn-de-compra");
 const previewDescription = previewModal?.querySelector(".preview-description");
+const previewBuyWrap = previewBuyBtn?.closest(".box-preview-btn-buy");
 let previewSourceCard = null;
 
 if (previewModal) {
@@ -552,15 +592,30 @@ document.addEventListener("click", (e) => {
   previewSourceCard = btn.closest(".ebootux-cards");
   currentCardSlug = slugify(title);
 
-  if (previewTitle) previewTitle.textContent = title;
+  if (previewTitle) {
+    const hasLink = Boolean(String(link || "").trim()) && String(link || "").trim() !== "#";
+    previewTitle.textContent = title;
+    if (!hasLink) {
+      const pulse = document.createElement("span");
+      pulse.className = "pulse";
+      pulse.setAttribute("aria-hidden", "true");
+      previewTitle.appendChild(pulse);
+    }
+  }
   if (previewImage) previewImage.src = image;
   if (previewDescription) previewDescription.textContent = description;
 
   if (previewBuyBtn) {
-    const priceText = formatPriceText(price);
-    previewBuyBtn.innerHTML = `<img src="shopping_cart_24dp_777777.svg" class="img-de-carrito-de-compra"/>${priceText ? `$${escAttr(priceText)}` : ""}`;
-    previewBuyBtn.href = link;
-    previewBuyBtn.target = "_self";
+    const isFree = !String(price || "").trim() || isFreeProduct(price);
+    const hasLink = Boolean(String(link || "").trim()) && String(link || "").trim() !== "#";
+    const shouldHideBuy = isFree || !hasLink;
+    if (previewBuyWrap) previewBuyWrap.style.display = shouldHideBuy ? "none" : "";
+    if (!shouldHideBuy) {
+      const priceText = formatPriceText(price);
+      previewBuyBtn.innerHTML = `<img src="shopping_cart_24dp_777777.svg" class="img-de-carrito-de-compra"/>${priceText ? `$${escAttr(priceText)}` : ""}`;
+      previewBuyBtn.href = link;
+      previewBuyBtn.target = "_self";
+    }
   }
 
   if (previewYes) {
@@ -610,6 +665,7 @@ const plantituxPreviewImg = $("#plantitux-preview-img");
 const plantituxPreviewVideo = $("#plantitux-preview-video");
 const plantituxPreviewTitle = $("#plantitux-preview-title");
 const plantituxPreviewBuy = $("#plantitux-preview-buy");
+const plantituxPreviewBuyWrap = plantituxPreviewBuy?.closest(".box-preview-btn-buy");
 const plantituxPreviewClose = $("#plantitux-preview-close");
 if (plantituxPreviewClose && plantituxPreviewModal) {
   plantituxPreviewClose.addEventListener("click", () => {
@@ -633,7 +689,16 @@ document.addEventListener("click", (e) => {
   const link = card.dataset.link || "#";
   currentCardSlug = slugify(title);
 
-  if (plantituxPreviewTitle) plantituxPreviewTitle.textContent = title;
+  if (plantituxPreviewTitle) {
+    const hasLink = Boolean(String(link || "").trim()) && String(link || "").trim() !== "#";
+    plantituxPreviewTitle.textContent = title;
+    if (!hasLink) {
+      const pulse = document.createElement("span");
+      pulse.className = "pulse";
+      pulse.setAttribute("aria-hidden", "true");
+      plantituxPreviewTitle.appendChild(pulse);
+    }
+  }
 
   if (video && plantituxPreviewVideo) {
     plantituxPreviewVideo.src = video;
@@ -646,10 +711,16 @@ document.addEventListener("click", (e) => {
   }
 
   if (plantituxPreviewBuy) {
-    const priceText = formatPriceText(price);
-    plantituxPreviewBuy.innerHTML = `<img src="shopping_cart_24dp_777777.svg" class="img-de-carrito-de-compra"/>${priceText ? `$${escAttr(priceText)}` : ""}`;
-    plantituxPreviewBuy.href = link;
-    plantituxPreviewBuy.target = "_self";
+    const isFree = !String(price || "").trim() || isFreeProduct(price);
+    const hasLink = Boolean(String(link || "").trim()) && String(link || "").trim() !== "#";
+    const shouldHideBuy = isFree || !hasLink;
+    if (plantituxPreviewBuyWrap) plantituxPreviewBuyWrap.style.display = shouldHideBuy ? "none" : "";
+    if (!shouldHideBuy) {
+      const priceText = formatPriceText(price);
+      plantituxPreviewBuy.innerHTML = `<img src="shopping_cart_24dp_777777.svg" class="img-de-carrito-de-compra"/>${priceText ? `$${escAttr(priceText)}` : ""}`;
+      plantituxPreviewBuy.href = link;
+      plantituxPreviewBuy.target = "_self";
+    }
   }
 
   plantituxPreviewModal.classList.add("active");
@@ -783,21 +854,35 @@ function playUnlockAnimation() {
         <path class="stx-unlock-path stx-unlock-ojos" d="${UNLOCK_LOGO_OJOS_PATH}"></path>
       </svg>
     </div>
+    <button type="button" class="stx-unlock-skip-btn" aria-label="Omitir animación">Omitir</button>
   `;
 
   document.body.appendChild(overlay);
 
   return new Promise((resolve) => {
-    unlockAnimationTimeoutId = setTimeout(() => {
+    let finished = false;
+    const skipBtn = overlay.querySelector(".stx-unlock-skip-btn");
+
+    const closeOverlay = () => {
+      if (finished) return;
+      finished = true;
+      if (unlockAnimationTimeoutId) {
+        clearTimeout(unlockAnimationTimeoutId);
+        unlockAnimationTimeoutId = null;
+      }
       overlay.classList.add("is-hiding");
       setTimeout(() => {
         overlay.remove();
         unlockAnimationTimeoutId = null;
         resolve();
       }, 250);
-    }, 3400);
+    };
+
+    skipBtn?.addEventListener("click", closeOverlay, { once: true });
+    unlockAnimationTimeoutId = setTimeout(closeOverlay, 3400);
   });
 }
+
 
 // ===============================
 // ACCESO + EBOOTUX
@@ -823,7 +908,11 @@ document.addEventListener("click", async function (e) {
 
       const courseUrl = card.dataset.courseUrl || "";
       if (courseUrl) {
-        window.location.href = courseUrl;
+        const activeSectionId = document.querySelector(".app-section.active-section")?.id || "Home";
+        const returnUrl = `${window.location.origin}${window.location.pathname}#${activeSectionId}`;
+        const targetUrl = new URL(courseUrl, window.location.href);
+        targetUrl.searchParams.set("stx_return", returnUrl);
+        window.location.href = targetUrl.toString();
         return;
       }
 
@@ -887,21 +976,11 @@ document.addEventListener("click", async function (e) {
 
 
   if (e.target.closest(".ebootux-exit-btn")) {
-    const ebootux = document.querySelector(".ebootux-template");
-    if (!ebootux) return;
-    if (typeof ebootuxHeaderCleanup === "function") {
-      ebootuxHeaderCleanup();
-      ebootuxHeaderCleanup = null;
-    }
-
-    ebootux.classList.add("hidden");
-    ebootux.classList.remove("active");
-    document.body.classList.remove("in-ebootux");
-    document.querySelector(".floating-container")?.classList.remove("ebootux-floating-visible");
-    navigationLocked = false;
-    toggleFooterVisibility(true);
-    setUrlState({ section: lastSectionBeforeEbootux || "Home", keepCard: false, keepModal: false, replace: true });
-    showSection(lastSectionBeforeEbootux || "Home");
+    closeEbootuxTemplate({
+      targetSection: lastSectionBeforeEbootux || "Home",
+      updateUrl: true,
+      replaceUrl: true
+    });
   }
 });
 
@@ -1124,6 +1203,30 @@ function toggleFooterVisibility(show) {
   const footer = document.querySelector("footer");
   if (!footer) return;
   footer.style.display = show ? "" : "none";
+}
+
+function closeEbootuxTemplate({ targetSection, updateUrl = false, replaceUrl = true } = {}) {
+  const ebootux = document.querySelector(".ebootux-template");
+  if (typeof ebootuxHeaderCleanup === "function") {
+    ebootuxHeaderCleanup();
+    ebootuxHeaderCleanup = null;
+  }
+
+  if (ebootux) {
+    ebootux.classList.add("hidden");
+    ebootux.classList.remove("active");
+  }
+
+  document.body.classList.remove("in-ebootux");
+  document.querySelector(".floating-container")?.classList.remove("ebootux-floating-visible");
+  navigationLocked = false;
+  toggleFooterVisibility(true);
+
+  const fallbackSection = targetSection || lastSectionBeforeEbootux || "Home";
+  if (updateUrl) {
+    setUrlState({ section: fallbackSection, keepCard: false, keepModal: false, replace: replaceUrl });
+  }
+  showSection(fallbackSection, { updateUrl: false });
 }
 
 function entrarEnEbootux() {
@@ -1508,8 +1611,13 @@ const stxRuntime = (() => {
     accessCloseBtn: null,
     accessHoverToggle: null,
     accessReduceMotionToggle: null,
-    accessResetBtn: null
+    accessResetBtn: null,
+    confirmModal: null,
+    confirmCancelBtn: null,
+    confirmAcceptBtn: null,
+    confirmCloseBtn: null
   };
+  let stxPendingDeleteId = null;
 
   const stxStorage = {
     getCodes() {
@@ -1719,6 +1827,32 @@ const stxRuntime = (() => {
     stxSyncOverlayLock();
   }
 
+  function stxOpenDeleteConfirm(id) {
+    if (!id || !stxUi.confirmModal) return;
+    stxPendingDeleteId = id;
+    stxUi.confirmModal.classList.remove("stx-invisible");
+    stxUi.confirmModal.classList.add("stx-active");
+    stxUi.confirmModal.setAttribute("aria-hidden", "false");
+  }
+
+  function stxCloseDeleteConfirm() {
+    if (!stxUi.confirmModal) return;
+    stxUi.confirmModal.classList.remove("stx-active");
+    stxUi.confirmModal.classList.add("stx-invisible");
+    stxUi.confirmModal.setAttribute("aria-hidden", "true");
+    stxPendingDeleteId = null;
+  }
+
+  function stxConfirmDeleteCode() {
+    if (!stxPendingDeleteId) {
+      stxCloseDeleteConfirm();
+      return;
+    }
+    stxStorage.deleteCode(stxPendingDeleteId);
+    stxRenderCodes();
+    stxCloseDeleteConfirm();
+  }
+
 
   function stxBindPseudoButton(element, handler) {
     if (!element) return;
@@ -1768,7 +1902,7 @@ const stxRuntime = (() => {
     });
 
     stxBindPseudoButton(stxUi.advancedItem, () => {
-      // La apertura del modal offline se gestiona por delegación en home.js.
+      mostrarModal("No disponible", "No disponible");
     });
 
     stxBindPseudoButton(stxUi.fontItem, () => {
@@ -1796,6 +1930,21 @@ const stxRuntime = (() => {
       stxCloseAccess();
     });
 
+    stxUi.confirmCancelBtn?.addEventListener("click", stxCloseDeleteConfirm);
+    stxUi.confirmCloseBtn?.addEventListener("click", stxCloseDeleteConfirm);
+    stxUi.confirmAcceptBtn?.addEventListener("click", stxConfirmDeleteCode);
+
+    stxUi.confirmModal?.addEventListener("click", (e) => {
+      if (e.target === stxUi.confirmModal || e.target.classList.contains("stx-modal-overlay")) {
+        stxCloseDeleteConfirm();
+      }
+    });
+
+    document.addEventListener("keydown", (event) => {
+      if (event.key !== "Escape" || !stxUi.confirmModal?.classList.contains("stx-active")) return;
+      stxCloseDeleteConfirm();
+    });
+
     stxUi.codesContainer?.addEventListener("click", (e) => {
       const button = e.target.closest(".stx-icon-btn");
       if (!button) return;
@@ -1810,9 +1959,7 @@ const stxRuntime = (() => {
       }
 
       if (action === "delete") {
-        if (document.getElementById("stx-confirm-modal")) return;
-        stxStorage.deleteCode(id);
-        stxRenderCodes();
+        stxOpenDeleteConfirm(id);
       }
     });
 
@@ -1835,6 +1982,10 @@ const stxRuntime = (() => {
     stxUi.accessHoverToggle = document.getElementById("toggle-hover");
     stxUi.accessReduceMotionToggle = document.getElementById("reduce-motion");
     stxUi.accessResetBtn = document.getElementById("accessResetBtn");
+    stxUi.confirmModal = document.getElementById("stx-confirm-modal");
+    stxUi.confirmCancelBtn = document.getElementById("stx-confirm-cancel");
+    stxUi.confirmAcceptBtn = document.getElementById("stx-confirm-accept");
+    stxUi.confirmCloseBtn = document.getElementById("stx-confirm-close");
   }
 
   function stxHydrateState() {

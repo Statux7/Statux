@@ -450,10 +450,18 @@
     <footer class="stx-footer-pending">
       <div class="caja-del-footer">
         <h4>Redes Sociales</h4>
-        <a href="https://www.youtube.com/@Statux_Oficial" class="redes-sociales">Youtube</a>
-        <a href="https://www.tiktok.com/@statux_oficial" class="redes-sociales">Tiktok</a>
-        <a href="https://es.pinterest.com/Statux_Oficial" class="redes-sociales">Pinterest</a>
-        <a href="https://www.instagram.com/statux_oficial" class="redes-sociales">Instagram</a>
+        <a href="https://www.youtube.com/@Statux_Oficial" class="redes-sociales red-social-icon" target="_blank" rel="noopener noreferrer" aria-label="YouTube de Statux">
+          <img src="icon-youtube.svg" alt="YouTube">
+        </a>
+        <a href="https://www.tiktok.com/@statux_oficial" class="redes-sociales red-social-icon" target="_blank" rel="noopener noreferrer" aria-label="TikTok de Statux">
+          <img src="icon-tiktok.svg" alt="TikTok">
+        </a>
+        <a href="https://es.pinterest.com/Statux_Oficial" class="redes-sociales red-social-icon" target="_blank" rel="noopener noreferrer" aria-label="Pinterest de Statux">
+          <img src="icon-pinterest.svg" alt="Pinterest">
+        </a>
+        <a href="https://www.instagram.com/statux_oficial" class="redes-sociales red-social-icon" target="_blank" rel="noopener noreferrer" aria-label="Instagram de Statux">
+          <img src="icon-instagram.svg" alt="Instagram">
+        </a>
       </div>
       <div class="caja-del-footer">
         <p>© 2026 Statux</p>
@@ -560,6 +568,20 @@
               </div>
             </div>
           </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="stx-confirm-modal" class="stx-modal stx-invisible" aria-hidden="true">
+      <div class="stx-modal-overlay" tabindex="-1"></div>
+      <div class="stx-modal-box" role="dialog" aria-labelledby="stx-confirm-title" aria-modal="true">
+        <button class="stx-modal-close" id="stx-confirm-close" aria-label="Cancelar">
+          <img src="Logout.svg" alt="Cancelar">
+        </button>
+        <h3 id="stx-confirm-title">¿De verdad quieres hacer esto?</h3>
+        <div class="stx-confirm-actions">
+          <button class="stx-btn stx-cancel-btn" id="stx-confirm-cancel" type="button">Cancelar</button>
+          <button class="stx-btn stx-confirm-btn" id="stx-confirm-accept" type="button">Confirmar</button>
         </div>
       </div>
     </div>
