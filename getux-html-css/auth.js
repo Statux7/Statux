@@ -6,6 +6,7 @@
   const ACCESS_VALUE = "granted";
   const VALID_CODE = "GETUX-HTMLCSS"; // cambia este valor cuando quieras.
   const RETURN_KEY = "stx_return_url";
+  const OFFICIAL_HOME = "https://statux.netlify.app";
 
   const isIndex = location.pathname.endsWith("index.html") || location.pathname.endsWith("/getux-html-css/") || location.pathname.endsWith("/getux-html-css");
   const isCurso = location.pathname.endsWith("curso.html");
@@ -26,6 +27,10 @@
   }
 
   const returnUrl = sessionStorage.getItem(RETURN_KEY);
+  if (!isSafeReturnUrl(returnUrl)) {
+    location.replace(OFFICIAL_HOME);
+    return;
+  }
   const injectBackToSiteBtn = () => {
     if (!isSafeReturnUrl(returnUrl)) return;
     if (document.querySelector(".btn-back-official")) return;
