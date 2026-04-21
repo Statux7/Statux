@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Systux — Hábitos: Sistema de Dominio Personal</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #0a0a0a;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            color: #e5e5e5;
+            line-height: 1.5;
+        }
+
+        /* Contenedor principal */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem 1.5rem;
+        }
+
+        /* Tipografía */
+        h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #fff 0%, #a855f7 100%);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            margin-bottom: 1rem;
+            letter-spacing: -0.02em;
+        }
+
+        h2 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+            color: #fff;
+        }
+
+        h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-top: 1.5rem;
+            margin-bottom: 0.75rem;
+            color: #c084fc;
+        }
+
+        .subtitulo {
+            font-size: 1.25rem;
+            color: #a3a3a3;
+            border-left: 3px solid #a855f7;
+            padding-left: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        /* Grid de contenido */
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+
+        @media (max-width: 768px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+            h1 {
+                font-size: 2.25rem;
+            }
+        }
+
+        /* Módulos de contenido */
+        .modulo {
+            background: #111;
+            border-radius: 1rem;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border: 1px solid #222;
+            transition: all 0.2s;
+        }
+
+        .modulo:hover {
+            border-color: #a855f7;
+            transform: translateY(-2px);
+        }
+
+        .modulo-numero {
+            display: inline-block;
+            background: #a855f7;
+            color: #fff;
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 0.25rem 0.75rem;
+            border-radius: 2rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .modulo-titulo {
+            font-size: 1.35rem;
+            font-weight: 700;
+            margin-bottom: 0.75rem;
+            color: #fff;
+        }
+
+        /* Herramienta interactiva */
+        .herramienta {
+            background: linear-gradient(135deg, #0f0f0f 0%, #0a0a0a 100%);
+            border: 2px solid #2a2a2a;
+            border-radius: 1.5rem;
+            padding: 2rem;
+            position: sticky;
+            top: 1rem;
+        }
+
+        .herramienta-titulo {
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            text-align: center;
+        }
+
+        .herramienta-sub {
+            text-align: center;
+            color: #a3a3a3;
+            margin-bottom: 1.5rem;
+            font-size: 0.875rem;
+        }
+
+        .pregunta {
+            margin-bottom: 1.5rem;
+        }
+
+        .pregunta label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #c084fc;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 0.75rem;
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 0.5rem;
+            color: #fff;
+            font-size: 1rem;
+            transition: all 0.2s;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #a855f7;
+        }
+
+        button {
+            width: 100%;
+            padding: 1rem;
+            background: linear-gradient(135deg, #a855f7 0%, #7c3aed 100%);
+            border: none;
+            border-radius: 0.75rem;
+            color: #fff;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 1rem;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px -5px rgba(168, 85, 247, 0.3);
+        }
+
+        .resultado {
+            margin-top: 1.5rem;
+            padding: 1.5rem;
+            background: #0f0f0f;
+            border-radius: 1rem;
+            border-left: 4px solid #a855f7;
+            display: none;
+        }
+
+        .resultado.visible {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .frase-identidad {
+            font-size: 1.125rem;
+            font-style: italic;
+            padding: 1rem;
+            background: #1a1a1a;
+            border-radius: 0.75rem;
+            margin: 1rem 0;
+            color: #c084fc;
+            text-align: center;
+        }
+
+        hr {
+            border: none;
+            height: 1px;
+            background: #222;
+            margin: 2rem 0;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 2rem 0;
+            color: #555;
+            font-size: 0.875rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>HÁBITOS</h1>
+        <div class="subtitulo">Sistema de Dominio Personal — No es fuerza de voluntad. Es arquitectura de decisiones.</div>
+
+        <div class="grid">
+            <!-- Columna izquierda: contenido educativo -->
+            <div class="contenido">
+                <div class="modulo">
+                    <div class="modulo-numero">MÓDULO 0</div>
+                    <div class="modulo-titulo">Activación</div>
+                    <p>La mayoría cree que sus resultados dependen de motivación. Error. Tus resultados dependen de tus sistemas. Y tus sistemas dependen de tus hábitos. Sin hábitos, eres esclavo de cada impulso. Con hábitos, gobiernas tu día antes de que empiece.</p>
+                    <p style="margin-top: 0.75rem; color: #a3a3a3; font-size: 0.875rem;">✦ La motivación es volátil. Los hábitos son estables.<br>✦ No necesitas esforzarte más. Necesitas diseñar mejor.</p>
+                </div>
+
+                <div class="modulo">
+                    <div class="modulo-numero">MÓDULO 1</div>
+                    <div class="modulo-titulo">El bucle del hábito</div>
+                    <p><strong>Señal → Rutina → Recompensa.</strong> Sin detonante claro, el hábito no empieza. Sin beneficio inmediato, el hábito no se repite. Identifica qué dispara la acción, ejecuta la rutina mínima y asegura una recompensa inmediata.</p>
+                </div>
+
+                <div class="modulo">
+                    <div class="modulo-numero">MÓDULO 2</div>
+                    <div class="modulo-titulo">La regla de los 2 minutos</div>
+                    <p>Cualquier hábito nuevo debe durar <strong>menos de 2 minutos</strong> al inicio. ¿Quieres leer? Lee 1 página. ¿Quieres correr? Ponte las zapatillas. El objetivo es vencer la inercia inicial, no el maratón. La frecuencia mata a la intensidad.</p>
+                </div>
+
+                <div class="modulo">
+                    <div class="modulo-numero">MÓDULO 3</div>
+                    <div class="modulo-titulo">Arquitectura del entorno</div>
+                    <p>No eres perezoso. Tu entorno está mal diseñado. Haz que el buen hábito sea fácil. Haz que el mal hábito sea difícil. Diseña para tu yo más débil, no para tu yo ideal.</p>
+                </div>
+
+                <div class="modulo">
+                    <div class="modulo-numero">MÓDULO 4</div>
+                    <div class="modulo-titulo">El rastreo de hábitos</div>
+                    <p>Lo que se mide, se mejora. Lleva un registro visual. No rompas la cadena. El miedo a romper la racha es más poderoso que la motivación inicial.</p>
+                </div>
+
+                <div class="modulo">
+                    <div class="modulo-numero">MÓDULO 5</div>
+                    <div class="modulo-titulo">Identidad sobre resultado</div>
+                    <p>No se trata de "correr una maratón". Se trata de <strong>"ser corredor"</strong>. Cada acción es un voto por la persona que quieres ser. La identidad gana cuando la motivación falla.</p>
+                </div>
+            </div>
+
+            <!-- Columna derecha: herramienta interactiva -->
+            <div>
+                <div class="herramienta">
+                    <div class="herramienta-titulo">⚙️ El Arquitecto de Hábitos</div>
+                    <div class="herramienta-sub">Responde 5 preguntas. Recibe tu sistema personalizado.</div>
+
+                    <div class="pregunta">
+                        <label>1. ¿Qué hábito quieres construir?</label>
+                        <input type="text" id="habito" placeholder="Ej: leer, meditar, hacer ejercicio, escribir...">
+                    </div>
+
+                    <div class="pregunta">
+                        <label>2. ¿Cuánto tiempo puedes dedicarle al día?</label>
+                        <select id="tiempo">
+                            <option value="2min">2 minutos</option>
+                            <option value="5min">5 minutos</option>
+                            <option value="15min">15 minutos</option>
+                            <option value="30min">30 minutos o más</option>
+                        </select>
+                    </div>
+
+                    <div class="pregunta">
+                        <label>3. ¿Cuál es tu principal obstáculo?</label>
+                        <select id="obstaculo">
+                            <option value="tiempo">Falta de tiempo</option>
+                            <option value="pereza">Pereza / falta de energía</option>
+                            <option value="distracciones">Distracciones (teléfono, redes)</option>
+                            <option value="miedo">Miedo a fallar / perfeccionismo</option>
+                            <option value="inconsistencia">Inconsistencia (empiezo y dejo)</option>
+                        </select>
+                    </div>
+
+                    <div class="pregunta">
+                        <label>4. ¿Qué recompensa te motiva más?</label>
+                        <select id="recompensa">
+                            <option value="logro">Sensación de logro / satisfacción</option>
+                            <option value="descanso">Descanso / relajación</option>
+                            <option value="social">Validación social / compartir</option>
+                            <option value="dinero">Dinero / beneficio tangible</option>
+                            <option value="salud">Salud / bienestar físico</option>
+                        </select>
+                    </div>
+
+                    <div class="pregunta">
+                        <label>5. En una escala del 1 al 10, ¿cuánto quieres que este hábito sea parte de tu identidad?</label>
+                        <select id="identidad">
+                            <option value="1">1 — Es solo un experimento</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4</option>
+                            <option value="5">5 — Me gustaría, pero no es prioridad</option>
+                            <option value="6">6</option>
+                            <option value="7">7</option>
+                            <option value="8">8 — Es importante para quién quiero ser</option>
+                            <option value="9">9</option>
+                            <option value="10">10 — Soy alguien que HACE esto</option>
+                        </select>
+                    </div>
+
+                    <button onclick="disenarSistema()">Diseñar mi sistema →</button>
+
+                    <div id="resultado" class="resultado">
+                        <!-- Aquí se inyecta el resultado personalizado -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <hr>
+
+        <div class="footer">
+            <p>✦ STATUX — Systux: Hábitos · Sistema de Dominio Personal ✦</p>
+            <p style="margin-top: 0.5rem;">No es lo que haces. Es lo que eres. Construye tu sistema o él te construirá a ti.</p>
+        </div>
+    </div>
+
+    <script>
+        function disenarSistema() {
+            const habito = document.getElementById('habito').value.trim();
+            const tiempo = document.getElementById('tiempo').value;
+            const obstaculo = document.getElementById('obstaculo').value;
+            const recompensa = document.getElementById('recompensa').value;
+            const identidadScore = parseInt(document.getElementById('identidad').value);
+
+            if (!habito) {
+                alert("Escribe qué hábito quieres construir.");
+                return;
+            }
+
+            // Mapear tiempo a duración sugerida
+            let duracionSugerida = "";
+            let tiempoTexto = "";
+            switch(tiempo) {
+                case '2min': duracionSugerida = "Empieza con 2 minutos exactos. Usa la regla de los 2 minutos."; tiempoTexto = "2 minutos"; break;
+                case '5min': duracionSugerida = "5 minutos es perfecto. No más. La consistencia es lo que importa."; tiempoTexto = "5 minutos"; break;
+                case '15min': duracionSugerida = "15 minutos es viable. Divide en bloques de 5 si es necesario."; tiempoTexto = "15 minutos"; break;
+                default: duracionSugerida = "30 minutos o más. Asegúrate de que sea sostenible. Si no, reduce a 15."; tiempoTexto = "30+ minutos";
+            }
+
+            // Detonante según obstáculo
+            let detonante = "";
+            switch(obstaculo) {
+                case 'tiempo': detonante = "Detonante sugerido: Justo después de la tarea que más tiempo te consume. Usa el 'desencadenante de apilamiento'."; break;
+                case 'pereza': detonante = "Detonante sugerido: Inmediatamente al despertar, antes de que tu cerebro encuentre excusas."; break;
+                case 'distracciones': detonante = "Detonante sugerido: Apaga el teléfono o déjalo en otra habitación. Tu señal será 'cuando vea el espacio vacío'."; break;
+                case 'miedo': detonante = "Detonante sugerido: Compromiso público. Dile a alguien que lo harás. La presión social mata el miedo."; break;
+                default: detonante = "Detonante sugerido: Elige una hora fija. Misma hora, todos los días. Tu cerebro aprenderá el patrón.";
+            }
+
+            // Recompensa personalizada
+            let recompensaTexto = "";
+            switch(recompensa) {
+                case 'logro': recompensaTexto = "Marca una X en un calendario visible. Ver la cadena crecer es tu recompensa."; break;
+                case 'descanso': recompensaTexto = "Después del hábito, tómate 5 minutos de descanso sin culpa. Asocia el hábito con el alivio."; break;
+                case 'social': recompensaTexto = "Comparte tu progreso en una red o con un amigo. La validación externa refuerza la repetición."; break;
+                case 'dinero': recompensaTexto = "Crea un 'tarro del hábito': cada día que cumplas, mete dinero. Al mes, gástatelo en algo que disfrutes."; break;
+                default: recompensaTexto = "Recompensa inmediata: después del hábito, date algo pequeño que disfrutes (un café, un episodio corto).";
+            }
+
+            // Frase de identidad
+            let fraseIdentidad = "";
+            if (identidadScore >= 8) {
+                fraseIdentidad = `"Yo soy alguien que ${habito.toLowerCase()}. No lo intento. Lo soy."`;
+            } else if (identidadScore >= 5) {
+                fraseIdentidad = `"Estoy construyendo la versión de mí que ${habito.toLowerCase()} naturalmente."`;
+            } else {
+                fraseIdentidad = `"Por ahora, ${habito.toLowerCase()} es un experimento. Pero los experimentos repetidos se convierten en identidad."`;
+            }
+
+            // Plan de 7 días comprimido
+            const plan = `Días 1-2: Solo activa el detonante. ${tiempoTexto} exactos. No más.<br>
+                          Días 3-4: Ejecuta la rutina. Si fallas un día, no dos seguidos.<br>
+                          Días 5-7: Registra cada día. No rompas la cadena.`;
+
+            // Construir HTML del resultado
+            const resultadoHTML = `
+                <h3 style="margin-top: 0; margin-bottom: 1rem;">📋 Tu sistema personalizado</h3>
+                
+                <div class="frase-identidad">
+                    "${fraseIdentidad}"
+                </div>
+
+                <p><strong>🎯 Hábito:</strong> ${habito}</p>
+                <p><strong>⏱️ Duración óptima:</strong> ${duracionSugerida}</p>
+                <p><strong>🔔 Detonante:</strong> ${detonante}</p>
+                <p><strong>🎁 Recompensa inmediata:</strong> ${recompensaTexto}</p>
+                <p><strong>📅 Plan de 7 días:</strong><br>${plan}</p>
+                
+                <hr style="margin: 1rem 0; background: #333;">
+                
+                <p style="font-size: 0.875rem; color: #a3a3a3;">
+                ⚡ Regla Statux: No necesitas motivación. Necesitas un sistema que funcione incluso cuando estás cansado, distraído o sin ganas.
+                </p>
+            `;
+
+            const resultadoDiv = document.getElementById('resultado');
+            resultadoDiv.innerHTML = resultadoHTML;
+            resultadoDiv.classList.add('visible');
+        }
+    </script>
+</body>
+</html>

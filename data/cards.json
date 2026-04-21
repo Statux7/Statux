@@ -17,11 +17,11 @@
       "title": "Calistenia",
       "subtitle": "El arte de construir un cuerpo usando solo tu peso.",
       "code": "7CLD-LU45RFDYQXX",
-      "price": "11.99",
+      "price": "4.99",
       "image": "portadas/487-3476.jpeg",
       "description": "Este Getux no está aquí para convertirte en alguien que no eres. Está aquí para ayudarte a dejar de sabotearte y empezar a jugar en tu mejor nivel.",
-      "yes": "✔ Acceso inmediato,✔ Imagenes",
-      "no": "❌ Videos,❌ archivo descargable",
+      "yes": "✔ Acceso inmediato,✔ Imagenes,✔ Templux",
+      "no": "❌ Videos,❌ archivo descargable,❌ Systux",
       "link": "https://statux.gumroad.com/l/whwejd",
       "blocks": [
         {
@@ -124,7 +124,7 @@
       "subtitle": "Curso premium con acceso por doble validación.",
       "code": "GETUX-PRIMER-CODIGO",
       "courseUrl": "getux-html-css/index.html",
-      "price": "89.99",
+      "price": "68.99",
       "image": "portadas/portada-de-htmlycss.jpeg",
       "description": "Curso interactivo con contenido web premium. Primero validas código de compra, luego código interno del curso.",
       "yes": "✔ Acceso al curso,✔ Playground,✔ Systux,✔ Descargable",
@@ -137,43 +137,15 @@
       "section": "getux",
       "title": "Domina el storytelling",
       "subtitle": "",
-      "code": "12345",
-      "price": "7.99",
-      "image": "",
-      "description": "",
-      "yes": "✔ ,✔ ,✔ ",
-      "no": "❌ ,❌ ,❌ ",
+      "code": "",
+      "price": "",
+      "image": "portadas/wedfbbgtr43.jpeg",
+      "description": "Aprende el arte de contar historias.",
+      "yes": "✔ Systux,✔ Herramientas",
+      "no": "❌ Templux",
+      "courseUrl": "Systux/Getux/index.html",
       "link": "#",
-      "blocks": [
-        {
-          "title": "",
-          "text1": "",
-          "text2": "",
-          "img": "",
-          "video": ""
-        },
-        {
-          "title": "",
-          "text1": "",
-          "text2": "",
-          "img": "",
-          "video": ""
-        },
-        {
-          "title": "",
-          "text1": "",
-          "text2": "",
-          "img": "",
-          "video": ""
-        },
-        {
-          "title": "",
-          "text1": "",
-          "text2": "",
-          "img": "",
-          "video": ""
-        }
-      ]
+      "blocks": []
     },
     {
       "type": "ebootux",
@@ -181,10 +153,10 @@
       "title": "Arquitectura Mental",
       "subtitle": "El cerebro piensa. La mente decide qué pensamientos gobiernan tu vida.",
       "code": "2JRRrc-84DN",
-      "price": "5.99",
+      "price": "1.99",
       "image": "portadas/hjt2345tgb.jpeg",
       "description": "Tu mente no percibe la realidad de forma neutral. Filtra, interpreta y distorsiona constantemente la información que recibe. En este Ebóotux descubrirás los mecanismos psicológicos que influyen en cómo piensas, decides y recuerdas. Una guía clara para entender los efectos invisibles que moldean tu mente.",
-      "yes": "✔ Acceso inmediato",
+      "yes": "✔ Acceso inmediato,✔ Templux",
       "no": "❌ Videos,❌ Imagenes,❌ Archivo descargable,❌ Systux",
       "link": "https://statux.gumroad.com/l/fjsygp",
       "blocks": [
@@ -360,7 +332,7 @@
       "price": "",
       "image": "portadas/6g7nNWY-.jpeg",
       "description": "Este Getux no está aquí para convertirte en alguien que no eres. Está aquí para ayudarte a dejar de sabotearte y empezar a jugar en tu mejor nivel.",
-      "yes": "✔ Acceso inmediato",
+      "yes": "✔ Acceso inmediato,✔ Templux",
       "no": "❌ Videos,❌ Imagenes,❌ Archivo descargable,❌ Systux",
       "link": "#",
       "blocks": [
@@ -409,16 +381,17 @@
       ]
     },
     {
-      "type": "Ebootux",
-      "section": "Ebootux",
-      "title": "Expande tu voacbulario",
+      "type": "getux",
+      "section": "getux",
+      "title": "Hábitos — Sistema de Dominio Personal",
       "subtitle": "",
       "code": "12345-",
-      "price": "2.99",
-      "image": "",
+      "price": "12.99",
+      "image": "portadas/2f487-39FYrw.jpeg",
+      "courseUrl": "Systux/Getux/H-SDDP.html",
       "description": "",
-      "yes": "✔ ,✔ ",
-      "no": "❌ ,❌ ,❌ ",
+      "yes": "✔ ,✔ Systux",
+      "no": "❌ ,❌ ,❌ Templux",
       "link": "#",
       "blocks": []
     },
@@ -427,12 +400,13 @@
       "section": "Getux",
       "title": "Calistenia 2.0",
       "subtitle": "",
-      "code": "12345-",
-      "price": "22.99",
-      "image": "",
+      "code": "",
+      "price": "",
+      "courseUrl": "Systux/Getux/CL2.0.html",
+      "image": "portadas/12wery54eyu.jpeg",
       "description": "",
-      "yes": "✔ ,✔ ",
-      "no": "❌ ,❌ ,❌ ",
+      "yes": "✔ ,✔ Systux",
+      "no": "❌ ,❌ ,❌ Templux",
       "link": "#",
       "blocks": []
     },
@@ -469,16 +443,17 @@
       "link": "https://statux.gumroad.com/l/vcfbvy"
     },
     {
-      "type": "ebootux",
-      "section": "ebootux",
+      "type": "getux",
+      "section": "getux",
       "title": "Comunicación de Alto Impacto",
       "subtitle": "",
-      "code": "12345",
-      "price": "19.99",
-      "image": "",
+      "code": "",
+      "courseUrl": "Systux/Getux/CDAI.html",
+      "price": "",
+      "image": "portadas/vkubo3i-28ytve.jpeg",
       "description": "",
-      "yes": "✔ ,✔ ",
-      "no": "❌ , ❌ ,❌ ",
+      "yes": "✔ ,✔ Systux",
+      "no": "❌ Templux, ❌ ,❌ ",
       "link": "#",
       "blocks": []
     },
@@ -491,7 +466,7 @@
       "price": "7.99",
       "image": "portadas/img(87hgtt4e--9).jpeg",
       "description": "Aquí descubrirás cómo se forman las primeras impresiones, qué atajos mentales usa el cerebro para juzgar a las personas y qué micro-comportamientos pueden debilitar tu presencia sin que te des cuenta. También aprenderás cómo el lenguaje corporal, los pequeños detalles de comportamiento influyen en la forma en que otros te perciben.",
-      "yes": "✔ Acceso inmediato",
+      "yes": "✔ Acceso inmediato,✔ Templux",
       "no": "❌ Videos,❌ imagenes,❌ Archivo descargable,❌ Systux",
       "link": "https://statux.gumroad.com/l/jcpkei",
       "blocks": [
@@ -622,6 +597,21 @@
       "video": ""
     }
       ]
+    },
+    {
+      "type": "ebootux",
+      "section": "ebootux",
+      "title": "Hábitos",
+      "subtitle": "",
+      "code": "123",
+      "courseUrl": "",
+      "price": "0.00",
+      "image": "portadas/82387-69734.jpeg",
+      "description": "",
+      "yes": "✔ ,✔ ,✔ Systux,",
+      "no": "❌ Templux,❌ Descargable,",
+      "link": "#",
+      "blocks": []
     }
   ]
 }

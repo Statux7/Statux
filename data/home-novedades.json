@@ -1,9 +1,9 @@
 [
   {
     "id": 1,
-    "title": "Plantillas que aceleran",
-    "desc": "Estructuras listas para producir más rápido y con menos desgaste mental.",
-    "icon": "Plantitux.svg",
+    "title": "Bienvenido a Statux",
+    "desc": "Acceso concedido. Mantenga el criterio.",
+    "icon": "verified_24dp_00FFFF.svg",
     "bg": "fondo.de.la.web.jpeg"
   },
   {
@@ -22,13 +22,13 @@
   },
   {
     "id": 4,
-    "title": "Novedades semanales",
+    "title": "Descubre y construye",
     "icon": "Tracktux.svg",
     "bg": "card.jpg"
   },
   {
     "id": 5,
-    "title": "Actualizaciones en vivo",
+    "title": "",
     "icon": "Getux.svg",
     "bg": "fondo.de.la.web.jpeg"
   }

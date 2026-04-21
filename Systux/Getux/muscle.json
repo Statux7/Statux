@@ -1,0 +1,197 @@
+{
+  "pecho": {
+    "name": "Pecho",
+    "sub": "PECTORAL MAYOR · VISTA FRONTAL",
+    "parts": ["Pectoral mayor", "Pectoral menor", "Haz clavicular", "Haz esternal", "Haz costal"],
+    "exercises": [
+      { "name": "Flexiones", "video": "https://www.youtube.com/embed/IODxDxX7oi4" },
+      { "name": "Fondos en paralelas", "video": "https://www.youtube.com/embed/2z8JmcrW-As" },
+      { "name": "Flexiones inclinadas", "video": "https://www.youtube.com/embed/0pkjOk0EiAk" },
+      { "name": "Flexiones diamante", "video": "https://www.youtube.com/embed/IODxDxX7oi4" }
+    ],
+    "benefits": "<strong>Fuerza de empuje:</strong> El pecho es el motor principal de todos los movimientos de empuje horizontal. Desarrollarlo potencia directamente tus flexiones, dips y press en pino.<br><br><strong>Postura y equilibrio:</strong> Un pecho fuerte, combinado con espalda trabajada, mejora la postura y previene lesiones de hombro.<br><br><strong>Estética y definición:</strong> El desarrollo pectoral aporta grosor y volumen visible en el tren superior, clave para una figura atlética.",
+    "info": "El <strong>pectoral mayor</strong> es el músculo más voluminoso del pecho. Se divide en tres porciones: clavicular (parte superior), esternal (parte media) y costal (parte inferior). Cada porción se activa según el ángulo del ejercicio: inclinado activa el haz clavicular, plano el esternal, y declinado el costal.<br><br>El <strong>pectoral menor</strong> es un músculo profundo que estabiliza la escápula. Aunque menos visible, es fundamental para la salud del hombro."
+  },
+  "deltoides": {
+    "name": "Deltoides",
+    "sub": "HOMBRO · VISTA FRONTAL Y TRASERA",
+    "parts": ["Deltoides anterior", "Deltoides lateral", "Deltoides posterior", "Manguito rotador"],
+    "exercises": [
+      { "name": "Pike push-ups", "video": "https://www.youtube.com/embed/IODxDxX7oi4" },
+      { "name": "Press en pino", "video": "https://www.youtube.com/embed/2z8JmcrW-As" },
+      { "name": "Elevaciones laterales", "video": "https://www.youtube.com/embed/0pkjOk0EiAk" }
+    ],
+    "benefits": "<strong>Estabilidad de hombro:</strong> El deltoides es el guardián de la articulación glenohumeral. Fortalecerlo reduce drásticamente el riesgo de lesiones.<br><br><strong>Habilidades avanzadas:</strong> El press en pino, el planche y el human flag requieren un deltoides excepcionalmente fuerte.<br><br><strong>Anchura corporal:</strong> Los hombros anchos crean la ilusión de cintura más estrecha y proporcionan una figura en V.",
+    "info": "El <strong>deltoides</strong> tiene tres porciones con funciones distintas: la <strong>anterior</strong> flexiona y rota internamente el húmero, la <strong>lateral</strong> realiza la abducción, y la <strong>posterior</strong> extiende y rota externamente.<br><br>En calistenia, el deltoides anterior y lateral se trabajan principalmente en movimientos de empuje vertical (pino, pike push-ups), mientras que el posterior se activa en movimientos de tirón y ejercicios de remo."
+  },
+  "biceps": {
+    "name": "Bíceps",
+    "sub": "FLEXOR DEL CODO · VISTA FRONTAL",
+    "parts": ["Bíceps braquial (cabeza larga)", "Bíceps braquial (cabeza corta)", "Braquial anterior", "Braquiorradial"],
+    "exercises": [
+      { "name": "Dominadas supinas", "video": "https://www.youtube.com/embed/IODxDxX7oi4" },
+      { "name": "Remo australiano", "video": "https://www.youtube.com/embed/2z8JmcrW-As" },
+      { "name": "Dominadas prono", "video": "https://www.youtube.com/embed/0pkjOk0EiAk" }
+    ],
+    "benefits": "<strong>Tirón funcional:</strong> Bíceps fuertes potencian directamente todas las dominadas y movimientos de tirón, imprescindibles en calistenia.<br><br><strong>Muscle-up:</strong> La transición del muscle-up requiere explosividad y fuerza máxima de bíceps.<br><br><strong>Codo y antebrazo:</strong> Bíceps bien desarrollados protegen la articulación del codo y mejoran la fuerza de agarre.",
+    "info": "El <strong>bíceps braquial</strong> tiene dos cabezas: la <strong>larga</strong> (parte externa del brazo, crea el pico) y la <strong>corta</strong> (parte interna). Ambas se unen en un tendón común que se inserta en el radio.<br><br>Sus funciones principales son la <strong>flexión del codo</strong> y la <strong>supinación del antebrazo</strong>. En calistenia, el agarre supino (palmas hacia ti) activa más el bíceps, mientras que el agarre prono involucra más al braquial anterior."
+  },
+  "abdominales": {
+    "name": "Abdominales",
+    "sub": "CORE · VISTA FRONTAL",
+    "parts": ["Recto abdominal", "Oblicuo externo", "Oblicuo interno", "Transverso abdominal"],
+    "exercises": [
+      { "name": "Hollow body hold", "video": "https://www.youtube.com/embed/IODxDxX7oi4" },
+      { "name": "L-sit", "video": "https://www.youtube.com/embed/2z8JmcrW-As" },
+      { "name": "Dragon flag", "video": "https://www.youtube.com/embed/0pkjOk0EiAk" },
+      { "name": "Elevaciones de piernas", "video": "https://www.youtube.com/embed/IODxDxX7oi4" }
+    ],
+    "benefits": "<strong>Núcleo de toda habilidad:</strong> El core es la base de cada habilidad avanzada en calistenia: planche, front lever, human flag y muscle-up dependen de él.<br><br><strong>Transferencia de fuerza:</strong> Un core sólido conecta el tren superior con el inferior, multiplicando la fuerza total del cuerpo.<br><br><strong>Protección lumbar:</strong> Abdominales fuertes protegen la columna vertebral y reducen el dolor de espalda baja.",
+    "info": "El <strong>recto abdominal</strong> es el músculo de los 'cuadraditos'. Va del esternón y costillas hasta el pubis, y su función principal es la flexión del tronco.<br><br>Los <strong>oblicuos</strong> permiten la rotación y flexión lateral. El <strong>transverso abdominal</strong> es el más profundo: actúa como un corsé natural que estabiliza la columna y comprime los órganos. En calistenia se trabaja constantemente de forma isométrica durante casi todos los ejercicios."
+  },
+  "oblicuos": {
+    "name": "Oblicuos",
+    "sub": "CORE LATERAL · VISTA FRONTAL",
+    "parts": ["Oblicuo externo", "Oblicuo interno", "Transverso abdominal"],
+    "exercises": [
+      { "name": "Russian twists", "video": "https://www.youtube.com/embed/IODxDxX7oi4" },
+      { "name": "Plancha lateral", "video": "https://www.youtube.com/embed/2z8JmcrW-As" },
+      { "name": "Elevaciones de piernas con giro", "video": "https://www.youtube.com/embed/0pkjOk0EiAk" }
+    ],
+    "benefits": "<strong>Rotación de tronco:</strong> Los oblicuos son los principales rotadores del torso, esenciales para movimientos atléticos como lanzamientos o golpes.<br><br><strong>Estabilidad lateral:</strong> Fortalecen la zona lateral del core, mejorando el equilibrio en ejercicios unilaterales.<br><br><strong>Definición abdominal:</strong> Unos oblicuos desarrollados afinan la cintura visualmente.",
+    "info": "Los <strong>oblicuos externos</strong> son los más superficiales y visibles en los laterales del abdomen. Rotan el tronco hacia el lado contrario y lo flexionan lateralmente. Los <strong>oblicuos internos</strong> están debajo y rotan hacia el mismo lado. Juntos, estabilizan la columna y protegen las vísceras."
+  },
+  "serrato": {
+    "name": "Serrato anterior",
+    "sub": "SERRATUS ANTERIOR · VISTA FRONTAL",
+    "parts": ["Serrato anterior (porción superior)", "Serrato anterior (porción media)", "Serrato anterior (porción inferior)"],
+    "exercises": [
+      { "name": "Push-up plus", "video": "https://www.youtube.com/embed/IODxDxX7oi4" },
+      { "name": "Scapular push-ups", "video": "https://www.youtube.com/embed/2z8JmcrW-As" },
+      { "name": "Plancha con protracción", "video": "https://www.youtube.com/embed/0pkjOk0EiAk" }
+    ],
+    "benefits": "<strong>Estabilidad escapular:</strong> El serrato mantiene la escápula pegada a las costillas, evitando las 'alas de ángel' (escápula alada).<br><br><strong>Protección del hombro:</strong> Trabaja en sinergia con el trapecio para rotar la escápula hacia arriba, fundamental en movimientos overhead.<br><br><strong>Estética:</strong> Un serrato desarrollado da el aspecto de 'dedos' en el costado del torso, muy valorado en culturismo.",
+    "info": "El <strong>serrato anterior</strong> se origina en las primeras nueve costillas y se inserta en el borde medial de la escápula. Su función principal es la <strong>protracción</strong> (separar la escápula de la columna) y la <strong>rotación superior</strong> de la escápula. Es fundamental para la salud del hombro y para movimientos como el press en pino."
+  },
+  "cuadriceps": {
+    "name": "Cuádriceps",
+    "sub": "EXTENSOR DE RODILLA · VISTA FRONTAL",
+    "parts": ["Recto femoral", "Vasto lateral", "Vasto medial", "Vasto intermedio"],
+    "exercises": [
+      { "name": "Sentadilla pistol", "video": "https://www.youtube.com/embed/IODxDxX7oi4" },
+      { "name": "Sentadilla búlgara", "video": "https://www.youtube.com/embed/2z8JmcrW-As" },
+      { "name": "Estocadas", "video": "https://www.youtube.com/embed/0pkjOk0EiAk" }
+    ],
+    "benefits": "<strong>Potencia de salto:</strong> Cuádriceps potentes aumentan la altura de salto y la velocidad explosiva de carrera.<br><br><strong>Rodilla saludable:</strong> Desarrollar equilibradamente los cuatro vastos estabiliza la rótula y previene lesiones.<br><br><strong>Pistol squat:</strong> La sentadilla a una pierna, reina de la calistenia de pierna, demanda fuerza máxima de cuádriceps.",
+    "info": "El <strong>cuádriceps</strong> está compuesto por cuatro músculos: <strong>recto femoral</strong> (único que cruza la cadera, flexiona el muslo y extiende la rodilla), <strong>vasto lateral</strong> (parte externa), <strong>vasto medial</strong> (parte interna, fundamental para la estabilidad rotuliana) y <strong>vasto intermedio</strong> (profundo, entre los anteriores).<br><br>Todos convergen en el tendón cuadricipital que se inserta en la rótula y continúa como tendón rotuliano hasta la tibia."
+  },
+  "gemelos": {
+    "name": "Gemelos",
+    "sub": "PANTORRILLA · VISTA FRONTAL Y TRASERA",
+    "parts": ["Gastrocnemio medial", "Gastrocnemio lateral", "Sóleo", "Tibial anterior"],
+    "exercises": [
+      { "name": "Elevaciones de talón", "video": "https://www.youtube.com/embed/IODxDxX7oi4" },
+      { "name": "Saltos al cajón", "video": "https://www.youtube.com/embed/2z8JmcrW-As" },
+      { "name": "Sprints", "video": "https://www.youtube.com/embed/0pkjOk0EiAk" }
+    ],
+    "benefits": "<strong>Explosividad:</strong> Los gemelos son fundamentales para el salto, el sprint y cualquier movimiento explosivo de pierna.<br><br><strong>Estabilidad de tobillo:</strong> Pantorrillas fuertes protegen el tobillo y mejoran el equilibrio en ejercicios unilaterales.<br><br><strong>Resistencia cardiovascular:</strong> Gemelos desarrollados permiten mayor volumen de entrenamiento aeróbico.",
+    "info": "El <strong>tríceps sural</strong> está formado por el <strong>gastrocnemio</strong> (dos cabezas visibles que forman la forma de diamante) y el <strong>sóleo</strong> (profundo, fundamental para la resistencia). Ambos convergen en el tendón de Aquiles.<br><br>El gastrocnemio cruza la rodilla, por lo que se activa más con la pierna extendida. El sóleo no cruza la rodilla, por lo que se activa mejor con la rodilla flexionada."
+  },
+  "cuello": {
+    "name": "Cuello",
+    "sub": "CERVICAL · ESTERNOCLEIDOMASTOIDEO",
+    "parts": ["Esternocleidomastoideo", "Escalenos", "Esplenio", "Trapecio superior"],
+    "exercises": [
+      { "name": "Puente de cuello", "video": "https://www.youtube.com/embed/IODxDxX7oi4" },
+      { "name": "Isométrico lateral", "video": "https://www.youtube.com/embed/2z8JmcrW-As" }
+    ],
+    "benefits": "<strong>Prevención de lesiones:</strong> Un cuello fuerte protege contra lesiones cervicales y reduce el dolor de cabeza tensional.<br><br><strong>Postura:</strong> Los músculos cervicales mantienen la cabeza erguida y previenen la postura adelantada de cabeza, común en sedentarios.<br><br><strong>Rendimiento atlético:</strong> En artes marciales y deportes de contacto, el cuello fuerte es fundamental.",
+    "info": "El <strong>esternocleidomastoideo</strong> es el músculo más visible del cuello. Se origina en el esternón y la clavícula, y se inserta en el proceso mastoideo del cráneo. Rota la cabeza hacia el lado contrario y la flexiona lateralmente.<br><br>Los <strong>escalenos</strong> (anterior, medio y posterior) elevan las costillas en la inspiración y flexionan lateralmente el cuello."
+  },
+  "trapecio": {
+    "name": "Trapecio",
+    "sub": "ESPALDA SUPERIOR · VISTA TRASERA",
+    "parts": ["Trapecio superior", "Trapecio medio", "Trapecio inferior", "Romboides"],
+    "exercises": [
+      { "name": "Face pulls en anillos", "video": "https://www.youtube.com/embed/IODxDxX7oi4" },
+      { "name": "Remo australiano", "video": "https://www.youtube.com/embed/2z8JmcrW-As" },
+      { "name": "Dominadas", "video": "https://www.youtube.com/embed/0pkjOk0EiAk" }
+    ],
+    "benefits": "<strong>Postura:</strong> El trapecio medio e inferior retraen y deprimen la escápula, corrigiendo la postura encorvada típica del trabajo de oficina.<br><br><strong>Protección de hombro:</strong> Trapecio fuerte estabiliza la escápula durante movimientos overhead y protege el manguito rotador.<br><br><strong>Estética de espalda:</strong> El trapecio superior desarrollado da el característico aspecto de 'toro' y amplitud del cuello.",
+    "info": "El <strong>trapecio</strong> es un músculo triangular enorme que ocupa toda la espalda superior. Se divide en tres porciones: <strong>superior</strong> (eleva la escápula y la cabeza), <strong>medio</strong> (retrae la escápula) e <strong>inferior</strong> (deprime la escápula).<br><br>En calistenia, el trapecio inferior es frecuentemente débil e inhibido, siendo crucial para las transiciones del muscle-up y la estabilidad en movimientos de anillos."
+  },
+  "dorsal": {
+    "name": "Dorsal Ancho",
+    "sub": "LATISSIMUS DORSI · VISTA TRASERA",
+    "parts": ["Haz vertebral", "Haz ilíaco", "Haz costal", "Haz escapular"],
+    "exercises": [
+      { "name": "Dominadas prono", "video": "https://www.youtube.com/embed/IODxDxX7oi4" },
+      { "name": "Front lever", "video": "https://www.youtube.com/embed/2z8JmcrW-As" },
+      { "name": "Muscle-up", "video": "https://www.youtube.com/embed/0pkjOk0EiAk" },
+      { "name": "Remo en anillos", "video": "https://www.youtube.com/embed/IODxDxX7oi4" }
+    ],
+    "benefits": "<strong>Rey del tirón:</strong> El dorsal es el músculo más grande de la espalda y el motor principal de dominadas, muscle-ups y front lever.<br><br><strong>Anchura de espalda:</strong> Dorsales desarrollados crean la codiciada forma en V que define el físico atlético.<br><br><strong>Fuerza total:</strong> Adducción y extensión del húmero, generando la fuerza de jalar que define toda la calistenia de tirón.",
+    "info": "El <strong>dorsal ancho</strong> es el músculo más ancho del cuerpo humano. Se origina en las vértebras torácicas, lumbares, sacras y en la cresta ilíaca, cubriendo gran parte de la espalda. Se inserta en el húmero mediante un tendón.<br><br>Sus funciones principales son la <strong>aducción</strong>, <strong>extensión</strong> y <strong>rotación interna</strong> del húmero. En calistenia, es imposible hacer una dominada de calidad sin dorsales fuertes."
+  },
+  "gluteos": {
+    "name": "Glúteos",
+    "sub": "GLÚTEO MAYOR, MEDIO Y MENOR · VISTA TRASERA",
+    "parts": ["Glúteo mayor", "Glúteo medio", "Glúteo menor", "Piriforme"],
+    "exercises": [
+      { "name": "Sentadilla pistol", "video": "https://www.youtube.com/embed/IODxDxX7oi4" },
+      { "name": "Hip thrust", "video": "https://www.youtube.com/embed/2z8JmcrW-As" },
+      { "name": "Nordic curl", "video": "https://www.youtube.com/embed/0pkjOk0EiAk" }
+    ],
+    "benefits": "<strong>Potencia de extensión de cadera:</strong> Los glúteos son los músculos más potentes del cuerpo. Su fuerza se transfiere a saltos, sprints y habilidades como el human flag.<br><br><strong>Protección lumbar:</strong> Glúteos débiles causan compensación lumbar. Fortalecerlos alivia el dolor de espalda baja.<br><br><strong>Equilibrio en pistol squat:</strong> El glúteo medio estabiliza la pelvis en ejercicios unilaterales.",
+    "info": "El <strong>glúteo mayor</strong> es el músculo más voluminoso del cuerpo. Extiende y rota externamente el fémur. El <strong>glúteo medio</strong> abduce el muslo y estabiliza la pelvis durante la marcha y el desequilibrio unilateral. El <strong>glúteo menor</strong> asiste al medio en sus funciones.<br><br>En calistenia, los glúteos se trabajan intensamente en pistol squats, sentadillas búlgaras y cualquier ejercicio de pierna unilateral."
+  },
+  "triceps": {
+    "name": "Tríceps",
+    "sub": "EXTENSOR DE CODO · VISTA TRASERA",
+    "parts": ["Cabeza larga", "Cabeza lateral", "Cabeza medial"],
+    "exercises": [
+      { "name": "Dips en paralelas", "video": "https://www.youtube.com/embed/IODxDxX7oi4" },
+      { "name": "Flexiones diamante", "video": "https://www.youtube.com/embed/2z8JmcrW-As" },
+      { "name": "L-sit press", "video": "https://www.youtube.com/embed/0pkjOk0EiAk" }
+    ],
+    "benefits": "<strong>Extensión de codo:</strong> El tríceps compone el 60-70% del volumen del brazo y es fundamental en todo movimiento de empuje.<br><br><strong>Estabilidad en pino:</strong> La cabeza larga del tríceps estabiliza el hombro durante el press en pino y el planche.<br><br><strong>Dips:</strong> Los fondos en paralelas son el rey del desarrollo de tríceps en calistenia.",
+    "info": "El <strong>tríceps braquial</strong> tiene tres cabezas: la <strong>larga</strong> (cruza la articulación del hombro, se trabaja mejor con el brazo elevado), la <strong>lateral</strong> (la más visible desde el exterior, activa en todos los ángulos) y la <strong>medial</strong> (profunda, activa en todo el rango de movimiento).<br><br>Su única función en el codo es la <strong>extensión</strong>. Sin tríceps, sería imposible hacer una flexión, un dip o cualquier movimiento de empuje."
+  },
+  "isquiotibiales": {
+    "name": "Isquiotibiales",
+    "sub": "FLEXORES DE RODILLA · VISTA TRASERA",
+    "parts": ["Bíceps femoral", "Semitendinoso", "Semimembranoso"],
+    "exercises": [
+      { "name": "Nordic curl", "video": "https://www.youtube.com/embed/IODxDxX7oi4" },
+      { "name": "Sentadilla búlgara", "video": "https://www.youtube.com/embed/2z8JmcrW-As" },
+      { "name": "Estocadas inversas", "video": "https://www.youtube.com/embed/0pkjOk0EiAk" }
+    ],
+    "benefits": "<strong>Prevención de lesiones:</strong> El desequilibrio cuádriceps-isquios es la principal causa de lesiones de rodilla. Isquios fuertes protegen los ligamentos cruzados.<br><br><strong>Velocidad:</strong> Isquiotibiales fuertes y flexibles aumentan la velocidad de zancada y la potencia de carrera.<br><br><strong>Flexibilidad funcional:</strong> Isquios bien desarrollados y con buen rango de movimiento son clave para la movilidad general.",
+    "info": "Los <strong>isquiotibiales</strong> son un grupo de tres músculos: <strong>bíceps femoral</strong> (tiene cabeza larga y corta, es el más lateral), <strong>semitendinoso</strong> y <strong>semimembranoso</strong> (ambos mediales).<br><br>Sus funciones son la <strong>flexión de rodilla</strong> y la <strong>extensión de cadera</strong>. Cruzan ambas articulaciones, lo que los hace especialmente susceptibles a lesiones cuando están tensos. El Nordic curl es el ejercicio más efectivo para fortalecerlos en calistenia."
+  },
+  "antebrazo": {
+    "name": "Antebrazo",
+    "sub": "FLEXORES Y EXTENSORES · VISTA FRONTAL Y TRASERA",
+    "parts": ["Flexor radial del carpo", "Flexor cubital del carpo", "Extensor radial largo", "Extensor cubital", "Braquiorradial"],
+    "exercises": [
+      { "name": "Dead hang", "video": "https://www.youtube.com/embed/IODxDxX7oi4" },
+      { "name": "Dominadas con toalla", "video": "https://www.youtube.com/embed/2z8JmcrW-As" },
+      { "name": "Curl de muñeca", "video": "https://www.youtube.com/embed/0pkjOk0EiAk" },
+      { "name": "Extensión de muñeca", "video": "https://www.youtube.com/embed/IODxDxX7oi4" }
+    ],
+    "benefits": "<strong>Fuerza de agarre:</strong> Unos antebrazos fuertes son el eslabón crítico en dominadas, muscle-ups y cualquier ejercicio de barra.<br><br><strong>Protección de muñecas:</strong> Antebrazos desarrollados estabilizan la muñeca y previenen lesiones como la epitrocleitis (codo de golfista).<br><br><strong>Rendimiento en calistenia:</strong> El agarre es a menudo el factor limitante en series largas de dominadas o en el front lever.",
+    "info": "El antebrazo contiene más de 20 músculos divididos en compartimentos anterior (flexores) y posterior (extensores). El <strong>braquiorradial</strong> es el músculo más visible en la parte superior del antebrazo y ayuda en la flexión del codo. Los <strong>flexores</strong> cierran la mano y flexionan la muñeca, mientras que los <strong>extensores</strong> abren la mano y extienden la muñeca."
+  },
+  "lumbares": {
+    "name": "Lumbares",
+    "sub": "ERECTORES DE LA COLUMNA · VISTA TRASERA",
+    "parts": ["Erector espinal", "Cuadrado lumbar", "Multífidos"],
+    "exercises": [
+      { "name": "Superman", "video": "https://www.youtube.com/embed/IODxDxX7oi4" },
+      { "name": "Peso muerto rumano", "video": "https://www.youtube.com/embed/2z8JmcrW-As" },
+      { "name": "Plancha con elevación de piernas", "video": "https://www.youtube.com/embed/0pkjOk0EiAk" }
+    ],
+    "benefits": "<strong>Estabilidad de columna:</strong> Los lumbares protegen las vértebras y mantienen la postura erguida.<br><br><strong>Prevención de dolor de espalda:</strong> Lumbares débiles son la causa principal de lumbalgia crónica.<br><br><strong>Transferencia de fuerza:</strong> Un core posterior fuerte permite transmitir potencia desde las piernas al tren superior.",
+    "info": "Los <strong>erectores espinales</strong> son un grupo de músculos que recorren toda la columna vertebral. La porción lumbar se encarga de la extensión de la espalda y de mantener la postura bípeda. El <strong>cuadrado lumbar</strong> estabiliza la pelvis y la columna lateralmente."
+  }
+}

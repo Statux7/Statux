@@ -161,7 +161,7 @@ footer.stx-footer-ready {
   height: 350px;
   padding: 10px;
   flex-direction: column;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   justify-content: space-around;
   align-items: center;
   text-align: center;
@@ -426,170 +426,6 @@ footer.stx-footer-ready {
   75% { transform: translateX(2px) translateY(-1px); }
 }
 
-.welcome-box {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  text-align: center;
-  width: 100%;
-  background-color: #000000;
-  align-items: center;
-  color: #777777;
-}
-
-h1 {
-  font-size: 70px;
-  color: #00ffff;
-  letter-spacing: 16px;
-  font-weight: 500;
-}
-
-.bienvenido-a-nuestro-estilo {
-  color: #777;
-  letter-spacing: 10px;
-  font-weight: 700;
-}
-
-.conteiner-below-welcome {
-  padding: 36px;
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-}
-
-.grid-item-below-welcome {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  background-color: #333;
-  border-radius: 16px;
-  margin: 10px;
-  height: 500px;
-  width: 330px;
-}
-
-.cabezera-de-los-grid-item-below-welcome {
-  display: flex;
-  justify-content: center;
-  width: 80%;
-  height: 20%;
-  margin-top: 8%;
-  border-radius: 30px;
-}
-
-.img-grid {
-  width: 44px;
-  height: 44px;
-}
-
-.contenedor-de-titulo-y-parrafo {
-  width: 80%;
-  text-align: center;
-  color: #00ffff;
-  font-size: 24px;
-  color:#00ffff;
-}
-
-.box-below-welcome {
-  display: flex;
-  flex-direction: column;
-  text-align: center;
-  padding: 30px;
-  width: 80%;
-  margin: auto;
-  margin-top: 140px;
-  border-radius: 36px;
-  font-size: 32px;
-  color: #bbbbbb;
-}
-
-.box-below-welcome-2 {
-  display: flex;
-  flex-wrap: wrap;
-  padding: 30px;
-  color: #333333;
-  max-width: 1200px;
-  width: 100%;
-  margin: auto;
-  justify-content: space-between;
-  border-radius: 36px;
-  margin-top: 200px;
-  box-sizing: border-box;
-}
-
-.porcentaje-de-ahorro {
-  display: flex;
-  padding: 20px;
-  justify-content: center;
-  border-radius: 360px;
-  align-items: center;
-  width: 120px;
-  height: 120px;
-  background: linear-gradient(160deg, #777777, #000000, #777777);
-}
-
-.barra-de-porcentaje {
-  display: flex;
-  border: 5px solid #00ffff;
-  padding: 20px;
-  width: 100%;
-  max-width: 100%;
-  height: 180px;
-  align-items: center;
-  background-color: #000;
-  border-radius: 360px;
-  margin: auto;
-  box-sizing: border-box;
-}
-
-.contenedor-de-empaquetux {
-  display: flex;
-  width: 100%;
-  justify-content: center;
-}
-
-.big-box-1 {
-  display: flex;
-  flex-direction: column;
-  padding: 24px;
-  text-align: center;
-  width: 40%;
-  color: #00ffff;
-  font-size: 29px;
-  justify-content: center;
-}
-
-.big-box-2 {
-  display: flex;
-  flex-wrap: wrap;
-  padding: 24px;
-  text-align: center;
-  width: 40%;
-  justify-content: center;
-}
-
-.header-de-big-box-2 {
-  display: flex;
-  justify-content: center;
-  width: 100%;
-  height: 100px;
-  padding: 15px;
-}
-
-.boxitos {
-  display: flex;
-  flex-direction: column;
-  text-align: center;
-  align-items: center;
-  justify-content: center;
-  padding: 16px;
-  border: 5px solid #00ffff;
-  border-radius: 36px;
-  margin: 15px;
-  color: #00ffff;
-  width: 200px;
-}
-
 /* Politica y privacidad, terminos y condiciones */
 
 .info-web {
@@ -617,6 +453,7 @@ h1 {
   background: #000;
   color: #0ff;
   font-size: 18px;
+  font-family: 'ubuntu';
   outline: none;
   transition: 0.3s ease;
   font-weight: 400;
@@ -627,8 +464,7 @@ h1 {
 }
 
 .buscador-seccion:focus {
-  border-color: #0ff;
-  box-shadow: 0 0 10px #0ff;
+  box-shadow: 0 0 10px #000;
 }
 
 .mensaje-vacio {
@@ -695,6 +531,7 @@ h1 {
   overflow: hidden;
   font-size: 24px;
   color: #0ff;
+  box-shadow: 0 0 30px #000;
 }
 
 .header-ebootux-cards img {
@@ -717,12 +554,13 @@ h1 {
   flex: 1;
   padding: 10px;
   border-radius: 16px;
-  border: 3px solid #777;
+  border: none;
   background: #000;
-  color: #0ff;
+  color: #bbb;
   font-size: 17px;
   font-family: 'ubuntu';
-  outline: none;
+  outline: none; 
+  transition: .30s;
 }
 
 .input-codigo-ebootux::placeholder {
@@ -730,8 +568,7 @@ h1 {
 }
 
 .input-codigo-ebootux:focus {
-  border-color: #0ff;
-  box-shadow: 0 0 8px #0ff;
+  box-shadow: 0 0 8px #000;
 }
 
 .btn-acceder-ebootux {
@@ -740,8 +577,8 @@ h1 {
   gap: 8px;
   padding: 10px 16px;
   border-radius: 16px;
-  border: 3px solid #777;
-  background: transparent;
+  border: none;
+  background: #000;
   color: #777;
   font-size: 17px;
   font-family: 'ubuntu';
@@ -750,9 +587,8 @@ h1 {
 }
 
 .btn-acceder-ebootux:hover {
-  box-shadow: 0px 0px 10px #0ff;
+  box-shadow: 0px 0px 10px #000;
   color: #0ff;
-  border: 3px solid #0ff;
 }
 
 .contenedor-de-btn-de-compra {
@@ -786,10 +622,7 @@ h1 {
 }
 
 .btn-de-compra:hover {
-  box-shadow: 0px 0px 10px #0ff;
-  text-shadow: 10px 10px 40px 10px #0ff;
-  color: #0ff;
-  border: 3px solid #0ff;
+  box-shadow: 0px 0px 10px #000;
 }
 
 .btn-de-vista-previa {
@@ -798,7 +631,8 @@ h1 {
   align-items: center;
   justify-content: space-between;
   padding: 10px;
-  border: 3px solid #777;
+  background-color: #000;
+  border: none;
   text-decoration: none;
   border-radius: 16px;
   transition: 0.55s;
@@ -806,10 +640,7 @@ h1 {
 }
 
 .btn-de-vista-previa:hover {
-  box-shadow: 0px 0px 10px #0ff;
-  text-shadow: 10px 10px 40px 10px #0ff;
-  color: #0ff;
-  border: 3px solid #0ff;
+  box-shadow: 0px 0px 10px #000;
 }
 
 
@@ -887,11 +718,12 @@ h1 {
   flex: 1;
   padding: 10px;
   border-radius: 16px;
-  border: 2px solid #777;
+  border: none;
   background: #000;
-  color: #0ff;
+  color: #bbb;
   font-size: 17px;
-  outline: none;
+  outline: none; 
+  transition: .30s;
 }
 
 .input-codigo-plantitux::placeholder {
@@ -899,8 +731,7 @@ h1 {
 }
 
 .input-codigo-plantitux:focus {
-  border-color: #0ff;
-  box-shadow: 0 0 8px #0ff;
+  box-shadow: 0 0 8px #000;
 }
 
 .btn-acceder-plantitux {
@@ -909,8 +740,8 @@ h1 {
   gap: 8px;
   padding: 10px 16px;
   border-radius: 16px;
-  border: 3px solid #777;
-  background: transparent;
+  border: none;
+  background: #000;
   color: #777;
   font-size: 17px;
   cursor: pointer;
@@ -918,9 +749,8 @@ h1 {
 }
 
 .btn-acceder-plantitux:hover {
-  box-shadow: 0px 0px 10px #0ff;
+  box-shadow: 0px 0px 10px #000;
   color: #0ff;
-  border: 3px solid #0ff;
 }
 
 .icono-btn-entrar {
@@ -944,9 +774,9 @@ h1 {
   align-items: center;
   justify-content: center;
   padding: 10px;
-  border: 3px solid #777;
+  border: none;
   border-radius: 16px;
-  background: transparent;
+  background: #000;
   color: #777;
   font-size: 22px;
   cursor: pointer;
@@ -962,9 +792,8 @@ h1 {
 
 .btn-de-vista-previa-plantitux:hover,
 .btn-de-compra:hover {
-  box-shadow: 0px 0px 10px #0ff;
+  box-shadow: 0px 0px 10px #000;
   color: #0ff;
-  border: 3px solid #0ff;
 }
 
 /* ================= MODAL PREVIEW MULTIMEDIA ================= */
@@ -1711,7 +1540,7 @@ h1 {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-size: 32px;
+  font-size: 20px;
   color: #0ff;
 }
 
@@ -1747,8 +1576,8 @@ h1 {
 }
 
 .logout-btn {
-  background-color: transparent;
-  border: 3px solid #0ff;
+  background-color: #000;
+  border: none;
   border-radius: 10px;
   padding: 7px;
   cursor: pointer;
@@ -1898,7 +1727,7 @@ h1 {
 
 .ebootux-template.header-floating .ebootux-header-bar {
   position: fixed;
-  top: 12px;
+  top: 0px;
   left: 50%;
   transform: translateX(-50%);
   box-shadow: 0 10px 28px rgba(0, 0, 0, 0.45);
@@ -2005,6 +1834,7 @@ h1 {
 }
 
 .ebootux-nav-panel {
+  width: 80%;
   position: sticky;
   top: 60px;
   z-index: 498;
@@ -2014,6 +1844,7 @@ h1 {
   display: flex;
   flex-direction: column;
   gap: 6px;
+  position: fixed;
 }
 
 .ebootux-template.header-floating .ebootux-nav-panel {
@@ -2444,6 +2275,7 @@ h1 {
   .marketux-cards,
   .empaquetux-cards {
     width: 300px;
+    min-width: 290px;
     padding: 10px;
   }
 

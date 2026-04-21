@@ -505,7 +505,7 @@ body.stx-no-hover [data-home-root] .statux-card:hover::after {
   position: relative;
   background: #181a1a;
   border-radius: 22px;
-  box-shadow: 0 8px 40px #03f0fa55;
+  box-shadow: 0 8px 40px #000;
   color: #fff;
   min-width: 330px;
   max-width: 94vw;
@@ -592,8 +592,8 @@ body.stx-no-hover [data-home-root] .statux-card:hover::after {
   cursor: pointer;
 }
 .stx-confirm-btn {
-  background: #00f2ff;
-  color: #111;
+  background: #000;
+  color: #bbb;
   font-weight: bold;
 }
 .stx-cancel-btn {

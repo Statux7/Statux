@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dominar el Storytelling | Statux Systux</title>
+    <link rel="icon" href="favicoin.ico">
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <!-- Marked.js for Markdown -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    
+    <!-- Pyodide -->
+    <script src="https://cdn.jsdelivr.net/pyodide/v0.25.0/full/pyodide.js"></script>
+
+    <style>
+        @font-face {
+            font-family: 'Ubuntu';
+            src: url('https://fonts.gstatic.com/s/ubuntu/v20/4iCs6KVjbNBYlgoKcg72nU6AF7xm.woff2') format('woff2');
+            font-weight: 400;
+            font-style: normal;
+            font-display: swap;
+        }
+        @font-face {
+            font-family: 'Ubuntu';
+            src: url('https://fonts.gstatic.com/s/ubuntu/v20/4iCp6KVjbNBYlgoKejZftWyIPw.woff2') format('woff2');
+            font-weight: 700;
+            font-style: normal;
+            font-display: swap;
+        }
+
+        :root {
+            --bg-pure: #000000;
+            --bg-card: #0a0a0a;
+            --accent-primary: #5DD62C;
+            --accent-secondary: #337418;
+            --text-main: #F8F8F8;
+            --text-dim: #a0a0a0;
+            --borde: #202020;
+        }
+
+        body {
+            background-color: var(--bg-pure);
+            color: var(--text-main);
+            font-family: 'Ubuntu', sans-serif;
+            margin: 0;
+            scroll-behavior: smooth;
+        }
+
+        .markdown-body h1 { font-size: 1.875rem; font-weight: 700; margin-bottom: 1.5rem; color: var(--accent-primary); }
+        .markdown-body h2 { font-size: 1.5rem; font-weight: 700; margin-top: 2rem; margin-bottom: 1rem; color: var(--accent-primary); }
+        .markdown-body h3 { font-size: 1.25rem; font-weight: 700; margin-top: 1.5rem; margin-bottom: 0.75rem; color: var(--accent-primary); }
+        .markdown-body p { margin-bottom: 1rem; color: var(--text-dim); line-height: 1.625; }
+        .markdown-body ul { list-style-type: disc; padding-left: 1.5rem; margin-bottom: 1rem; color: var(--text-dim); }
+        .markdown-body li { margin-bottom: 0.5rem; }
+        .markdown-body strong { color: var(--text-main); font-weight: 700; }
+        .markdown-body blockquote { border-left-width: 4px; border-color: var(--accent-secondary); padding-left: 1rem; font-style: italic; margin: 1.5rem 0; color: var(--text-main); }
+        .markdown-body table { width: 100%; margin-bottom: 1.5rem; border-collapse: collapse; }
+        .markdown-body th { border: 1px solid var(--borde); padding: 0.75rem; background-color: var(--bg-card); color: var(--accent-primary); text-align: left; }
+        .markdown-body td { border: 1px solid var(--borde); padding: 0.75rem; color: var(--text-dim); }
+
+        .hidden { display: none; }
+        
+        .fade-in { animation: fadeIn 0.5s ease-out forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: var(--bg-pure); }
+        ::-webkit-scrollbar-thumb { background: var(--borde); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--accent-secondary); }
+    </style>
+</head>
+<body>
+
+    <!-- LANDING PAGE -->
+    <div id="landing-page" class="min-h-screen">
+        <section class="relative py-24 px-6 overflow-hidden">
+            <div class="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-full pointer-events-none">
+                <div class="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-[#5DD62C1a] blur-[120px] rounded-full"></div>
+                <div class="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-[#3374181a] blur-[120px] rounded-full"></div>
+            </div>
+
+            <div class="max-w-4xl mx-auto text-center relative z-10 fade-in">
+                <span class="text-[#5DD62C] text-[10px] font-black uppercase tracking-[0.4em] mb-6 block">Statux Academy</span>
+                <h1 class="text-5xl md:text-7xl font-black mb-8 tracking-tighter leading-none">
+                    DOMINAR EL <br />
+                    <span class="text-[#5DD62C]">STORYTELLING</span>
+                </h1>
+                <p class="text-[#a0a0a0] text-lg md:text-xl max-w-2xl mx-auto mb-12 leading-relaxed">
+                    No cuentes historias. Programa emociones. Domina la tecnología cognitiva milenaria para influir, persuadir y vender.
+                </p>
+            </div>
+        </section>
+
+        <section class="max-w-7xl mx-auto px-6 pb-32">
+            <div id="modules-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <!-- Modules will be injected here -->
+            </div>
+        </section>
+
+        <footer class="border-t border-[#202020] py-12 px-6">
+            <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-8">
+                <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 bg-[#5DD62C] rounded flex items-center justify-center font-black text-black">S</div>
+                    <span class="font-black tracking-tighter text-xl">STATUX</span>
+                </div>
+                <p class="text-[#a0a0a0] text-sm">© 2026 Statux Academy. El arte de la narrativa estratégica.</p>
+            </div>
+        </footer>
+    </div>
+
+    <!-- MODULE PAGE -->
+    <div id="module-page" class="min-h-screen hidden">
+        <header class="sticky top-0 z-50 bg-black/80 backdrop-blur-md border-b border-[#202020] px-6 py-4">
+            <div class="max-w-5xl mx-auto flex justify-between items-center">
+                <button onclick="showLanding()" class="flex items-center gap-2 text-[#a0a0a0] hover:text-[#5DD62C] transition-colors font-bold uppercase text-[10px] tracking-widest">
+                    <i data-lucide="arrow-left" class="w-4 h-4"></i>
+                    Volver al Inicio
+                </button>
+                <div id="module-number" class="text-[#5DD62C] font-black text-[10px] tracking-widest uppercase">
+                    Módulo X
+                </div>
+            </div>
+        </header>
+
+        <main class="max-w-5xl mx-auto px-6 py-16 fade-in">
+            <div id="module-content" class="markdown-body mb-24">
+                <!-- Content will be injected here -->
+            </div>
+
+            <div id="tool-section" class="mt-24 pt-24 border-t border-[#202020] hidden">
+                <div class="flex items-center gap-4 mb-12">
+                    <div class="w-12 h-12 bg-[#5DD62C1a] rounded-2xl flex items-center justify-center text-[#5DD62C]">
+                        <i data-lucide="zap" class="w-6 h-6"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-3xl font-black tracking-tight">HERRAMIENTA INTERACTIVA</h2>
+                        <p class="text-[#a0a0a0] uppercase text-[10px] tracking-[0.3em] font-bold">Potenciada por Statux Engine (Python)</p>
+                    </div>
+                </div>
+                
+                <div id="tool-container" class="bg-[#0a0a0a] border border-[#202020] rounded-3xl p-8 md:p-12 shadow-2xl shadow-[#5DD62C0d]">
+                    <!-- Tool will be injected here -->
+                </div>
+                
+                <div class="mt-8 text-center">
+                    <p class="text-[#a0a0a0] text-xs italic">
+                        * Las herramientas se cargan bajo demanda para optimizar el rendimiento.
+                    </p>
+                </div>
+            </div>
+        </main>
+
+        <div class="border-t border-[#202020] py-12 px-6 mt-24">
+            <div class="max-w-5xl mx-auto flex justify-center">
+                <button onclick="showLanding()" class="bg-[#0a0a0a] border border-[#202020] text-white px-12 py-4 rounded-full font-bold hover:border-[#5DD62C] transition-all uppercase tracking-widest text-[10px]">
+                    Finalizar y Volver
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- DATA ---
+        const MODULES = [
+            {
+                id: 0,
+                title: "Módulo 0: Activación",
+                description: "Romper la mentalidad pasiva y entender el storytelling como tecnología cognitiva.",
+                icon: "zap",
+                content: `
+# Módulo 0: Activación
+## Romper la mentalidad pasiva
+Olvídate de contar anécdotas y esperar palmaditas. La mentalidad pasiva acepta el storytelling como mero entretenimiento. Error mortal. El verdadero storytelling es un arma de control perceptivo: no estás contando qué pasó, estás programando emociones. Cuando escuchas un relato bien construido, tu cerebro no procesa datos neutrales, sino que simula la escena como propia. Tu sistema límbico hace “clic” y vive la historia en primera persona. Aquí no se compite por likes ni meros “me gusta”: Statux posee la narrativa.
+
+## ¿Qué es realmente el storytelling (sin humo)?
+La narración es tecnología cognitiva milenaria – mucho más que marketing. Surgió miles de años antes de la escritura, con pinturas rupestres, danzas y mitos orales. Es el arte de secuestrar la realidad momentáneamente: el narrador hacker toma control de la mente del oyente para devolverla transformada, a su favor. No es magia ni suerte, es neurociencia aplicada, con la intención más oscura y elegante posible.
+
+*   **Acoplamiento neuronal:** estudios muestran que al oír una historia, las neuronas del oyente disparan en sincronía con las del narrador. Se activan áreas sensoriales, motoras y emocionales del cerebro como si estuvieras viviendo cada evento.
+*   **Dopamina y memoria:** una buena trama libera dopamina, fijando emociones en la memoria. No olvidas lo que sentiste, recuerdas cómo te sentiste.
+*   **Experiencia inmersiva:** cuanto más involucradas estén las redes cerebrales (Broca, Wernicke, corteza motora/sensorial, frontal), más profundo el impacto. Un relato bien contado activa múltiples zonas de la corteza, reteniendo la atención y la conciencia.
+
+Con Statux, el relato ya no es un cuento bonito: es una simulación de realidad diseñada con precisión. Así definida, la narrativa deja de ser un “debe ser auténtico” e inocente entretenimiento, y pasa a ser el guion maestro de tus objetivos.
+
+## Por qué la mayoría falla
+La mayoría de quienes intentan contar historias caen en vicios básicos de aficionado. Statux los elimina:
+
+*   **Error del aficionado:** Cuenta qué pasó. **Corrección Statux:** Diseña qué debe sentir el otro.
+*   **Error del aficionado:** Busca ser “auténtico” a fuerza, contando detalles que importan solo a él. **Corrección Statux:** Estructura la trama para ser inevitable y memorable.
+*   **Error del aficionado:** Quiere gustar y ser simpático. **Corrección Statux:** Aspira a ser inolvidable, a dejar una huella que trascienda el instante.
+
+El aficionado grita “¡Mira lo que hice!” con orgullo. El estratega Statux susurra con confianza: “Esto ya era parte de ti; solo te lo estoy mostrando.” Las historias van más allá del autor: se convierten en terreno fértil para quien las escucha. Recuerda, los mejores márketers saben que el storytelling es un arma poderosa, no un adorno.
+
+## Regla base: tensión sobre estabilidad
+Sin conflicto no hay historia. Sin historia no hay atención. El cerebro humano ignora lo predecible y estable. Frente a la calma absoluta, prácticamente nada capta nuestra atención; frente a la fricción, somos imán. Estudios confirman que la audiencia sincroniza su atención en los momentos cargados de emoción y suspenso. Al revés, durante la pura exposición (contexto sin avance de la trama) la mente divaga.
+
+> “La calma es invisible. La tensión es magnética.”
+
+Este es el axioma Statux: cualquier contenido sin un punto de fricción en los primeros segundos está condenado al olvido. No se trata de melodrama vacío, sino de pinchar la curiosidad y activar el sistema de alerta de tu lector.
+
+## Ejercicio de activación inmediata
+1.  Revisa tus 3 últimos contenidos (tweet, TikTok, post, lo que sea).
+2.  Identifica ¿dónde está la fricción? ¿Cuál es el conflicto, la pregunta o el choque que captura la atención?
+3.  Si la respuesta es “en ningún lado”, fíjate bien: ese contenido está virtualmente muerto.
+4.  Pregúntate con frialdad: ¿cómo puedo girar cada introducción hacia un choque sensorial, un deseo intenso o un miedo latente?
+
+Esto no es dramatismo barato, es electricidad narrativa. Empezamos con tu propio material: si no encuentras tensión, entonces no se trata de hacerlo mejor, sino de empezar de nuevo. Statux no vende cuentos épicos, vende descargas eléctricas.
+`
+            },
+            {
+                id: 1,
+                title: "Módulo 1: Arquetipo Narrativo",
+                description: "Define tu perfil de personalidad estratégica: Rebelde, Estratega, Visionario o Cercano.",
+                icon: "target",
+                toolId: "story-engine",
+                content: `
+# Módulo 1: Arquetipo narrativo (Statux)
+Perfil de personalidad que guía tono y objetivo de tu historia. Siguiendo a Jung, Statux usa cuatro: Rebelde, Estratega, Visionario y Cercano.
+
+## Definición operativa
+Patrón de estilo y actitud del narrador diseñado para influir en la audiencia de forma consistente y estratégica.
+
+## Arquetipos Statux
+*   **Rebelde:** Rasgos disruptivos, desafiantes. Tono provocador y audaz. Objetivo: romper el status quo y viralizar; error: saturar con confrontación.
+*   **Estratega:** Rasgos analíticos, calculadores. Tono formal y experto. Objetivo: generar confianza y vender soluciones; error: caer en tecnicismos sin acción.
+*   **Visionario:** Rasgos innovadores, inspiradores. Tono inspirador, visionario. Objetivo: inspirar aspiraciones grandes; error: ser demasiado abstracto.
+*   **Cercano:** Rasgos sinceros, empáticos. Tono directo, sincero y cercano. Objetivo: conectar y generar confianza; error: volverse tedioso o genérico.
+
+## Mapa de transformación
+
+| Elemento | Rebelde | Estratega | Visionario | Cercano |
+| :--- | :--- | :--- | :--- | :--- |
+| **Hook** | “¿Cansado del statu quo?” | “Planifica cada paso.” | “Imagina un futuro.” | “Hagámoslo juntos.” |
+| **Protagonista** | El inconformista | El planificador diligente | El soñador digital | El vecino solidario |
+| **Conflicto** | Orden vs cambio | Caos vs método | Realidad vs utopía | Aislamiento vs apoyo |
+| **Emoción** | Rabia, euforia | Determinación, control | Asombro, esperanza | Empatía, calidez |
+| **CTA** | “Únete a la revolución.” | “Domina tu agenda.” | “Crea tu propio destino.” | “Vamos juntos.” |
+
+## Reglas de uso Statux
+*   **Viralidad:** Rebelde puro.
+*   **Autoridad:** Estratega o Visionario (incluso combinados).
+*   **Venta:** Estratega enfocado.
+*   **Conexión:** Cercano, o Cercano+Visionario.
+
+## Checklist rápido
+1.  ¿El tono coincide con el arquetipo elegido?
+2.  ¿El lenguaje refleja sus rasgos (ej. desafío vs cercanía)?
+3.  ¿Se mantiene el mismo arquetipo en todo el texto?
+4.  ¿Cumple el objetivo (viralidad, confianza, etc.)?
+5.  ¿No hay contradicciones entre frases?
+`
+            },
+            {
+                id: 2,
+                title: "Módulo 2: El Hook",
+                description: "Detonantes iniciales para retener la atención en menos de 3 segundos.",
+                icon: "book-open",
+                toolId: "hook-generator",
+                content: `
+# Módulo 2: El Hook
+El hook es el detonante inicial que retiene la atención en segundos. En este módulo definimos su rol: generar dopamina o urgencia, romper expectativas y crear promesas irresistibles.
+
+## Definición operativa de Hook
+**Hook (Statux):** Frase corta o pregunta diseñada para detener el scroll y activar la curiosidad o urgencia en <3s. Debe explotar brechas mentales (curiosidad), un miedo real (dolor), un choque de ideas (contradicción) o una promesa poderosa.
+
+## Tipos de Hook
+*   **Curiosidad:** Explota la brecha de información y el deseo de saber más. Neuro: activa dopamina al generar una necesidad insatisfecha.
+    *   *Micro-hooks:* «¿Sabías que X...?», «El secreto de Y te sorprenderá».
+    *   *Apertura:* “Imagina si pudieras... / Hasta ahora nadie te contó...”.
+    *   *Cierre:* “Descúbrelo ahora.”
+*   **Dolor:** Apela al miedo a perder algo (aversión a la pérdida). Neuro: la urgencia por evitar dolor/ pérdida impulsa la acción.
+    *   *Micro-hooks:* «Última oportunidad para X», «Evita el peor error al...».
+    *   *Apertura:* “Últimamente noté que X causa Y... / ¿Cuántas veces perdiste...?.”
+    *   *Cierre:* “Actúa antes de que sea tarde.”
+*   **Contradicción:** Provoca disonancia cognitiva al desafiar creencias. Obliga a reevaluar, capturando atención.
+    *   *Micro-hooks:* «Todo lo que sabes sobre X está mal», «Olvídate de Y».
+    *   *Apertura:* “Creías que X, pero la verdad es... / ¿Y si todo lo contrario fuera cierto?”
+    *   *Cierre:* “Prepárate para cambiar de perspectiva.”
+*   **Promesa:** Ofrece un beneficio concreto. Genera expectativa positiva.
+    *   *Micro-hooks:* «Aumenta tus ventas un 300% con...», «La única guía que necesitas para X».
+    *   *Apertura:* “Haz esto y lograrás... / Descubre cómo conseguir X en poco tiempo.”
+    *   *Cierre:* “No esperes más. Hazlo realidad.”
+
+## Reglas prácticas
+*   **Viralidad:** Usa Curiosidad o Contradicción (ganchos impactantes y extraños).
+*   **Venta:** Combina Dolor+Promesa (muestra pérdida/ganancia).
+*   **Retención:** Predomina Curiosidad y Promesa para enganchar y mantener interés.
+*   **Autoridad:** Contradicción y Promesa (reformula status quo o establece liderazgo).
+
+## Checklist rápido (impacto en <3s)
+1.  ¿Genera una brecha de curiosidad?
+2.  ¿Invoca un miedo real o pérdida (urgencia)?
+3.  ¿Rompe expectativas o creencias?
+4.  ¿Promete un beneficio claro?
+5.  ¿Lenguaje breve, directo, provocador?
+6.  ¿Impacta con primeras 3 palabras?
+`
+            },
+            {
+                id: 3,
+                title: "Módulo 3: Emoción y Tensión",
+                description: "Diseña curvas de tensión que atrapan hasta el final.",
+                icon: "heart",
+                content: `
+# Módulo 3: Emoción y Tensión
+🎯 **Objetivo del módulo:** Evitar historias planas. Una historia plana no es "aburrida" por falta de datos. Es plana porque no sube ni baja la tensión emocional.
+
+## 1. La ecuación olvidada
+La mayoría cree: "Emoción = grito, llanto, música triste o final feliz." **Falso.**
+La emoción en storytelling es **tensión + liberación**.
+*   **Tensión** = algo en juego + incertidumbre + amenaza o deseo bloqueado
+*   **Liberación** = resolución (esperada o sorpresiva)
+
+> "No vendes emociones. Vendes la promesa de resolver una tensión."
+
+## 2. Las 4 emociones que venden
+| Emoción | Motor neuro | Aplicación Statux | Ejemplo de hook emocional |
+| :--- | :--- | :--- | :--- |
+| **Miedo** | Amígdala → evasión de pérdida | Urgencia, riesgo de perder lo que se tiene | "Sigues así y en 6 meses estarás igual… pero más cansado." |
+| **Deseo** | Sistema de recompensa (dopamina) | Atracción hacia un futuro mejor | "Imagina despertar sin esa ansiedad." |
+| **Urgencia** | Escasez + pérdida inminente | Cierre, acción inmediata | "Esto desaparece en 24h. Y no volverá." |
+| **Pertenencia** | Oxitocina + validación social | Conexión tribal, comunidad | "Ellos ya lo entendieron. Tú también puedes." |
+
+## 3. Cómo crear tensión (el esqueleto invisible)
+| Palanca | Definición | Ejemplo |
+| :--- | :--- | :--- |
+| **Plazo** | Algo va a pasar sí o sí en un tiempo determinado | "En 3 días toma la decisión o el sistema se cierra" |
+| **Riesgo** | Algo valioso puede perderse | "Si eliges mal, pierdes 6 meses de avance" |
+| **Incertidumbre** | No sabes qué pasará, pero sabes que algo pasará | "Lo que viene en el siguiente párrafo te va a incomodar" |
+`
+            },
+            {
+                id: 4,
+                title: "Módulo 4: Ventas (Story Sales)",
+                description: "Convierte historias en ventas invisibles pero letales.",
+                icon: "shopping-cart",
+                content: `
+# Módulo 4: Convertir historias en ventas
+No "contar bonito". Vender. La venta invisible es la que convierte.
+
+## 1. La gran mentira del storytelling "inocente"
+"Cuenta historias auténticas y la gente te comprará por arte de magia." **Falso.**
+Las historias sin intención de venta son entretenimiento.
+
+> "Toda historia que no empuja hacia una acción de valor es un hobby."
+
+## 2. Las 3 leyes de la persuasión narrativa
+1.  **El producto es el héroe (disfrazado):** El cliente = héroe. Tu oferta = la herramienta/aliado sabio.
+2.  **La venta empieza antes de pedir:** Vender es cada palabra que escribiste antes del CTA.
+3.  **Toda objeción es una historia no contada:** Cuenta la historia que mate esa objeción antes de que nazca.
+
+## 3. El esqueleto Story Sales Frame
+1.  **Golpe:** Abre con tensión pura. El problema duele.
+2.  **Identificación:** El protagonista (cliente) se ve reflejado.
+3.  **Falso alivio:** Cuenta lo que intentó y no funcionó.
+4.  **Encuentro con la solución:** Aparece tu método/producto como herramienta.
+5.  **Transformación:** Muestra el antes/después concreto.
+6.  **Puente + CTA:** Invitas a la acción con un paso claro.
+`
+            },
+            {
+                id: 5,
+                title: "Módulo 5: Reescritura Inteligente",
+                description: "Cirugía narrativa: identifica órganos muertos y trasplanta tensión.",
+                icon: "edit-3",
+                toolId: "smart-rewriter",
+                content: `
+# Módulo 5: Reescritura Inteligente
+🎯 **Objetivo:** Mejorar cualquier texto sin empezar de cero. Reescribir inteligentemente es cirugía narrativa.
+
+## 1. Los 4 niveles de la reescritura
+1.  **Estructura:** ¿La historia tiene los huesos correctos?
+2.  **Emoción:** ¿La tensión sube y baja?
+3.  **Persuasión:** ¿Empuja hacia una acción clara?
+4.  **Estilo:** ¿El tono y ritmo atrapan?
+
+## 2. Las 5 cirugías narrativas de Statux
+1.  **Trasplante de protagonista:** De "nosotros" a una persona real con nombre y rostro.
+2.  **Amputación del contexto muerto:** Corta todo lo que no sea tensión pura al inicio.
+3.  **Inyección de riesgo:** Añade una frase que explicite la pérdida si no se actúa.
+4.  **Puente hacia el CTA:** Conecta la emoción final con la acción necesaria.
+5.  **Cambio de arquetipo:** Ajusta la voz (Rebelde, Estratega, Visionario, Cercano).
+`
+            },
+            {
+                id: 6,
+                title: "Módulo 6: Formatos (Multiplicador)",
+                description: "Una historia, 7 formatos. Multiplica tu impacto.",
+                icon: "layers",
+                toolId: "content-transformer",
+                content: `
+# Módulo 6: Formatos (Multiplicador)
+🎯 **Objetivo:** Convertir una misma historia en múltiples formatos sin volver a empezar.
+
+## 1. El principio de la palanca narrativa
+Una buena historia es como un código fuente. Los formatos son los compiladores.
+> "No necesitas 10 historias. Necesitas 1 historia bien construida y 10 formas de contarla."
+
+## 2. Los 7 formatos clave
+*   **TikTok/Reel:** Tensión pura + gancho visual (15-60 seg).
+*   **Carrusel:** Una idea por lámina + cierre con gancho.
+*   **Hilo de Twitter/X:** Cada tweet es un micro-hook.
+*   **Email:** Personal + puente al CTA (150-300 palabras).
+*   **Post estándar:** Estructura clara + ritmo (300-600 palabras).
+*   **Copy de venta corto:** Story Sales Frame comprimido.
+*   **Landing page:** Story Sales Frame extendido + pruebas.
+`
+            },
+            {
+                id: 7,
+                title: "Módulo 7: Análisis Final",
+                description: "Story Analyzer Pro: checklist de 22 puntos para validar.",
+                icon: "bar-chart-3",
+                toolId: "persuasion-analyzer",
+                content: `
+# Módulo 7: Análisis Final (Story Analyzer Pro)
+🎯 **Objetivo:** Validar cualquier historia antes de publicar. Statux no reza, Statux verifica.
+
+## 1. Los 4 niveles del análisis final
+*   **Estructura:** 5/5 puntos (Protagonista, Deseo, Obstáculo, Riesgo, Antes/Después).
+*   **Emoción:** 4/5 puntos (Tensión, Oscilación, Pico temprano, Respiro, Sentir el riesgo).
+*   **Persuasión:** 5/6 puntos (CTA claro, Oferta rápida, Objeciones, Qué/Cómo/Por qué, Herramienta vs Héroe, Consecuencia).
+*   **Formato + Estilo:** 5/6 puntos (Hook 3 palabras, Arquetipo, Frases cortas, Verbos acción, Reglas canal, Solo texto).
+
+## 2. El semáforo de aprobación
+*   🟢 **VERDE (22-20 sí):** Publica. Está lista.
+*   🟡 **AMARILLO (19-17 sí):** Publicable, pero reescribe puntos débiles.
+*   🟠 **NARANJA (16-14 sí):** No publiques. Reescribe 2 niveles.
+*   🔴 **ROJO (13 o menos sí):** No publiques. Vuelve al Módulo 1.
+`
+            }
+        ];
+
+        // --- NAVIGATION ---
+        function showLanding() {
+            document.getElementById('landing-page').classList.remove('hidden');
+            document.getElementById('module-page').classList.add('hidden');
+            window.scrollTo(0, 0);
+        }
+
+        function showModule(id) {
+            const module = MODULES.find(m => m.id === id);
+            if (!module) return;
+
+            document.getElementById('landing-page').classList.add('hidden');
+            document.getElementById('module-page').classList.remove('hidden');
+            
+            document.getElementById('module-number').innerText = `Módulo ${module.id}`;
+            document.getElementById('module-content').innerHTML = marked.parse(module.content);
+            
+            const toolSection = document.getElementById('tool-section');
+            const toolContainer = document.getElementById('tool-container');
+            
+            if (module.toolId) {
+                toolSection.classList.remove('hidden');
+                renderTool(module.toolId, toolContainer);
+            } else {
+                toolSection.classList.add('hidden');
+                toolContainer.innerHTML = '';
+            }
+            
+            window.scrollTo(0, 0);
+        }
+
+        // --- RENDER MODULES GRID ---
+        function initGrid() {
+            const grid = document.getElementById('modules-grid');
+            grid.innerHTML = MODULES.map((m, i) => `
+                <div onclick="showModule(${m.id})" class="group relative bg-[#0a0a0a] border border-[#202020] p-8 rounded-2xl cursor-pointer hover:border-[#5DD62C80] transition-all duration-500 overflow-hidden">
+                    <div class="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-20 transition-opacity">
+                        <i data-lucide="${m.icon}" class="w-24 h-24"></i>
+                    </div>
+                    <div class="relative z-10">
+                        <div class="w-12 h-12 bg-black border border-[#202020] rounded-xl flex items-center justify-center mb-6 group-hover:border-[#5DD62C] group-hover:text-[#5DD62C] transition-colors">
+                            <i data-lucide="${m.icon}" class="w-6 h-6"></i>
+                        </div>
+                        <h3 class="text-xl font-bold mb-3 group-hover:text-[#5DD62C] transition-colors">${m.title}</h3>
+                        <p class="text-[#a0a0a0] text-sm leading-relaxed mb-8">${m.description}</p>
+                        <div class="flex items-center text-[10px] font-black uppercase tracking-widest text-[#5DD62C] gap-2">
+                            Explorar Módulo
+                            <i data-lucide="arrow-right" class="w-3 h-3 group-hover:translate-x-1 transition-transform"></i>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+            lucide.createIcons();
+        }
+
+        // --- PYODIDE TOOLS ---
+        let pyodide = null;
+        async function getPyodide() {
+            if (pyodide) return pyodide;
+            pyodide = await loadPyodide();
+            return pyodide;
+        }
+
+        async function renderTool(toolId, container) {
+            container.innerHTML = `
+                <div class="flex flex-col items-center justify-center p-12">
+                    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-[#5DD62C] mb-4"></div>
+                    <p class="text-[#a0a0a0] text-xs uppercase tracking-widest">Inicializando motor narrativo...</p>
+                </div>
+            `;
+
+            try {
+                const p = await getPyodide();
+                
+                switch(toolId) {
+                    case 'story-engine': renderStoryEngine(p, container); break;
+                    case 'hook-generator': renderHookGenerator(p, container); break;
+                    case 'persuasion-analyzer': renderPersuasionAnalyzer(p, container); break;
+                    case 'smart-rewriter': renderSmartRewriter(p, container); break;
+                    case 'content-transformer': renderContentTransformer(p, container); break;
+                }
+            } catch (err) {
+                container.innerHTML = `<p class="text-red-500 text-center">Error cargando el motor de Python.</p>`;
+            }
+        }
+
+        // --- TOOL IMPLEMENTATIONS ---
+        function renderStoryEngine(p, container) {
+            let step = 1;
+            const data = { p: '', d: '', c: '', r: '', rs: '' };
+            const steps = [
+                { id: 1, label: "01. Protagonista", q: "¿Quién es el alma en el centro de esta historia?", key: "p", placeholder: "Ej: Un relojero envejecido" },
+                { id: 2, label: "02. Deseo", q: "¿Qué desea por encima de todo?", key: "d", placeholder: "Ej: Detener el tiempo" },
+                { id: 3, label: "03. Conflicto", q: "¿Qué se interpone en su camino?", key: "c", placeholder: "Ej: Sus máquinas dejan de funcionar" },
+                { id: 4, label: "04. Riesgo", q: "¿Qué pierde si falla?", key: "r", placeholder: "Ej: Sus recuerdos desaparecerán" },
+                { id: 5, label: "05. Resolución", q: "¿Cómo termina todo?", key: "rs", placeholder: "Ej: Aprende a valorar el tiempo" },
+            ];
+
+            function update() {
+                if (step > 5) {
+                    p.globals.set("p_val", data.p || "Un viajero");
+                    p.globals.set("d_val", data.d || "algo");
+                    p.globals.set("c_val", data.c || "obstáculos");
+                    p.globals.set("r_val", data.r || "pérdida");
+                    p.globals.set("rs_val", data.rs || "fin");
+                    
+                    const res = p.runPython(`f"{p_val} deseaba {d_val}.\\n\\nPero {c_val}.\\n\\nSi fallaba, {r_val}.\\n\\nAsí que decidió actuar.\\n\\nAl final, {rs_val}."`);
+                    
+                    container.innerHTML = `
+                        <div class="fade-in">
+                            <h3 class="text-[#5DD62C] text-[10px] font-black uppercase tracking-widest mb-4">La Historia Generada</h3>
+                            <div class="text-white whitespace-pre-line mb-8 leading-relaxed italic">"${res}"</div>
+                            <div class="flex gap-4">
+                                <button onclick="renderStoryEngine(pyodide, document.getElementById('tool-container'))" class="bg-[#202020] text-white px-6 py-2 rounded font-bold text-xs uppercase">Reiniciar</button>
+                                <button onclick="navigator.clipboard.writeText(\`${res}\`)" class="bg-[#5DD62C] text-black px-6 py-2 rounded font-bold text-xs uppercase">Copiar</button>
+                            </div>
+                        </div>
+                    `;
+                    return;
+                }
+
+                const curr = steps[step-1];
+                container.innerHTML = `
+                    <div class="fade-in">
+                        <div class="h-1 bg-[#202020] mb-8 overflow-hidden rounded-full">
+                            <div class="h-full bg-[#5DD62C] transition-all duration-500" style="width: ${(step/5)*100}%"></div>
+                        </div>
+                        <h3 class="text-[#5DD62C] text-[10px] font-black uppercase tracking-widest mb-2">${curr.label}</h3>
+                        <label class="block text-2xl mb-6 font-bold">${curr.q}</label>
+                        <input id="tool-input" value="${data[curr.key]}" placeholder="${curr.placeholder}" class="w-full bg-transparent border-b-2 border-[#202020] py-3 text-xl focus:border-[#5DD62C] outline-none transition-colors mb-8 text-white">
+                        <div class="flex gap-4">
+                            ${step > 1 ? `<button id="tool-back" class="bg-[#202020] text-white px-8 py-3 rounded font-bold text-xs uppercase">Atrás</button>` : ''}
+                            <button id="tool-next" class="bg-[#5DD62C] text-black px-8 py-3 rounded font-bold ml-auto text-xs uppercase">${step === 5 ? "Generar" : "Siguiente"}</button>
+                        </div>
+                    </div>
+                `;
+
+                const input = document.getElementById('tool-input');
+                input.focus();
+                input.oninput = (e) => data[curr.key] = e.target.value;
+                input.onkeydown = (e) => { if(e.key === 'Enter') { step++; update(); } };
+                
+                if(step > 1) document.getElementById('tool-back').onclick = () => { step--; update(); };
+                document.getElementById('tool-next').onclick = () => { step++; update(); };
+            }
+            update();
+        }
+
+        function renderHookGenerator(p, container) {
+            container.innerHTML = `
+                <div class="space-y-8 fade-in">
+                    <div class="bg-[#0a0a0a] p-2 border border-[#202020] rounded-xl flex gap-2">
+                        <input id="hook-topic" placeholder="¿Cuál es tu tema? (ej. Dinero, Fitness...)" class="flex-1 bg-transparent border-none p-4 outline-none text-white">
+                        <button id="hook-gen-btn" class="bg-[#5DD62C] text-black px-8 rounded-lg font-bold text-xs uppercase">Generar</button>
+                    </div>
+                    <div id="hook-results" class="grid gap-4"></div>
+                </div>
+            `;
+            
+            const btn = document.getElementById('hook-gen-btn');
+            const input = document.getElementById('hook-topic');
+            const results = document.getElementById('hook-results');
+
+            btn.onclick = async () => {
+                const topic = input.value;
+                if(!topic) return;
+                btn.disabled = true; btn.innerText = "PROCESANDO...";
+                
+                await p.runPython(`
+def create_hooks(topic):
+    import random
+    formulas = [
+        f"Nadie te cuenta esto sobre {topic}, y es lo que más importa.",
+        f"Estás haciendo esto mal en {topic} y por eso no avanzas.",
+        f"Deja de hacer esto si quieres tener éxito real en {topic}.",
+        f"Intenté {topic} durante 30 días y esto fue lo que sucedió...",
+        f"Si ignoras esto en {topic}, te arrepentirás en menos de un año.",
+        f"Después de años analizando {topic}, esta es la cruda verdad.",
+        f"3 Pasos para dominar {topic} que los expertos no quieren que sepas.",
+        f"¿Por qué el 99% de la gente falla en {topic}? Aquí la respuesta.",
+        f"Este es el secreto de {topic} que cambiará tu perspectiva hoy mismo.",
+        f"Lo que nadie te dice sobre {topic} te está costando dinero."
+    ]
+    return random.sample(formulas, k=8)
+                `);
+                const hooks = p.runPython(`create_hooks("${topic}")`).toJs();
+                
+                results.innerHTML = hooks.map(h => `
+                    <div class="bg-[#0a0a0a] p-6 border-l-4 border-[#5DD62C] rounded-r-xl flex justify-between items-center group hover:bg-zinc-900 transition-colors">
+                        <p class="text-lg leading-relaxed max-w-[85%]">${h}</p>
+                        <button onclick="navigator.clipboard.writeText(\`${h}\`); this.innerText='OK'" class="bg-[#202020] text-[#a0a0a0] px-4 py-2 rounded text-[10px] font-bold uppercase">Copiar</button>
+                    </div>
+                `).join('');
+                btn.disabled = false; btn.innerText = "GENERAR";
+            };
+        }
+
+        function renderPersuasionAnalyzer(p, container) {
+            container.innerHTML = `
+                <div class="space-y-8 fade-in">
+                    <textarea id="ana-text" placeholder="Pega tu historia aquí..." class="w-full h-48 bg-black border border-[#202020] rounded-lg p-4 text-white outline-none focus:border-[#5DD62C] transition-all resize-none"></textarea>
+                    <button id="ana-btn" class="w-full bg-[#5DD62C] text-black py-4 rounded-lg font-bold uppercase tracking-widest text-xs">Analizar Texto</button>
+                    <div id="ana-results" class="hidden"></div>
+                </div>
+            `;
+
+            const btn = document.getElementById('ana-btn');
+            const area = document.getElementById('ana-text');
+            const resDiv = document.getElementById('ana-results');
+
+            btn.onclick = async () => {
+                const text = area.value;
+                if(!text) return;
+                
+                const code = `
+def analyze(text):
+    t = text.lower()
+    palabras_fear = ["perder", "fracaso", "error", "miedo", "riesgo", "peligro"]
+    palabras_desire = ["ganar", "lograr", "éxito", "mejorar", "crecer", "poder"]
+    palabras_urgency = ["ahora", "rápido", "hoy", "urgente", "ya", "inmediato"]
+    palabras_tension = ["pero", "sin embargo", "aunque", "no obstante"]
+    fear = sum(1 for w in palabras_fear if w in t)
+    desire = sum(1 for w in palabras_desire if w in t)
+    urgency = sum(1 for w in palabras_urgency if w in t)
+    tension_count = sum(1 for w in palabras_tension if w in t)
+    emo = min(10, (fear + desire + urgency) * 2)
+    ten = min(10, tension_count * 2.5)
+    sentences = [s for s in text.split('.') if s]
+    avg_len = len(text.split()) / len(sentences) if sentences else 0
+    cla = max(0, min(10, 10 - (avg_len / 5)))
+    per = round((emo + ten + cla) / 3, 1)
+    suggs = []
+    if emo < 5: suggs.append("Añade palabras con mayor carga emocional.")
+    if ten < 4: suggs.append("Introduce un conflicto claro usando 'pero'.")
+    if cla < 6: suggs.append("Acorta las frases para mejorar la claridad.")
+    return {"emo": emo, "ten": ten, "cla": round(cla, 1), "per": per, "suggs": suggs}
+analyze("${text.replace(/"/g, '\\"').replace(/\n/g, ' ')}")`;
+                
+                const data = p.runPython(code).toJs();
+                resDiv.classList.remove('hidden');
+                resDiv.innerHTML = `
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+                        ${[
+                            {l: 'Emoción', k: 'emo'}, {l: 'Tensión', k: 'ten'}, {l: 'Claridad', k: 'cla'}, {l: 'Persuasión', k: 'per', h: true}
+                        ].map(m => `
+                            <div class="bg-[#0a0a0a] p-6 rounded-xl text-center border-b-4 ${m.h ? 'border-[#5DD62C]' : 'border-transparent'}">
+                                <span class="text-[8px] uppercase tracking-widest text-[#a0a0a0] block mb-2">${m.l}</span>
+                                <span class="text-4xl font-black block mb-2" style="color: ${m.h ? '#5DD62C' : '#fff'}">${data.get(m.k)}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                    <div class="bg-[#0a0a0a] p-8 rounded-xl border border-[#202020]">
+                        <h3 class="text-[#5DD62C] font-bold mb-4 text-xs uppercase">Mejoras sugeridas</h3>
+                        <ul class="space-y-3 text-[#a0a0a0] text-sm">
+                            ${data.get('suggs').map(s => `<li class="flex gap-3 items-start"><span class="text-[#5DD62C]">•</span>${s}</li>`).join('')}
+                        </ul>
+                    </div>
+                `;
+            };
+        }
+
+        function renderSmartRewriter(p, container) {
+            container.innerHTML = `
+                <div class="space-y-8 fade-in">
+                    <textarea id="rew-text" placeholder="Pega tu texto aquí..." class="w-full h-40 bg-black border border-[#202020] rounded-lg p-4 text-white outline-none focus:border-[#5DD62C] transition-all resize-none"></textarea>
+                    <div class="flex flex-col md:flex-row gap-4 items-center">
+                        <select id="rew-tone" class="w-full md:w-auto bg-[#0a0a0a] border border-[#202020] text-white px-6 py-3 rounded-lg outline-none focus:border-[#5DD62C]">
+                            <option value="Inspirador">Tono: Inspirador</option>
+                            <option value="Agresivo">Tono: Agresivo</option>
+                            <option value="Suave">Tono: Suave</option>
+                        </select>
+                        <button id="rew-btn" class="w-full md:flex-1 bg-[#5DD62C] text-black py-3 rounded-lg font-bold uppercase tracking-widest text-xs">Reescribir</button>
+                    </div>
+                    <div id="rew-results" class="grid gap-6"></div>
+                </div>
+            `;
+
+            const btn = document.getElementById('rew-btn');
+            const area = document.getElementById('rew-text');
+            const tone = document.getElementById('rew-tone');
+            const resDiv = document.getElementById('rew-results');
+
+            btn.onclick = async () => {
+                const text = area.value;
+                if(!text) return;
+                
+                const code = `
+import random
+def rewrite(text, tone):
+    e_hooks = ["Sé lo que se siente...", "Nadie habla de esto...", "Lo peor es..."]
+    p_hooks = ["Si no haces esto...", "Estás perdiendo...", "Empieza ahora..."]
+    if tone == "Agresivo": p_e, s_p = "Duele admitirlo, pero ", " No seas un espectador."
+    elif tone == "Suave": p_e, s_p = "Imagina un momento donde ", " Tienes el potencial."
+    else: p_e, s_p = "Existe una verdad oculta: ", " Es tu momento de brillar."
+    emo = f"{random.choice(e_hooks)} {p_e}{text.lower()}. Hay un deseo profundo."
+    per = f"{text}. {random.choice(p_hooks)}{s_p}"
+    cine = f"...\\n{text.upper().replace('. ', '...\\n')}...\\nEL SILENCIO PESA."
+    return {"emo": emo, "per": per, "cine": cine, "best": "per" if tone == "Agresivo" else "emo"}
+rewrite("${text.replace(/"/g, '\\"').replace(/\n/g, ' ')}", "${tone.value}")`;
+                
+                const data = p.runPython(code).toJs();
+                const labels = { emo: 'Versión Emotiva', per: 'Versión Persuasiva', cine: 'Versión Cinematográfica' };
+                
+                resDiv.innerHTML = ['emo', 'per', 'cine'].map(k => `
+                    <div class="bg-[#0a0a0a] p-8 border border-[#202020] rounded-2xl relative">
+                        <div class="flex justify-between items-center mb-4">
+                            <span class="text-[8px] font-black bg-[#337418] text-[#5DD62C] px-3 py-1 rounded uppercase tracking-widest">${labels[k]}</span>
+                            ${data.get('best') === k ? '<span class="bg-[#5DD62C] text-black text-[8px] font-bold px-3 py-1 rounded uppercase">Mejor Opción</span>' : ''}
+                        </div>
+                        <p class="text-[#a0a0a0] leading-relaxed italic mb-6">"${data.get(k)}"</p>
+                        <button onclick="navigator.clipboard.writeText(\`${data.get(k)}\`)" class="text-[10px] text-[#a0a0a0] underline uppercase font-bold">Copiar</button>
+                    </div>
+                `).join('');
+            };
+        }
+
+        function renderContentTransformer(p, container) {
+            container.innerHTML = `
+                <div class="space-y-8 fade-in">
+                    <textarea id="tra-text" placeholder="Pega tu historia aquí..." class="w-full h-40 bg-black border border-[#202020] rounded-lg p-4 text-white outline-none focus:border-[#5DD62C] transition-all resize-none"></textarea>
+                    <div class="grid grid-cols-3 gap-2">
+                        <button onclick="window.currF='tiktok'; updateF()" class="f-btn active py-3 text-[8px] font-black uppercase tracking-widest border border-[#202020] rounded text-[#a0a0a0]" id="f-tiktok">TikTok</button>
+                        <button onclick="window.currF='instagram'; updateF()" class="f-btn py-3 text-[8px] font-black uppercase tracking-widest border border-[#202020] rounded text-[#a0a0a0]" id="f-instagram">IG Carousel</button>
+                        <button onclick="window.currF='sales'; updateF()" class="f-btn py-3 text-[8px] font-black uppercase tracking-widest border border-[#202020] rounded text-[#a0a0a0]" id="f-sales">Ventas</button>
+                    </div>
+                    <button id="tra-btn" class="w-full bg-[#5DD62C] text-black py-4 rounded font-black uppercase tracking-widest text-xs">Transformar</button>
+                    <div id="tra-results" class="space-y-4"></div>
+                </div>
+            `;
+
+            window.currF = 'tiktok';
+            window.updateF = () => {
+                document.querySelectorAll('.f-btn').forEach(b => b.classList.remove('active', 'border-[#5DD62C]', 'text-[#5DD62C]', 'bg-[#5DD62C0d]'));
+                const b = document.getElementById('f-'+window.currF);
+                b.classList.add('active', 'border-[#5DD62C]', 'text-[#5DD62C]', 'bg-[#5DD62C0d]');
+            };
+            window.updateF();
+
+            const btn = document.getElementById('tra-btn');
+            const area = document.getElementById('tra-text');
+            const resDiv = document.getElementById('tra-results');
+
+            btn.onclick = async () => {
+                const text = area.value;
+                if(!text) return;
+                
+                await p.runPython(`
+import random
+def transform_tiktok(text):
+    hooks = ["Lo que nadie te dice...", "Dejé de hacer X y pasó esto:", "El secreto para..."]
+    lines = [line.strip() for line in text.split('.') if line.strip()]
+    res = f"🪝 GANCHO: {random.choice(hooks)}\\n\\n"
+    for line in lines[:3]: res += f"• {line}\\n"
+    res += f"\\n🚀 CTA: Sígueme para más"
+    return res
+def transform_instagram(text):
+    sentences = [s.strip() for s in text.split('.') if len(s.strip()) > 5]
+    slides = [f"SLIDE 1 (GANCHO):\\n{sentences[0][:50]}..."]
+    for i, s in enumerate(sentences[1:4]): slides.append(f"SLIDE {i+2}:\\n{s}")
+    return "|||".join(slides)
+def transform_sales(text):
+    lines = [l.strip() for l in text.split('.') if l.strip()]
+    p = lines[0] if lines else "Problema"
+    return f"❌ PROBLEMA: {p}\\n\\n🔥 AGITACIÓN: Esto te cuesta tiempo.\\n\\n✅ SOLUCIÓN: Mi método.\\n\\n🎯 CTA: Link en Bio"
+                `);
+
+                let res;
+                if(window.currF === 'tiktok') res = p.runPython(`transform_tiktok("""${text}""")`);
+                else if(window.currF === 'instagram') res = p.runPython(`transform_instagram("""${text}""")`);
+                else res = p.runPython(`transform_sales("""${text}""")`);
+
+                if(window.currF === 'instagram') {
+                    resDiv.innerHTML = res.split('|||').map((s, i) => `
+                        <div class="bg-zinc-900 p-6 border-l-4 border-[#5DD62C] rounded-r-xl">
+                            <span class="text-[8px] text-[#5DD62C] font-black uppercase mb-2 block">Diapositiva ${i+1}</span>
+                            <p class="text-white whitespace-pre-line text-sm">${s.split(':\\n')[1] || s}</p>
+                        </div>
+                    `).join('');
+                } else {
+                    resDiv.innerHTML = `<div class="bg-zinc-900 p-8 border-l-4 border-[#5DD62C] rounded-r-xl text-white whitespace-pre-line text-sm leading-relaxed">${res}</div>`;
+                }
+            };
+        }
+
+        // --- INIT ---
+        initGrid();
+    </script>
+</body>
+</html>
