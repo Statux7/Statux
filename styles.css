@@ -2525,7 +2525,7 @@ footer.stx-footer-ready {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border: 2px solid #0ff;
+  border: none;
   border-radius: 16px;
   padding: 5px 10px;
   cursor: pointer;
@@ -2534,7 +2534,7 @@ footer.stx-footer-ready {
   font-weight: 600;
   font-family: 'ubuntu';
   color: #0ff;
-  background-color: #000;
+  background-color: #222;
   transition: .45s;
 }
 
