@@ -1197,7 +1197,7 @@ input[type=range]{ flex:1; -webkit-appearance:none; height:4px; border-radius:2p
 
     <script>
     
-/* STATUX v2.0 - SCRIPT */
+/* STATUX v2.0 - SCRIPT COMPLETO */
 
 // 1. INICIALIZACIÓN DE ICONOS
 function initIcons() {
@@ -1237,39 +1237,49 @@ function updateStreak() {
     }
 }
 
-// 3. NAVEGACIÓN
+// 3. NAVEGACIÓN (con nutrición)
 function navigate(sectionId) {
-    const dashboard = document.getElementById('container-main');
-    const routines = document.getElementById('routines');
+    const dashboard    = document.getElementById('container-main');
+    const routines     = document.getElementById('routines');
     const savedSection = document.getElementById('saved-routine-section');
-    const anatomySection = document.getElementById('anatomy-section');
+    const anatomySection   = document.getElementById('anatomy-section');
+    const nutritionSection = document.getElementById('nutrition-section');
 
     document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-    
-    // Hide all sections first
-    dashboard.style.display = 'none';
-    routines.style.display = 'none';
-    savedSection.style.display = 'none';
-    if(anatomySection) anatomySection.style.display = 'none';
+
+    dashboard.style.display        = 'none';
+    routines.style.display         = 'none';
+    savedSection.style.display     = 'none';
+    if (anatomySection)   anatomySection.style.display   = 'none';
+    if (nutritionSection) nutritionSection.style.display = 'none';
 
     if (sectionId === 'routines') {
         routines.style.display = 'block';
         document.getElementById('btn-nav-routines').classList.add('active');
+
     } else if (sectionId === 'dashboard') {
         dashboard.style.display = 'block';
         document.getElementById('btn-nav-dashboard').classList.add('active');
+
     } else if (sectionId === 'saved-routine') {
         savedSection.style.display = 'block';
         document.getElementById('btn-nav-saved').classList.add('active');
         loadSavedRoutine();
+
     } else if (sectionId === 'anatomy') {
-        if(anatomySection) {
+        if (anatomySection) {
             anatomySection.style.display = 'block';
             document.getElementById('btn-nav-anatomy').classList.add('active');
             initAnatomy();
         }
+
+    } else if (sectionId === 'nutrition') {
+        if (nutritionSection) {
+            nutritionSection.style.display = 'block';
+            // Opcional: resaltar algún botón de navegación si quieres
+        }
     }
-    
+
     initIcons();
 }
 
@@ -1362,10 +1372,11 @@ function loadSavedRoutine() {
 let anatomyData = {};
 let selectedAnatomyMuscle = null;
 
+// Cargar datos y eventos de anatomía (versión definitiva)
 async function initAnatomy() {
     if (Object.keys(anatomyData).length === 0) {
         try {
-            const response = await fetch('/muscle.json');
+            const response = await fetch('muscle.json'); // ruta relativa
             anatomyData = await response.json();
             console.log('✅ Datos de anatomía cargados');
         } catch (error) {
@@ -1377,14 +1388,16 @@ async function initAnatomy() {
 
 function initAnatomyEvents() {
     const groups = document.querySelectorAll('.muscle-grp');
+    const hoverInput = document.getElementById('stxHoverInput');
+    if (!hoverInput) return;
+
     groups.forEach(group => {
         const key = group.dataset.muscle;
 
         group.onmouseenter = () => {
             const data = anatomyData[key];
-            const hoverInput = document.getElementById('stxHoverInput');
-            if (hoverInput) {
-                hoverInput.value = data ? data.name : (key.charAt(0).toUpperCase() + key.slice(1));
+            if (data) {
+                hoverInput.value = data.name;
                 hoverInput.classList.add('active');
             }
             document.querySelectorAll(`.muscle-grp[data-muscle="${key}"]`).forEach(g => {
@@ -1393,11 +1406,8 @@ function initAnatomyEvents() {
         };
 
         group.onmouseleave = () => {
-            const hoverInput = document.getElementById('stxHoverInput');
-            if (hoverInput) {
-                hoverInput.value = "Selecciona un músculo...";
-                hoverInput.classList.remove('active');
-            }
+            hoverInput.value = "Selecciona un músculo...";
+            hoverInput.classList.remove('active');
             document.querySelectorAll(`.muscle-grp[data-muscle="${key}"]`).forEach(g => {
                 g.classList.remove('hovered');
             });
@@ -1408,6 +1418,7 @@ function initAnatomyEvents() {
 }
 
 function selectMuscleAnatomy(key) {
+    // Quitar selección anterior
     document.querySelectorAll('.muscle-grp.selected').forEach(g => g.classList.remove('selected'));
 
     if (selectedAnatomyMuscle === key) {
@@ -1454,6 +1465,7 @@ function selectMuscleAnatomy(key) {
         `).join('');
     }
 
+    // ✅ AHORA CON innerHTML PARA ACEPTAR ETIQUETAS HTML
     if(benefits) benefits.innerHTML = data.benefits;
     if(info) info.innerHTML = data.info;
 
@@ -1487,13 +1499,18 @@ function switchViewAnatomy(view) {
         if(btnF) btnF.classList.remove('active');
         if(btnB) btnB.classList.add('active');
     }
+    clearSelectionAnatomy();
 }
 
 function openAnatomyVideo(url) {
     const overlay = document.getElementById('stxOverlayAnatomy');
     const frame = document.getElementById('stxVideoFrameAnatomy');
     if (overlay && frame) {
-        frame.src = url;
+        // Convertir a embed si es necesario
+        let embedUrl = url;
+        if (url.includes('watch?v=')) embedUrl = url.replace('watch?v=', 'embed/');
+        else if (url.includes('youtu.be/')) embedUrl = url.replace('youtu.be/', 'youtube.com/embed/');
+        frame.src = embedUrl;
         overlay.classList.add('open');
     }
 }
@@ -1689,10 +1706,9 @@ function checkComplete(){
 
 const EXERCISE_DB={push:[{name:"Flexiones",muscles:["pecho","tríceps","deltoides"],front:["chest","shoulder"],back:["tricep"],sets:{beginner:"3x8",intermediate:"4x12",advanced:"5x20"},rest:60,diff:"beginner"},{name:"Dips en paralelas",muscles:["pecho","tríceps","core"],front:["chest","tricep"],back:[],sets:{beginner:"3x6",intermediate:"4x10",advanced:"5x15"},rest:90,diff:"intermediate"},{name:"Flexiones con pies elevados",muscles:["pecho alto","deltoides","tríceps"],front:["chest","shoulder"],back:["tricep"],sets:{beginner:"3x6",intermediate:"4x10",advanced:"5x15"},rest:60,diff:"intermediate"},{name:"Flexiones diamante",muscles:["tríceps","pecho interior"],front:["chest"],back:["tricep"],sets:{beginner:"3x6",intermediate:"3x12",advanced:"4x20"},rest:60,diff:"intermediate"},{name:"Flexiones arqueras",muscles:["pecho","bíceps","core"],front:["chest","bicep"],back:[],sets:{beginner:"3x4",intermediate:"3x8",advanced:"4x12"},rest:90,diff:"advanced"},{name:"Pike push-ups",muscles:["hombros","tríceps"],front:["shoulder"],back:["tricep"],sets:{beginner:"3x8",intermediate:"4x12",advanced:"5x20"},rest:60,diff:"beginner"},{name:"Pseudo planche push-ups",muscles:["pecho","deltoides","core"],front:["chest","shoulder"],back:[],sets:{beginner:"3x5",intermediate:"3x10",advanced:"4x15"},rest:90,diff:"advanced"},{name:"Flexiones con palmas elevadas",muscles:["pecho bajo","serratos"],front:["chest"],back:[],sets:{beginner:"3x10",intermediate:"4x15",advanced:"5x20"},rest:45,diff:"beginner"}],pull:[{name:"Dominadas prona",muscles:["dorsal","bíceps","trapecio"],front:["bicep"],back:["lat","trap"],sets:{beginner:"3x3",intermediate:"4x8",advanced:"5x15"},rest:90,diff:"intermediate"},{name:"Dominadas supina",muscles:["bíceps","dorsal","braquial"],front:["bicep"],back:["lat"],sets:{beginner:"3x5",intermediate:"4x10",advanced:"5x18"},rest:90,diff:"beginner"},{name:"Remo australiano",muscles:["dorsal","bíceps","core"],front:["bicep"],back:["lat","rhomboid"],sets:{beginner:"3x8",intermediate:"4x12",advanced:"5x20"},rest:60,diff:"beginner"},{name:"Muscle-up",muscles:["dorsal","pecho","tríceps"],front:["chest"],back:["lat"],sets:{beginner:"2x2",intermediate:"3x5",advanced:"4x10"},rest:120,diff:"advanced"},{name:"Dominadas L-sit",muscles:["dorsal","core","flexores de cadera"],front:["abs"],back:["lat"],sets:{beginner:"2x3",intermediate:"3x6",advanced:"4x10"},rest:90,diff:"advanced"},{name:"Face pulls con anillos",muscles:["deltoides posterior","trapecio"],front:["shoulder"],back:["trap","rhomboid"],sets:{beginner:"3x10",intermediate:"4x15",advanced:"4x20"},rest:60,diff:"beginner"}],core:[{name:"Hollow body hold",muscles:["core","flexores de cadera"],front:["abs"],back:[],sets:{beginner:"3x20s",intermediate:"4x40s",advanced:"5x60s"},rest:60,diff:"beginner"},{name:"Plancha",muscles:["core","hombros","glúteos"],front:["abs","shoulder"],back:["glute"],sets:{beginner:"3x30s",intermediate:"4x60s",advanced:"5x90s"},rest:45,diff:"beginner"},{name:"L-sit en paralelas",muscles:["core","flexores de cadera","tríceps"],front:["abs"],back:["tricep"],sets:{beginner:"3x10s",intermediate:"4x20s",advanced:"5x30s"},rest:60,diff:"intermediate"},{name:"Dragon flag",muscles:["core completo","dorsales"],front:["abs"],back:["lat"],sets:{beginner:"2x3",intermediate:"3x6",advanced:"4x10"},rest:90,diff:"advanced"},{name:"Elevaciones de piernas colgado",muscles:["core","flexores de cadera"],front:["abs"],back:[],sets:{beginner:"3x6",intermediate:"4x12",advanced:"5x20"},rest:60,diff:"intermediate"},{name:"Windshield wipers",muscles:["oblicuos","core"],front:["abs"],back:[],sets:{beginner:"2x5",intermediate:"3x10",advanced:"4x15"},rest:60,diff:"advanced"},{name:"Planchas laterales",muscles:["oblicuos","core"],front:["abs"],back:[],sets:{beginner:"3x20s",intermediate:"3x40s",advanced:"4x60s"},rest:45,diff:"beginner"}],legs:[{name:"Sentadilla búlgara",muscles:["cuádriceps","glúteos","isquios"],front:["quad"],back:["glute","hamstring"],sets:{beginner:"3x8",intermediate:"4x12",advanced:"5x20"},rest:90,diff:"intermediate"},{name:"Pistol squat",muscles:["cuádriceps","glúteos","equilibrio"],front:["quad"],back:["glute"],sets:{beginner:"2x3",intermediate:"3x6",advanced:"4x10"},rest:90,diff:"advanced"},{name:"Sentadilla con salto",muscles:["cuádriceps","glúteos","pantorrillas"],front:["quad"],back:["glute"],sets:{beginner:"3x8",intermediate:"4x12",advanced:"5x20"},rest:60,diff:"beginner"},{name:"Nordic curl",muscles:["isquios","glúteos"],front:[],back:["hamstring","glute"],sets:{beginner:"2x3",intermediate:"3x6",advanced:"4x10"},rest:90,diff:"advanced"},{name:"Estocadas",muscles:["cuádriceps","glúteos"],front:["quad"],back:["glute"],sets:{beginner:"3x8",intermediate:"4x12",advanced:"5x20"},rest:60,diff:"beginner"},{name:"Elevaciones de talón",muscles:["pantorrillas","tibial"],front:["tibial"],back:["calf"],sets:{beginner:"3x15",intermediate:"4x25",advanced:"5x40"},rest:45,diff:"beginner"},{name:"Wall sit",muscles:["cuádriceps","isquios"],front:["quad"],back:[],sets:{beginner:"3x30s",intermediate:"4x60s",advanced:"5x90s"},rest:60,diff:"beginner"}],shoulder:[{name:"Pino asistido",muscles:["hombros","tríceps","core"],front:["shoulder"],back:["tricep"],sets:{beginner:"3x10s",intermediate:"4x30s",advanced:"5x60s"},rest:90,diff:"advanced"},{name:"Press en pino",muscles:["hombros","tríceps"],front:["shoulder"],back:["tricep"],sets:{beginner:"2x2",intermediate:"3x5",advanced:"4x10"},rest:120,diff:"advanced"},{name:"Elevaciones laterales con anillos",muscles:["deltoides lateral","trapecio"],front:["shoulder"],back:["trap"],sets:{beginner:"3x10",intermediate:"4x15",advanced:"4x20"},rest:60,diff:"intermediate"}]};
 
-const SVG_FRONT=`<svg width="100%" viewBox="0 0 294 539" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="294" height="539" fill="transparent"/><path class="m-shoulder" d="M112.189 161.336V163.836L110.689 163.336L108.689 161.336L104.689 156.336L99.1894 149.336L93.1894 141.336L90.1894 137.836L88.1894 134.836L85.1894 131.336L81.1894 125.836L79.1894 123.336L78.6894 121.836V120.836V119.336V118.336L79.1894 116.836L79.6894 114.836L80.1894 109.836L79.6894 103.836L78.6894 99.3355L77.6894 95.8355L76.6894 91.3355L78.6894 92.8355L82.6894 95.8355L91.1894 100.336L99.1894 104.836L106.189 108.336L107.689 109.336L108.689 109.836L109.689 110.836L110.189 112.336L110.689 117.336V119.336V120.836V123.336V126.336V127.336V128.836L111.189 131.336V132.336V134.836V136.836V137.836V139.336L111.689 140.836V142.336V144.336V145.836V147.336V148.336V149.336L112.189 152.836V158.336V161.336Z" fill="#444"/><path class="m-shoulder" d="M264.179 185.255C271.574 197.393 278.847 209.294 286.089 221.144C281.557 224.57 279.805 224.545 276.532 220.845C266.402 209.395 256.086 198.08 246.343 186.336C238.884 177.345 236.412 166.519 236.041 155.226C236.026 154.777 236.225 154.323 236.3 153.985C241.282 154.833 246.174 155.537 250.981 156.593C251.934 156.802 253.067 158.273 253.26 159.308C255.001 168.604 259.466 176.829 264.179 185.255Z" fill="#444"/><path class="m-shoulder" d="M30.3501 136.86C30.8544 136.708 31.1849 136.731 31.7617 136.785C36.9691 145.681 38.5661 154.897 35.4892 164.706C31.8374 176.347 25.1257 186.535 18.8392 196.921C14.6024 203.92 9.94134 210.693 5.89843 217.789C4.02181 221.083 2.34524 220.699 0 218.917C2.23448 211.026 4.839 203.335 6.53173 195.466C8.60831 185.812 9.94973 176.013 11.5595 166.269C13.5722 154.086 20.8431 144.968 30.3501 136.86Z" fill="#444"/></svg>`; // Simplified for brevity in this step, but I'll make sure to get the real paths if they are in the user prompt.
-// The user prompt actually has the full paths. I'll put them in.
-
-const SVG_BACK=`<svg width="100%" viewBox="0 0 411 804" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="411" height="804" fill="transparent"/><path class="m-glute" d="M276.286 690.075C268.73 695.766 263.957 694.993 258.483 687.109C251.208 676.63 247.524 664.732 248.372 652.257C249.517 635.394 252.261 618.639 254.443 601.082" fill="#444"/></svg>`;
+// SVG simplificados (puedes reemplazar con los originales si los tienes)
+const SVG_FRONT = `<svg width="100%" viewBox="0 0 294 539" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="294" height="539" fill="transparent"/><path class="m-shoulder" d="M112.189 161.336V163.836L110.689 163.336L108.689 161.336L104.689 156.336L99.1894 149.336L93.1894 141.336L90.1894 137.836L88.1894 134.836L85.1894 131.336L81.1894 125.836L79.1894 123.336L78.6894 121.836V120.836V119.336V118.336L79.1894 116.836L79.6894 114.836L80.1894 109.836L79.6894 103.836L78.6894 99.3355L77.6894 95.8355L76.6894 91.3355L78.6894 92.8355L82.6894 95.8355L91.1894 100.336L99.1894 104.836L106.189 108.336L107.689 109.336L108.689 109.836L109.689 110.836L110.189 112.336L110.689 117.336V119.336V120.836V123.336V126.336V127.336V128.836L111.189 131.336V132.336V134.836V136.836V137.836V139.336L111.689 140.836V142.336V144.336V145.836V147.336V148.336V149.336L112.189 152.836V158.336V161.336Z" fill="#444"/><path class="m-shoulder" d="M264.179 185.255C271.574 197.393 278.847 209.294 286.089 221.144C281.557 224.57 279.805 224.545 276.532 220.845C266.402 209.395 256.086 198.08 246.343 186.336C238.884 177.345 236.412 166.519 236.041 155.226C236.026 154.777 236.225 154.323 236.3 153.985C241.282 154.833 246.174 155.537 250.981 156.593C251.934 156.802 253.067 158.273 253.26 159.308C255.001 168.604 259.466 176.829 264.179 185.255Z" fill="#444"/><path class="m-shoulder" d="M30.3501 136.86C30.8544 136.708 31.1849 136.731 31.7617 136.785C36.9691 145.681 38.5661 154.897 35.4892 164.706C31.8374 176.347 25.1257 186.535 18.8392 196.921C14.6024 203.92 9.94134 210.693 5.89843 217.789C4.02181 221.083 2.34524 220.699 0 218.917C2.23448 211.026 4.839 203.335 6.53173 195.466C8.60831 185.812 9.94973 176.013 11.5595 166.269C13.5722 154.086 20.8431 144.968 30.3501 136.86Z" fill="#444"/></svg>`;
+const SVG_BACK = `<svg width="100%" viewBox="0 0 411 804" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="411" height="804" fill="transparent"/><path class="m-glute" d="M276.286 690.075C268.73 695.766 263.957 694.993 258.483 687.109C251.208 676.63 247.524 664.732 248.372 652.257C249.517 635.394 252.261 618.639 254.443 601.082" fill="#444"/></svg>`;
 
 function generateRoutine(){
   const days=answers.days||4;
@@ -1712,7 +1728,7 @@ function generateRoutine(){
   setTimeout(()=>{
     const routine=buildRoutine(days,level,goal,focus,wp,intensity,restPref,duration,equipment);
     currentGeneratedRoutine = routine;
-    localStorage.setItem('statux_level', level); // Store level for later rendering
+    localStorage.setItem('statux_level', level);
     renderRoutine(routine,level,days,restPref);
     document.getElementById("loadingState").classList.remove("visible");
     document.getElementById("resultSection").classList.add("visible");
@@ -1809,215 +1825,22 @@ function resetToForm(){
   document.getElementById("welcomeState").style.display="flex";
 }
 
-// 5. CICLO DE VIDA
-// 6. LÓGICA ANATOMÍA
-let muscleData = null;
-let anatomyInitialized = false;
-
-async function initAnatomy() {
-  if (anatomyInitialized) return;
-  try {
-    const res = await fetch('muscle.json');
-    muscleData = await res.json();
-    initAnatomyEvents();
-    anatomyInitialized = true;
-  } catch (err) {
-    console.error("Error cargando muscle.json:", err);
-  }
-}
-
-function initAnatomyEvents() {
-  const grps = document.querySelectorAll('.muscle-grp');
-  const hoverInput = document.getElementById('stxHoverInput');
-
-  grps.forEach(g => {
-    const muscleKey = g.getAttribute('data-muscle');
-    
-    g.addEventListener('mouseenter', () => {
-      if (muscleData && muscleData[muscleKey]) {
-        hoverInput.value = muscleData[muscleKey].name;
-      }
-    });
-
-    g.addEventListener('mouseleave', () => {
-      hoverInput.value = "Selecciona un músculo...";
-    });
-
-    g.addEventListener('click', () => {
-      selectMuscleAnatomy(muscleKey);
-    });
-  });
-}
-
-function selectMuscleAnatomy(key) {
-  const data = muscleData[key];
-  if (!data) return;
-
-  // Visual highlight
-  document.querySelectorAll('.muscle-grp').forEach(el => el.classList.remove('selected'));
-  const target = document.querySelector(`.muscle-grp[data-muscle="${key}"]`);
-  if (target) target.classList.add('selected');
-
-  // Update Detail Panel
-  document.getElementById('stxWelcomeAnatomy').style.display = 'none';
-  const detail = document.getElementById('stxDetailAnatomy');
-  detail.style.display = 'block';
-
-  document.getElementById('detailTitleAnatomy').textContent = data.name;
-  document.getElementById('detailSubAnatomy').textContent = data.sub || "MÚSCULO PRINCIPAL · CALISTENIA";
-  
-  const partsContainer = document.getElementById('detailPartsAnatomy');
-  partsContainer.innerHTML = data.parts.map(p => `<span class="stx-part-chip">${p}</span>`).join('');
-
-  const exGrid = document.getElementById('detailExGridAnatomy');
-  exGrid.innerHTML = data.exercises.map(ex => `
-    <div class="stx-ex-card" onclick="openAnatomyVideo('${ex.video}')">
-      <div class="stx-ex-thumb-placeholder"></div>
-      <div class="stx-ex-name">${ex.name}</div>
-    </div>
-  `).join('');
-
-  document.getElementById('detailBenefitsAnatomy').innerHTML = data.benefits;
-  document.getElementById('detailInfoAnatomy').textContent = data.info || "Información detallada proximamente.";
-
-  // Scroll to details on mobile
-  if (window.innerWidth < 900) {
-    detail.scrollIntoView({ behavior: 'smooth' });
-  }
-}
-
-function clearSelectionAnatomy() {
-  document.querySelectorAll('.muscle-grp').forEach(el => el.classList.remove('selected'));
-  document.getElementById('stxDetailAnatomy').style.display = 'none';
-  document.getElementById('stxWelcomeAnatomy').style.display = 'flex';
-}
-
-function switchViewAnatomy(view) {
-  const frontView = document.getElementById('viewFrontAnatomy');
-  const backView = document.getElementById('viewBackAnatomy');
-  const btnFront = document.getElementById('btnFront');
-  const btnBack = document.getElementById('btnBack');
-
-  if (view === 'front') {
-    frontView.classList.add('visible');
-    backView.classList.remove('visible');
-    btnFront.classList.add('active');
-    btnBack.classList.remove('active');
-  } else {
-    backView.classList.add('visible');
-    frontView.classList.remove('visible');
-    btnBack.classList.add('active');
-    btnFront.classList.remove('active');
-  }
-  clearSelectionAnatomy();
-}
-
-function openAnatomyVideo(url) {
-  const overlay = document.getElementById('stxOverlayAnatomy');
-  const iframe = document.getElementById('stxVideoFrameAnatomy');
-  if (!overlay || !iframe) return;
-
-  // Convert youtube link to embed if needed
-  let embedUrl = url;
-  if (url.includes('watch?v=')) {
-    embedUrl = url.replace('watch?v=', 'embed/');
-  } else if (url.includes('youtu.be/')) {
-    embedUrl = url.replace('youtu.be/', 'youtube.com/embed/');
-  }
-
-  iframe.src = embedUrl;
-  overlay.classList.add('open');
-}
-
-function closeAnatomyVideo() {
-  const overlay = document.getElementById('stxOverlayAnatomy');
-  const iframe = document.getElementById('stxVideoFrameAnatomy');
-  if (overlay) overlay.classList.remove('open');
-  if (iframe) iframe.src = "";
-}
-
-window.onload = () => {
-    initIcons();
-    updateStreak();
-    buildQuestion();
-
-    setTimeout(() => {
-        const loader = document.getElementById('loadingScreen');
-        if (loader) loader.classList.add('fade-out');
-    }, 2000);
-};
-
-
-
-
-/* ══ AÑADIR AL FINAL DE script.js ══
-   (o reemplaza la función navigate existente por esta versión actualizada)
-══ */
-
-// ── NAVEGACIÓN ACTUALIZADA (reemplaza la función navigate existente) ──
-function navigate(sectionId) {
-    const dashboard    = document.getElementById('container-main');
-    const routines     = document.getElementById('routines');
-    const savedSection = document.getElementById('saved-routine-section');
-    const anatomySection   = document.getElementById('anatomy-section');
-    const nutritionSection = document.getElementById('nutrition-section');
-
-    document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-
-    dashboard.style.display        = 'none';
-    routines.style.display         = 'none';
-    savedSection.style.display     = 'none';
-    if (anatomySection)   anatomySection.style.display   = 'none';
-    if (nutritionSection) nutritionSection.style.display = 'none';
-
-    if (sectionId === 'routines') {
-        routines.style.display = 'block';
-        document.getElementById('btn-nav-routines').classList.add('active');
-
-    } else if (sectionId === 'dashboard') {
-        dashboard.style.display = 'block';
-        document.getElementById('btn-nav-dashboard').classList.add('active');
-
-    } else if (sectionId === 'saved-routine') {
-        savedSection.style.display = 'block';
-        document.getElementById('btn-nav-saved').classList.add('active');
-        loadSavedRoutine();
-
-    } else if (sectionId === 'anatomy') {
-        if (anatomySection) {
-            anatomySection.style.display = 'block';
-            document.getElementById('btn-nav-anatomy').classList.add('active');
-            initAnatomy();
-        }
-
-    } else if (sectionId === 'nutrition') {
-        if (nutritionSection) {
-            nutritionSection.style.display = 'block';
-            // No hay nav-item dedicado, activamos dashboard como fallback visual
-        }
-    }
-
-    initIcons();
-}
-
-// ── CALCULADORA DE PROTEÍNA (Pyodide) ──
-let pyodide      = null;
-let pyReady      = false;
-let pyPromise    = null;
+// 7. CALCULADORA DE PROTEÍNA CON PYODIDE
+let pyodide = null;
+let pyReady = false;
+let pyPromise = null;
 
 async function loadPyodide_() {
-    pyodide  = await loadPyodide();
-    pyReady  = true;
+    pyodide = await loadPyodide();
+    pyReady = true;
 }
-
-// Arranca la carga en cuanto se define (no bloquea nada)
 pyPromise = loadPyodide_();
 
 async function calcularProteina() {
-    const btn        = document.getElementById('calcBtn');
-    const loading    = document.getElementById('nutriLoading');
-    const results    = document.getElementById('nutriResults');
-    const msg        = document.getElementById('nutriLoadingMsg');
+    const btn = document.getElementById('calcBtn');
+    const loading = document.getElementById('nutriLoading');
+    const results = document.getElementById('nutriResults');
+    const msg = document.getElementById('nutriLoadingMsg');
 
     btn.disabled = true;
     loading.classList.add('visible');
@@ -2029,9 +1852,9 @@ async function calcularProteina() {
     }
     msg.textContent = 'Calculando...';
 
-    const peso     = parseFloat(document.getElementById('peso').value) || 75;
+    const peso = parseFloat(document.getElementById('peso').value) || 75;
     const objetivo = document.querySelector('input[name=objetivo]:checked').value;
-    const comidas  = parseInt(document.querySelector('input[name=comidas]:checked').value);
+    const comidas = parseInt(document.querySelector('input[name=comidas]:checked').value);
 
     const code = `
 import json
@@ -2062,9 +1885,9 @@ for i in range(comidas):
     })
 
 insights = {
-    "mantener": f"Con {peso} kg en mantenimiento, {optimo}g de proteína diaria es suficiente para preservar tu masa muscular actual.",
-    "ganar":    f"Para ganar músculo a {peso} kg necesitas {optimo}g diarios. Prioriza la proteína post-entrenamiento.",
-    "perder":   f"En déficit calórico con {peso} kg, {optimo}g protegen tu músculo mientras pierdes grasa.",
+    "mantener": f"Con {peso} kg en mantenimiento, <strong>{optimo}g</strong> de proteína diaria es suficiente para preservar tu masa muscular actual.",
+    "ganar":    f"Para ganar músculo a {peso} kg necesitas <strong>{optimo}g</strong> diarios. Prioriza la proteína post-entrenamiento.",
+    "perder":   f"En déficit calórico con {peso} kg, <strong>{optimo}g</strong> protegen tu músculo mientras pierdes grasa.",
 }
 
 json.dumps({
@@ -2077,12 +1900,12 @@ json.dumps({
 `;
 
     const resultJson = await pyodide.runPythonAsync(code);
-    const data       = JSON.parse(resultJson);
+    const data = JSON.parse(resultJson);
 
     document.getElementById('rMin').textContent = data.minimo;
     document.getElementById('rOpt').textContent = data.optimo;
     document.getElementById('rMax').textContent = data.maximo;
-    document.getElementById('nutriInsight').textContent = data.insight;
+    document.getElementById('nutriInsight').innerHTML = data.insight; // innerHTML para que se vea el <strong>
 
     const mealsEl = document.getElementById('nutriMeals');
     mealsEl.innerHTML = '';
@@ -2106,6 +1929,17 @@ json.dumps({
     btn.disabled = false;
 }
 
+// 8. CICLO DE VIDA (onload)
+window.onload = () => {
+    initIcons();
+    updateStreak();
+    buildQuestion();
+
+    setTimeout(() => {
+        const loader = document.getElementById('loadingScreen');
+        if (loader) loader.classList.add('fade-out');
+    }, 2000);
+};
     </script>
     <!-- Pyodide para la calculadora -->
     <script src="https://cdn.jsdelivr.net/pyodide/v0.25.1/full/pyodide.js"></script>
