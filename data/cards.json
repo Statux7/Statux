@@ -6,7 +6,7 @@
       "title": "Plantitux Dark Landing",
       "prompt": "",
       "code": "STATUX-1234",
-      "price": "3.99",
+      "price": "2.99",
       "image": "",
       "previewVideo": "",
       "link": ""
@@ -409,38 +409,6 @@
       "no": "❌ ,❌ ,❌ Templux",
       "link": "#",
       "blocks": []
-    },
-    {
-      "type": "movitux",
-      "section": "movitux",
-      "title": "Classic girl",
-      "prompt": "Replace the woman with the person from the reference photo. Maintain recognizable facial structure and features. Keep body pose and composition intact. Remove all titles, labels and logos. Illustrated poster style, bold contour lines, smooth gradient shading, clean skin tones, stylized but realistic proportions, official video game artwork aesthetic.",
-      "code": "",
-      "price": "",
-      "image": "portadas/gta-san-promt.jpeg",
-      "previewVideo": "",
-      "link": ""
-    },
-    {
-      "type": "movitux",
-      "section": "movitux",
-      "title": "Poster chica armada",
-      "prompt": "Replace the woman in the image with the person from the reference photo. Keep the exact facial identity. Do not change gender, ethnicity or facial proportions. Adapt the face to the illustration style while preserving recognizability. Match pose, perspective and lighting of the original artwork. Remove any text or logos. Convert into clean promotional video game artwork illustration, bold outlines, smooth shading, cinematic lighting, vibrant colors, not photorealistic. The result must look like official promotional art, not a real photo.",
-      "code": "",
-      "price": "",
-      "image": "portadas/1366_2000.jpg",
-      "previewVideo": ""
-    },
-    {
-      "type": "movitux",
-      "section": "movitux",
-      "title": "Pareja aventurera",
-      "prompt": "Replace both characters in the image with the two people from the reference photo. Map each person to a different character while preserving their respective identities and genders. Keep recognizable facial structure, eyes, nose, mouth and natural expression for each person. Do not merge faces or average them. Each character must clearly correspond to one person. Adapt both faces to the illustrated promotional artwork style while keeping likeness. Maintain original poses, body positions, camera angle and composition. Remove all text and logos. Cinematic illustrated video game promotional art style, bold outlines, smooth gradients, vibrant sunset lighting, polished artwork finish, not photorealistic.",
-      "code": "=3434=xcfew31",
-      "price": "1.99",
-      "image": "portadas/1200_900.jpeg",
-      "previewVideo": "",
-      "link": "https://statux.gumroad.com/l/vcfbvy"
     },
     {
       "type": "getux",
