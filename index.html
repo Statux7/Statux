@@ -14,11 +14,13 @@
     <meta property="og:image" content="Statux-logo(SVG).svg">
     <meta property="og:url" content="https://statux.netlify.app">
     <script type="text/javascript">
-    (function(c,l,a,r,i,t,y){
-        c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
-        t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
-        y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
-    })(window, document, "clarity", "script", "wxq76onz4v");
+    if (navigator.onLine) {
+      (function(c,l,a,r,i,t,y){
+          c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+          t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+          y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+      })(window, document, "clarity", "script", "wxq76onz4v");
+    }
     </script>
     <meta name="theme-color" content="#000000">
     <link rel="stylesheet" href="styles.css">
@@ -40,7 +42,7 @@
            id="navDashboardItem"
            aria-label="Dashboard"
            style="display:none;">
-          <img src="usuario.svg" class="iconos-de-navegacion" alt="Dashboard">
+          <img src="Usuario.svg" class="iconos-de-navegacion" alt="Dashboard">
           <span class="contenitux">Dashboard</span>
         </a>
         <a href="#Home" class="item active" aria-label="home"><img src="Home.svg" class="iconos-de-navegacion"/><span class="contenitux">Home</span></a>
@@ -512,7 +514,7 @@
     <div class="floating-container" aria-label="Acciones flotantes">
       
       <button id="sectionsignInbtn" class="floating-btn secondary-btn">
-        <img src="usuario.svg" alt="Login">
+        <img src="Usuario.svg" alt="Login">
       </button>
 
       
@@ -646,7 +648,7 @@
               </svg>
 </div>
   <div class="loginconteiner">
-    <button class="close-login"><img src="https://statux.netlify.app/logout.svg"></button>
+    <button class="close-login"><img src="Logout.svg" alt="Cerrar"></button>
     <div class="login-box">
   <h1>Login</h1>
       
@@ -671,7 +673,14 @@
   </div>
 </section>
 
-    <script src="https://gumroad.com/js/gumroad.js"></script>
+    <script>
+      if (navigator.onLine) {
+        const gumroadScript = document.createElement("script");
+        gumroadScript.src = "https://gumroad.com/js/gumroad.js";
+        gumroadScript.async = true;
+        document.head.appendChild(gumroadScript);
+      }
+    </script>
     <script src="dashboard-loader.js" defer></script>
     <script src="home.js" defer></script>
     <script src="script.js" defer></script>
@@ -715,66 +724,72 @@ if (closeBtn) {
   closeBtn.addEventListener("click", closeLogin);
 }
 
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
-import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-analytics.js";
-import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js";
+if (navigator.onLine) {
+  const { initializeApp } = await import("https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js");
+  const { getAnalytics } = await import("https://www.gstatic.com/firebasejs/12.12.1/firebase-analytics.js");
+  const { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } = await import("https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js");
 
-const firebaseConfig = {
-  apiKey: "AIzaSyAewCnZjUC-gf9cMmblq7dxed2j2FlGxVA",
-  authDomain: "statux-37bc1.firebaseapp.com",
-  projectId: "statux-37bc1",
-  storageBucket: "statux-37bc1.firebasestorage.app",
-  messagingSenderId: "238471923189",
-  appId: "1:238471923189:web:ece6857781397a2ebf0cbc",
-  measurementId: "G-XJN39YT7Y7"
-};
+  const firebaseConfig = {
+    apiKey: "AIzaSyAewCnZjUC-gf9cMmblq7dxed2j2FlGxVA",
+    authDomain: "statux-37bc1.firebaseapp.com",
+    projectId: "statux-37bc1",
+    storageBucket: "statux-37bc1.firebasestorage.app",
+    messagingSenderId: "238471923189",
+    appId: "1:238471923189:web:ece6857781397a2ebf0cbc",
+    measurementId: "G-XJN39YT7Y7"
+  };
 
-const app = initializeApp(firebaseConfig);
-getAnalytics(app);
+  const app = initializeApp(firebaseConfig);
+  getAnalytics(app);
 
-const auth = getAuth(app);
-const provider = new GoogleAuthProvider();
+  const auth = getAuth(app);
+  const provider = new GoogleAuthProvider();
 
-const googleBtn = document.getElementById("googleSignInBtn");
+  const googleBtn = document.getElementById("googleSignInBtn");
 
-if (googleBtn) {
-  googleBtn.addEventListener("click", async () => {
-    try {
-      const result = await signInWithPopup(auth, provider);
-      const user = result.user;
+  if (googleBtn) {
+    googleBtn.addEventListener("click", async () => {
+      try {
+        const result = await signInWithPopup(auth, provider);
+        const user = result.user;
 
-      console.log("Usuario:", user.displayName, user.email);
+        console.log("Usuario:", user.displayName, user.email);
 
-      showToast(`Bienvenido, ${user.displayName || "usuario"}`);
-      closeLogin();
+        showToast(`Bienvenido, ${user.displayName || "usuario"}`);
+        closeLogin();
 
-    } catch (error) {
-      console.error("Error login:", error.message);
-      showToast("No se pudo iniciar sesión", true);
-    }
-  });
-}
-
-const signOutBtn = document.getElementById("signOutButton");
-
-if (signOutBtn) {
-  signOutBtn.addEventListener("click", async () => {
-    try {
-      await signOut(auth);
-      showToast("Sesión cerrada");
-    } catch (error) {
-      showToast("Error al cerrar sesión", true);
-    }
-  });
-}
-
-onAuthStateChanged(auth, (user) => {
-  if (user) {
-    console.log("Logueado:", user.displayName);
-  } else {
-    console.log("No logueado");
+      } catch (error) {
+        console.error("Error login:", error.message);
+        showToast("No se pudo iniciar sesión", true);
+      }
+    });
   }
-});
+
+  const signOutBtn = document.getElementById("signOutButton");
+
+  if (signOutBtn) {
+    signOutBtn.addEventListener("click", async () => {
+      try {
+        await signOut(auth);
+        showToast("Sesión cerrada");
+      } catch (error) {
+        showToast("Error al cerrar sesión", true);
+      }
+    });
+  }
+
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      console.log("Logueado:", user.displayName);
+    } else {
+      console.log("No logueado");
+    }
+  });
+} else {
+  document.getElementById("googleSignInBtn")?.addEventListener("click", () => {
+    showToast("El inicio de sesión con Google requiere conexión", true);
+  });
+}
 
 function showToast(text, isError = false) {
   const msg = document.createElement("div");
