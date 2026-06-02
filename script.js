@@ -1799,7 +1799,7 @@ let deferredInstallPrompt = null;
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", async () => {
     try {
-      const registration = await navigator.serviceWorker.register("/pwa/sw.js");
+      const registration = await navigator.serviceWorker.register("/pwa/sw.js", { scope: "/" });
       console.log("[Statux] SW registrado:", registration.scope);
 
       if (registration.waiting) {

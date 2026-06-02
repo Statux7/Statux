@@ -1,6 +1,6 @@
-const SW_VERSION = 'statux-sw-v2';
+const SW_VERSION = 'statux-sw-v3';
 
-const SHELL_CACHE = 'statux-shell-v2';
+const SHELL_CACHE = 'statux-shell-v3';
 const SHELL_ASSETS = [
   '/',
   '/index.html',
@@ -66,7 +66,7 @@ const SHELL_ASSETS = [
   '/favicoin.ico',
 ];
 
-const DATA_CACHE = 'statux-data-v2';
+const DATA_CACHE = 'statux-data-v3';
 const SYSTUX_CACHE = 'statux-modules';
 
 
