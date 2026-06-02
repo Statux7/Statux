@@ -148,6 +148,21 @@
       "blocks": []
     },
     {
+      "type": "getux",
+      "section": "getux",
+      "title": "Story Studio",
+      "subtitle": "",
+      "code": "",
+      "price": "",
+      "image": "portadas/Story Studio.jpeg",
+      "description": "",
+      "yes": "✔ Systux,✔ Herramientas",
+      "no": "❌ Templux",
+      "courseUrl": "",
+      "link": "#",
+      "blocks": []
+    },
+    {
       "type": "ebootux",
       "section": "ebootux",
       "title": "Arquitectura Mental",
