@@ -113,7 +113,11 @@ async function loadDashboardSection() {
   }
 
   try {
-    const response = await fetch('Dashboard/dashboard.html', { cache: 'no-cache' });
+    const fetchOptions = navigator.onLine
+      ? { cache: 'no-cache' }
+      : { cache: 'force-cache' };
+
+    const response = await fetch('Dashboard/dashboard.html', fetchOptions);
     if (!response.ok) throw new Error(`Error cargando dashboard: ${response.status}`);
     const html = await response.text();
 

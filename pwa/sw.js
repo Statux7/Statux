@@ -137,21 +137,21 @@ async function networkFirst(request) {
     await putInCache(cacheName, request, networkResponse);
     return networkResponse;
   } catch (error) {
-    const cachedResponse = await caches.match(request, { ignoreSearch: true });
+    const cachedResponse = await caches.match(request, { ignoreSearch: true, ignoreVary: true });
     if (cachedResponse) return cachedResponse;
     if (isNavigationRequest(request)) {
-      return caches.match('/index.html') || caches.match(OFFLINE_URL);
+      return caches.match('/index.html', { ignoreVary: true }) || caches.match(OFFLINE_URL, { ignoreVary: true });
     }
     if ((request.headers.get('accept') || '').includes('image/')) {
-      return caches.match(IMAGE_FALLBACK);
+      return caches.match(IMAGE_FALLBACK, { ignoreVary: true });
     }
-    return caches.match(OFFLINE_URL) || Response.error();
+    return caches.match(OFFLINE_URL, { ignoreVary: true }) || Response.error();
   }
 }
 
 async function cacheFirstWithRefresh(event) {
   const { request } = event;
-  const cachedResponse = await caches.match(request, { ignoreSearch: true });
+  const cachedResponse = await caches.match(request, { ignoreSearch: true, ignoreVary: true });
   const cacheName = cacheNameFor(request);
 
   const refresh = fetch(request)
@@ -166,9 +166,9 @@ async function cacheFirstWithRefresh(event) {
   const networkResponse = await refresh;
   if (networkResponse) return networkResponse;
 
-  if (isNavigationRequest(request)) return caches.match('/index.html') || caches.match(OFFLINE_URL);
-  if ((request.headers.get('accept') || '').includes('image/')) return caches.match(IMAGE_FALLBACK);
-  return caches.match(OFFLINE_URL) || Response.error();
+  if (isNavigationRequest(request)) return caches.match('/index.html', { ignoreVary: true }) || caches.match(OFFLINE_URL, { ignoreVary: true });
+  if ((request.headers.get('accept') || '').includes('image/')) return caches.match(IMAGE_FALLBACK, { ignoreVary: true });
+  return caches.match(OFFLINE_URL, { ignoreVary: true }) || Response.error();
 }
 
 self.addEventListener('fetch', (event) => {
