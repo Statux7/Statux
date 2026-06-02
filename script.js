@@ -1820,16 +1820,17 @@ window.addEventListener("appinstalled", () => {
 
 async function downloadModule(moduleId) {
   const modulesCache = await caches.open("statux-modules");
-  const response = await fetch("/pwa/modules.json", { cache: "no-store" });
+  const response = await fetch("/pwa/modules.json", { cache: "no-store" })
+    .catch(() => caches.match("/pwa/modules.json"));
 
-  if (!response.ok) throw new Error("No se pudo cargar modules.json");
+  if (!response?.ok) throw new Error("No se pudo cargar modules.json");
 
   const data = await response.json();
   const module = (data.modules || []).find((item) => item.id === moduleId);
 
   if (!module) throw new Error(`Módulo no encontrado: ${moduleId}`);
 
-  await modulesCache.addAll(module.files || []);
+  await Promise.allSettled((module.files || []).map((file) => modulesCache.add(file)));
   return module.files || [];
 }
 
