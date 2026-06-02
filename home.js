@@ -202,7 +202,11 @@ async function loadHomeSection() {
   if (!target) return;
 
   try {
-    const response = await fetch('home.html', { cache: 'no-cache' });
+    const fetchOptions = navigator.onLine
+      ? { cache: 'no-cache' }
+      : { cache: 'force-cache' };
+
+    const response = await fetch('home.html', fetchOptions);
     if (!response.ok) throw new Error(`No se pudo cargar Home (${response.status})`);
 
     const html = await response.text();

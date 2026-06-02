@@ -639,7 +639,10 @@ async function fetchAndRenderCards() {
   };
 
   const cacheBuster = `v=${Date.now()}`;
-  const candidates = [`${CARDS_JSON_URL}?${cacheBuster}`, `/${CARDS_JSON_URL}?${cacheBuster}`, CARDS_JSON_URL, `/${CARDS_JSON_URL}`];
+  const isOnline = navigator.onLine;
+  const candidates = isOnline
+    ? [`${CARDS_JSON_URL}?${cacheBuster}`, `/${CARDS_JSON_URL}?${cacheBuster}`, CARDS_JSON_URL, `/${CARDS_JSON_URL}`]
+    : [CARDS_JSON_URL, `/${CARDS_JSON_URL}`];
   let lastError = null;
   const knownSections = ["ebootux", "getux", "plantitux", "movitux"];
   let loadingTimedOut = false;
@@ -699,7 +702,10 @@ async function fetchAndRenderCards() {
 
   for (const url of candidates) {
     try {
-      const res = await fetch(url, { cache: "no-store" });
+      const fetchOptions = isOnline
+        ? { cache: "no-store" }
+        : { cache: "force-cache" };
+      const res = await fetch(url, fetchOptions);
       if (!res.ok) throw new Error(`no-data:${res.status}`);
 
       const raw = await res.text();
@@ -1791,10 +1797,19 @@ fetchAndRenderCards();
 let deferredInstallPrompt = null;
 
 if ("serviceWorker" in navigator) {
-  window.addEventListener("load", () => {
-    navigator.serviceWorker.register("/pwa/sw.js").catch((error) => {
-      console.warn("No se pudo registrar el Service Worker:", error);
-    });
+  window.addEventListener("load", async () => {
+    try {
+      const registration = await navigator.serviceWorker.register("/pwa/sw.js", { scope: "/" });
+      console.log("[Statux] SW registrado:", registration.scope);
+
+      if (registration.waiting) {
+        registration.waiting.postMessage({ type: 'SKIP_WAITING' });
+      }
+
+      registration.update().catch(() => {});
+    } catch (error) {
+      console.warn("[Statux] No se pudo registrar el SW:", error);
+    }
   });
 }
 
@@ -2375,13 +2390,29 @@ const stxPWA = (() => {
 
   function watchForUpdates() {
     if (!('serviceWorker' in navigator)) return;
+
+    navigator.serviceWorker.ready.then((registration) => {
+      registration.addEventListener('updatefound', () => {
+        const newWorker = registration.installing;
+        if (!newWorker) return;
+
+        newWorker.addEventListener('statechange', () => {
+          if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+            if (typeof mostrarModal === 'function') {
+              mostrarModal(
+                'Statux actualizado',
+                'Recarga la página para ver la nueva versión.'
+              );
+            }
+          }
+        });
+      });
+    });
+
+    let refreshing = false;
     navigator.serviceWorker.addEventListener('controllerchange', () => {
-      if (typeof mostrarModal === 'function') {
-        mostrarModal(
-          'Statux actualizado',
-          'Hay una nueva versión disponible. Recarga la página para aplicarla.'
-        );
-      }
+      if (refreshing) return;
+      refreshing = true;
     });
   }
 
