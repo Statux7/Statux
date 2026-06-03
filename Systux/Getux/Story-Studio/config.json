@@ -1,0 +1,49 @@
+{
+  "app": {
+    "name": "Story Studio",
+    "version": "1.0.0",
+    "tagline": "Build Scripts. Craft Stories."
+  },
+  "limits": {
+    "free": {
+      "projects": 25,
+      "wordStock": 500,
+      "blocksPerProject": -1,
+      "imagesPerProject": 20,
+      "videosPerProject": 10,
+      "exportJSON": true,
+      "teleprompter": true
+    }
+  },
+  "teleprompter": {
+    "defaultSpeed": 3,
+    "defaultFontSize": 36,
+    "minSpeed": 1,
+    "maxSpeed": 10,
+    "minFontSize": 18,
+    "maxFontSize": 72
+  },
+  "editor": {
+    "autosaveInterval": 2000,
+    "defaultBlockTypes": [
+      { "id": "hook",        "label": "HOOK",        "color": "#5DD62C" },
+      { "id": "open-loop",   "label": "OPEN LOOP",   "color": "#00BFFF" },
+      { "id": "desarrollo",  "label": "DESARROLLO",  "color": "#F0A500" },
+      { "id": "conflicto",   "label": "CONFLICTO",   "color": "#FF4C4C" },
+      { "id": "solucion",    "label": "SOLUCIÓN",    "color": "#A8FF78" },
+      { "id": "cta",         "label": "CTA",         "color": "#FF8C42" },
+      { "id": "custom",      "label": "CUSTOM",      "color": "#7F8C8D" }
+    ]
+  },
+  "ritmo": {
+    "wordsPerMinute": 150,
+    "hookMaxWords": 40,
+    "ctaMinWords": 10,
+    "blockMaxWords": 200,
+    "warningThresholds": {
+      "hookLong": 40,
+      "ctaShort": 10,
+      "blockLong": 200
+    }
+  }
+}
