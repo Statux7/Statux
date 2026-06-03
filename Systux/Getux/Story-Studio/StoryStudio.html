@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Story Studio</title>
+  <link rel="stylesheet" href="StoryStudio.css">
+</head>
+<body>
+
+<!-- LOADER -->
+<div id="loader">
+  <svg class="loader-logo" viewBox="0 0 500 500">
+    <path class="statux-path cuerpo" d="M225.999908,329.843475 C208.754364,329.843475 192.008804,329.843475 174.326538,329.843475 C183.611938,341.056976 192.271851,351.515106 201.261032,362.370880 C198.201035,364.906006 195.220856,367.375000 191.866653,370.153839 C162.266953,334.482910 132.839920,299.020081 103.021248,263.085266 C106.050591,260.508453 109.014664,257.987183 112.288124,255.202759 C123.075844,268.182800 133.683395,280.943848 144.288391,293.707062 C150.143509,300.753723 155.873627,307.910797 161.941696,314.768921 C163.266907,316.266693 165.789505,317.506073 167.764267,317.511322 C222.420624,317.657349 277.077484,317.644531 331.734070,317.558258 C333.576935,317.555359 335.885620,317.044189 337.189117,315.884308 C353.355225,301.499847 369.375000,286.950897 385.765564,272.143280 C384.529877,271.209564 383.585388,270.391602 382.544098,269.724823 C368.535309,260.754486 354.548309,251.748917 340.451202,242.919220 C338.612091,241.767288 336.192261,240.988205 334.037231,240.978699 C305.376312,240.852310 276.714447,240.848129 248.053604,240.980316 C245.716446,240.991104 243.135544,241.783005 241.090210,242.951279 C224.796158,252.258209 208.604172,261.743835 192.237350,271.258118 C154.250488,236.330368 116.254845,201.394531 77.970634,166.193390 C80.767830,163.147354 83.423027,160.255966 86.187958,157.245056 C95.312439,165.605209 104.133522,173.687347 113.192673,181.987640 C139.652328,158.549835 165.922913,135.279526 192.507385,111.731171 C195.126694,114.674324 197.713943,117.581436 200.576889,120.798340 C193.693237,126.946930 186.950073,132.970047 179.546585,139.582977 C225.233124,139.582977 269.891693,139.582977 316.079834,139.582977 C305.787048,133.226379 296.696075,127.611984 287.241547,121.773094 C289.378204,118.239273 291.391663,114.909187 293.531769,111.369659 C323.998322,130.067764 354.320984,148.677551 384.869934,167.426239 C382.716797,170.945099 380.661011,174.304886 378.509949,177.820343 C365.633148,169.905273 352.947998,161.983688 340.103790,154.329025 C337.825287,152.971115 334.886292,152.067215 332.249664,152.060959 C278.093140,151.932190 223.936127,151.926331 169.779755,152.085236 C167.281876,152.092560 164.276749,153.270981 162.376389,154.910614 C149.017395,166.436722 135.886520,178.227234 122.291122,190.280457 C124.253517,192.145004 125.982010,193.833664 127.759735,195.468811 C138.674179,205.507919 149.487091,215.663086 160.621109,225.452835 C162.729492,227.306671 166.117020,228.585266 168.931488,228.617218 C191.257889,228.870651 213.589355,228.856125 235.916687,228.646942 C239.058304,228.617493 242.523361,227.688934 245.263626,226.151535 C259.913574,217.932327 274.475555,209.543991 288.845490,200.846649 C292.481537,198.645935 294.928314,199.068649 298.237244,201.202606 C328.990509,221.035446 359.838196,240.721878 390.662048,260.445282 C392.184418,261.419434 393.739471,262.342529 395.423279,263.377930 C404.486969,255.199051 413.382843,247.171646 422.686096,238.776596 C425.335449,241.677872 427.970490,244.563492 430.894501,247.765564 C385.515686,288.799805 340.207825,329.769928 294.767517,370.859802 C291.938629,367.680725 289.408600,364.837463 286.673309,361.763519 C298.251312,351.268311 309.629120,340.954590 321.886566,329.843475 C289.317291,329.843475 257.908600,329.843475 225.999908,329.843475 Z"></path>
+    <path class="statux-path ojos" d="M300.376343,217.124832 C295.552856,212.479828 290.838531,212.706543 285.602844,216.784958 C282.226990,219.414612 278.188690,221.190002 274.464722,223.377945 C271.881073,224.895874 269.327057,226.464325 265.818756,228.576874 C283.750244,228.576874 300.284607,228.576874 318.169678,228.576874 C311.736542,224.451904 306.353210,221.000046 300.376343,217.124832 M209.416748,240.883652 C199.052048,240.883652 188.687332,240.883652 177.205673,240.883652 C183.316818,246.517960 188.573608,251.364594 193.844055,256.223816 C202.407944,251.212021 210.537811,246.454208 218.667679,241.696411 C218.543671,241.425491 218.419662,241.154572 218.295654,240.883652 C215.657425,240.883652 213.019180,240.883652 209.416748,240.883652 Z"></path>
+  </svg>
+  <div class="loader-bar">
+    <div class="loader-bar-fill"></div>
+  </div>
+  <div class="loader-text">Initializing Studio...</div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <!-- TOP BAR -->
+  <div class="topbar">
+    <a href="#" class="topbar-logo">
+      <svg viewBox="0 0 500 500">
+        <path class="statux-path cuerpo" d="M225.999908,329.843475 C208.754364,329.843475 192.008804,329.843475 174.326538,329.843475 C183.611938,341.056976 192.271851,351.515106 201.261032,362.370880 C198.201035,364.906006 195.220856,367.375000 191.866653,370.153839 C162.266953,334.482910 132.839920,299.020081 103.021248,263.085266 C106.050591,260.508453 109.014664,257.987183 112.288124,255.202759 C123.075844,268.182800 133.683395,280.943848 144.288391,293.707062 C150.143509,300.753723 155.873627,307.910797 161.941696,314.768921 C163.266907,316.266693 165.789505,317.506073 167.764267,317.511322 C222.420624,317.657349 277.077484,317.644531 331.734070,317.558258 C333.576935,317.555359 335.885620,317.044189 337.189117,315.884308 C353.355225,301.499847 369.375000,286.950897 385.765564,272.143280 C384.529877,271.209564 383.585388,270.391602 382.544098,269.724823 C368.535309,260.754486 354.548309,251.748917 340.451202,242.919220 C338.612091,241.767288 336.192261,240.988205 334.037231,240.978699 C305.376312,240.852310 276.714447,240.848129 248.053604,240.980316 C245.716446,240.991104 243.135544,241.783005 241.090210,242.951279 C224.796158,252.258209 208.604172,261.743835 192.237350,271.258118 C154.250488,236.330368 116.254845,201.394531 77.970634,166.193390 C80.767830,163.147354 83.423027,160.255966 86.187958,157.245056 C95.312439,165.605209 104.133522,173.687347 113.192673,181.987640 C139.652328,158.549835 165.922913,135.279526 192.507385,111.731171 C195.126694,114.674324 197.713943,117.581436 200.576889,120.798340 C193.693237,126.946930 186.950073,132.970047 179.546585,139.582977 C225.233124,139.582977 269.891693,139.582977 316.079834,139.582977 C305.787048,133.226379 296.696075,127.611984 287.241547,121.773094 C289.378204,118.239273 291.391663,114.909187 293.531769,111.369659 C323.998322,130.067764 354.320984,148.677551 384.869934,167.426239 C382.716797,170.945099 380.661011,174.304886 378.509949,177.820343 C365.633148,169.905273 352.947998,161.983688 340.103790,154.329025 C337.825287,152.971115 334.886292,152.067215 332.249664,152.060959 C278.093140,151.932190 223.936127,151.926331 169.779755,152.085236 C167.281876,152.092560 164.276749,153.270981 162.376389,154.910614 C149.017395,166.436722 135.886520,178.227234 122.291122,190.280457 C124.253517,192.145004 125.982010,193.833664 127.759735,195.468811 C138.674179,205.507919 149.487091,215.663086 160.621109,225.452835 C162.729492,227.306671 166.117020,228.585266 168.931488,228.617218 C191.257889,228.870651 213.589355,228.856125 235.916687,228.646942 C239.058304,228.617493 242.523361,227.688934 245.263626,226.151535 C259.913574,217.932327 274.475555,209.543991 288.845490,200.846649 C292.481537,198.645935 294.928314,199.068649 298.237244,201.202606 C328.990509,221.035446 359.838196,240.721878 390.662048,260.445282 C392.184418,261.419434 393.739471,262.342529 395.423279,263.377930 C404.486969,255.199051 413.382843,247.171646 422.686096,238.776596 C425.335449,241.677872 427.970490,244.563492 430.894501,247.765564 C385.515686,288.799805 340.207825,329.769928 294.767517,370.859802 C291.938629,367.680725 289.408600,364.837463 286.673309,361.763519 C298.251312,351.268311 309.629120,340.954590 321.886566,329.843475 C289.317291,329.843475 257.908600,329.843475 225.999908,329.843475 Z"></path>
+        <path class="statux-path ojos" d="M300.376343,217.124832 C295.552856,212.479828 290.838531,212.706543 285.602844,216.784958 C282.226990,219.414612 278.188690,221.190002 274.464722,223.377945 C271.881073,224.895874 269.327057,226.464325 265.818756,228.576874 C283.750244,228.576874 300.284607,228.576874 318.169678,228.576874 C311.736542,224.451904 306.353210,221.000046 300.376343,217.124832 M209.416748,240.883652 C199.052048,240.883652 188.687332,240.883652 177.205673,240.883652 C183.316818,246.517960 188.573608,251.364594 193.844055,256.223816 C202.407944,251.212021 210.537811,246.454208 218.667679,241.696411 C218.543671,241.425491 218.419662,241.154572 218.295654,240.883652 C215.657425,240.883652 213.019180,240.883652 209.416748,240.883652 Z"></path>
+      </svg>
+    </a>
+    <div class="topbar-brand">STORY STUDIO</div>
+    <div class="topbar-divider"></div>
+    <div class="topbar-project-name" id="projectName">New Project</div>
+    <div class="topbar-spacer"></div>
+    <div class="autosave-badge" id="autosaveBadge">
+      <div class="dot"></div>
+      <span>Auto-saving...</span>
+    </div>
+    <div class="topbar-actions">
+      <button class="btn btn-icon" id="exportBtn" title="Export Project">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 17H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2Z"/><polyline points="12 15 12 2"/><polyline points="9 6 12 3 15 6"/></svg>
+      </button>
+      <button class="btn btn-icon" id="importBtn" title="Import Project">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h3m0 0h7a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2h-7m0 0V2a2 2 0 0 1 2-2h3"/><polyline points="12 9 12 21"/><polyline points="9 18 12 21 15 18"/></svg>
+      </button>
+      <button class="btn btn-icon" id="teleprompterBtn" title="Open Teleprompter">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="2" y1="20" x2="22" y2="20"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- MAIN LAYOUT -->
+  <div class="main-layout">
+    <!-- LEFT PANEL -->
+    <div class="panel-left">
+      <div class="panel-tabs">
+        <button class="panel-tab active" data-tab="projects">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          Projects
+        </button>
+        <button class="panel-tab" data-tab="wordstock">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3v6m4-3H8"/></svg>
+          Words
+        </button>
+        <button class="panel-tab" data-tab="media">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+          Media
+        </button>
+      </div>
+
+      <div class="panel-content">
+        <!-- PROJECTS TAB -->
+        <div class="tab-content" data-tab="projects">
+          <div class="panel-section">
+            <div class="section-header">
+              <div class="section-title">Projects</div>
+              <div class="section-badge" id="projectCount">0/25</div>
+            </div>
+            <div class="search-input-wrap">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+              <input type="text" class="search-input" id="projectSearch" placeholder="Search...">
+            </div>
+            <div class="project-list" id="projectList"></div>
+            <button class="btn btn-primary" id="newProjectBtn" style="width: 100%; margin-top: 8px;">+ New Project</button>
+          </div>
+        </div>
+
+        <!-- WORDSTOCK TAB -->
+        <div class="tab-content" data-tab="wordstock" style="display: none;">
+          <div class="panel-section">
+            <div class="section-header">
+              <div class="section-title">Word Stock</div>
+              <div class="section-badge" id="wordstockCount">0/500</div>
+            </div>
+            <div class="word-stock-categories">
+              <button class="ws-cat-btn active" data-category="all">All</button>
+              <button class="ws-cat-btn" data-category="hooks">Hooks</button>
+              <button class="ws-cat-btn" data-category="ctas">CTAs</button>
+              <button class="ws-cat-btn" data-category="transitions">Trans.</button>
+              <button class="ws-cat-btn" data-category="keywords">Key.</button>
+            </div>
+            <div class="word-stock-list" id="wordstockList"></div>
+            <div class="ws-add-form">
+              <input type="text" class="ws-add-input" id="wsAddInput" placeholder="Add new word...">
+              <button class="btn btn-icon btn-primary" id="wsAddBtn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- MEDIA TAB -->
+        <div class="tab-content" data-tab="media" style="display: none;">
+          <div class="panel-section">
+            <div class="section-header">
+              <div class="section-title">Media Library</div>
+              <div class="section-badge" id="mediaCount">0/30</div>
+            </div>
+            <div class="media-grid" id="mediaGrid"></div>
+            <div class="media-upload-zone" id="uploadZone">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              <p>Drop images or videos<br><span>or click to browse</span></p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RESIZER -->
+    <div class="panel-resizer" id="resizer1"></div>
+
+    <!-- CENTER PANEL -->
+    <div class="panel-center">
+      <div class="editor-topbar">
+        <input type="text" class="editor-title-input" id="scriptTitle" placeholder="Untitled Script">
+        <div class="editor-meta">
+          <span class="editor-meta-badge" id="blockCount">0 blocks</span>
+        </div>
+      </div>
+
+      <div class="block-toolbar" id="blockToolbar"></div>
+
+      <div class="blocks-container" id="blocksContainer">
+        <div class="blocks-empty">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="9" y1="9" x2="15" y2="9"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+          <h3>No blocks yet</h3>
+          <p>Create your first block to start building your script</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- RESIZER -->
+    <div class="panel-resizer" id="resizer2"></div>
+
+    <!-- RIGHT PANEL -->
+    <div class="panel-right">
+      <div class="context-panel" id="contextPanel">
+        <div class="context-section">
+          <div class="ctx-label">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+            Ritmo-Metro
+          </div>
+          <div class="ritmo-stat">
+            <span class="ritmo-stat-label">Total Words</span>
+            <span class="ritmo-stat-value" id="ritmoWords">0</span>
+          </div>
+          <div class="ritmo-stat">
+            <span class="ritmo-stat-label">Reading Time</span>
+            <span class="ritmo-stat-value" id="ritmoReading">0m</span>
+          </div>
+          <div class="ritmo-stat">
+            <span class="ritmo-stat-label">Video Duration</span>
+            <span class="ritmo-stat-value" id="ritmoDuration">0s</span>
+          </div>
+          <div class="ritmo-stat">
+            <span class="ritmo-stat-label">Block Density</span>
+            <span class="ritmo-stat-value" id="ritmoDensity">0%</span>
+          </div>
+          <div class="ritmo-progress">
+            <div class="ritmo-progress-bar">
+              <div class="ritmo-progress-fill" id="ritmoProgressFill" style="width: 0%"></div>
+            </div>
+          </div>
+          <div class="ritmo-warnings" id="ritmoWarnings"></div>
+        </div>
+
+        <div class="context-section" id="limitSection">
+          <div class="ctx-label">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+            Limits
+          </div>
+          <div class="limits-grid" id="limitsGrid"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STATUS BAR -->
+  <div class="statusbar">
+    <div class="statusbar-left">
+      <div class="statusbar-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
+        <span id="statusText">Ready</span>
+      </div>
+    </div>
+    <div class="statusbar-right">
+      <div class="statusbar-item">
+        <span id="versionText">v1.0.0</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TELEPROMPTER -->
+<div id="teleprompter-overlay">
+  <div class="teleprompter-controls">
+    <div class="teleprompter-ctrl-group">
+      <button class="tp-btn active" id="tpPlayBtn">▶ Play</button>
+      <button class="tp-btn" id="tpPauseBtn">⏸ Pause</button>
+      <button class="tp-btn" id="tpResetBtn">↻ Reset</button>
+    </div>
+    <div class="teleprompter-ctrl-group">
+      <span class="tp-label">Speed</span>
+      <div class="tp-slider-wrap">
+        <input type="range" class="tp-slider" id="tpSpeed" min="1" max="10" value="3">
+        <span class="tp-value" id="tpSpeedValue">3x</span>
+      </div>
+    </div>
+    <div class="teleprompter-ctrl-group">
+      <span class="tp-label">Size</span>
+      <div class="tp-slider-wrap">
+        <input type="range" class="tp-slider" id="tpSize" min="18" max="72" value="36">
+        <span class="tp-value" id="tpSizeValue">36</span>
+      </div>
+    </div>
+    <button class="tp-btn close" id="tpCloseBtn">✕ Close</button>
+  </div>
+  <div class="teleprompter-scroll-area">
+    <div class="teleprompter-content" id="teleprompterContent"></div>
+  </div>
+</div>
+
+<!-- NOTIFICATIONS -->
+<div id="notifications"></div>
+
+<!-- MODALS -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal" id="modal"></div>
+</div>
+
+<script src="StoryStudio.js"></script>
+</body>
+</html>
