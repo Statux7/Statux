@@ -347,7 +347,7 @@
 
 .section-dashboard .card h3 {
     text-align: center;
-    color: var(--dash-accent);
+    color: var(--dash-white);
     font-size: 1.1rem;
     font-weight: 600;
     pointer-events: none;
@@ -378,7 +378,7 @@
 .section-dashboard .card button:hover {
     background: #fff;
     color: #000;
-    border-color: #fff;
+    border-color: var(--dash-white);
 }
 
 /* ========== BOTONES LATERALES CARRUSEL ========== */
@@ -481,7 +481,7 @@
 .section-dashboard .stx-dashboard-enter-btn img {
     width: 18px;
     height: 18px;
-    filter: invert(1);
+    filter: invert(0);
     pointer-events: none;
 }
 
@@ -492,7 +492,7 @@
 }
 
 .section-dashboard .stx-dashboard-enter-btn:hover img {
-    filter: invert(0);
+    filter: invert(1);
 }
 
 /* ========== ANIMACIONES ========== */
@@ -674,12 +674,12 @@
 /* ========== PILL CREAR CARD ========== */
 .section-dashboard .dash-pill-create {
     border-color: rgba(255,255,255,0.15);
-    color: var(--dash-white);
+    color: var(--dash-gray3);
 }
 
 .section-dashboard .dash-pill-create:hover {
-    border-color: var(--dash-accent);
-    color: var(--dash-accent);
+    border-color: var(--dash-white);
+    color: var(--dash-white);
     box-shadow: 0 0 16px rgba(0, 188, 212, 0.15);
 }
 
@@ -787,7 +787,7 @@
 }
 
 .section-dashboard .dash-create-input:focus {
-    border-color: var(--dash-accent);
+    border-color: var(--dash-white);
 }
 
 .section-dashboard .dash-create-confirm {
