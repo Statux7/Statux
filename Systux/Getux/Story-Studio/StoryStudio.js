@@ -1,4 +1,22 @@
 // Story Studio - Main Application
+const DEFAULT_CONFIG = {
+  editor: {
+    defaultBlockTypes: [
+      { id: 'hook', label: 'HOOK', color: '#5DD62C' },
+      { id: 'open-loop', label: 'OPEN LOOP', color: '#00BFFF' },
+      { id: 'desarrollo', label: 'DESARROLLO', color: '#F0A500' },
+      { id: 'conflicto', label: 'CONFLICTO', color: '#FF4C4C' },
+      { id: 'solucion', label: 'SOLUCIÓN', color: '#A8FF78' },
+      { id: 'cta', label: 'CTA', color: '#FF8C42' },
+      { id: 'custom', label: 'CUSTOM', color: '#7F8C8D' },
+    ],
+  },
+};
+
+const DEFAULT_WORD_STOCK = { hooks: [], ctas: [], transitions: [], keywords: [], favorites: [] };
+const DEFAULT_SYNONYMS = {};
+const STARTUP_FETCH_TIMEOUT = 700;
+
 class StoryStudio {
   constructor() {
     this.db = this.initDB();
@@ -10,8 +28,9 @@ class StoryStudio {
       synonyms: {},
       selectedBlock: null,
       selectedText: null,
+      dirty: false,
     };
-    this.autosaveTimer = null;
+    this.saveStatusTimer = null;
     this.init();
   }
 
@@ -24,41 +43,31 @@ class StoryStudio {
   }
 
   async init() {
-    await this.loadConfig();
-    await this.loadWordStock();
-    await this.loadSynonyms();
+    this.showLoader();
+    [this.state.config, this.state.wordStock, this.state.synonyms] = await Promise.all([
+      this.loadJson('config.json', DEFAULT_CONFIG),
+      this.loadJson('wordStock.json', this.db.get('wordStock') || DEFAULT_WORD_STOCK),
+      this.loadJson('synonyms.json', DEFAULT_SYNONYMS),
+    ]);
     this.loadProjects();
     this.setupUI();
     this.setupEventListeners();
-    this.showLoader();
-    setTimeout(() => this.hideLoader(), 1200);
+    this.hideLoader();
   }
 
-  async loadConfig() {
-    try {
-      const res = await fetch('config.json');
-      this.state.config = await res.json();
-    } catch (e) {
-      console.error('Config load error:', e);
-      this.state.config = {};
-    }
-  }
+  async loadJson(path, fallback) {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), STARTUP_FETCH_TIMEOUT);
 
-  async loadWordStock() {
     try {
-      const res = await fetch('wordStock.json');
-      this.state.wordStock = await res.json();
+      const res = await fetch(path, { signal: controller.signal, cache: 'force-cache' });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return await res.json();
     } catch (e) {
-      this.state.wordStock = { hooks: [], ctas: [], transitions: [], keywords: [], favorites: [] };
-    }
-  }
-
-  async loadSynonyms() {
-    try {
-      const res = await fetch('synonyms.json');
-      this.state.synonyms = await res.json();
-    } catch (e) {
-      this.state.synonyms = {};
+      console.warn(`${path} load skipped; using local defaults.`, e);
+      return JSON.parse(JSON.stringify(fallback));
+    } finally {
+      clearTimeout(timeout);
     }
   }
 
@@ -103,6 +112,7 @@ class StoryStudio {
     // Projects
     document.getElementById('newProjectBtn').addEventListener('click', () => this.showNewProjectModal());
     document.getElementById('projectSearch').addEventListener('input', (e) => this.filterProjects(e.target.value));
+    document.getElementById('saveBtn').addEventListener('click', () => this.saveProject({ notify: true }));
     document.getElementById('exportBtn').addEventListener('click', () => this.exportProject());
     document.getElementById('importBtn').addEventListener('click', () => this.importProject());
     document.getElementById('teleprompterBtn').addEventListener('click', () => this.openTeleprompter());
@@ -112,6 +122,11 @@ class StoryStudio {
 
     // Keyboard shortcuts
     document.addEventListener('keydown', (e) => this.handleKeyboard(e));
+    window.addEventListener('beforeunload', (e) => {
+      if (!this.state.dirty) return;
+      e.preventDefault();
+      e.returnValue = '';
+    });
 
     // Block toolbar
     this.renderBlockToolbar();
@@ -297,7 +312,8 @@ class StoryStudio {
     if (this.state.currentProject) {
       this.state.currentProject.name = name;
       this.state.currentProject.updated = Date.now();
-      this.saveProject();
+      document.getElementById('projectName').textContent = name;
+      this.markDirty();
       this.renderProjectList();
     }
   }
@@ -369,11 +385,11 @@ class StoryStudio {
       // Edit
       el.querySelector('.block-title-input').addEventListener('blur', (e) => {
         block.title = e.target.value;
-        this.saveProject();
+        this.markDirty();
       });
       el.querySelector('.block-content-area').addEventListener('input', (e) => {
-        block.content = e.target.value;
-        this.saveProject();
+        block.content = e.target.textContent;
+        this.markDirty();
         this.updateRitmoMeter();
       });
 
@@ -383,7 +399,7 @@ class StoryStudio {
       });
       el.querySelector('.block-notes-input')?.addEventListener('blur', (e) => {
         block.notes = e.target.value;
-        this.saveProject();
+        this.markDirty();
       });
 
       // Actions
@@ -793,33 +809,40 @@ class StoryStudio {
 
   handleKeyboard(e) {
     if (e.ctrlKey || e.metaKey) {
-      if (e.key === 's') { e.preventDefault(); this.saveProject(); this.notify('Saved', 'success'); }
+      if (e.key === 's') { e.preventDefault(); this.saveProject({ notify: true }); }
       if (e.key === 'n') { e.preventDefault(); this.addBlock('hook'); }
       if (e.key === 'd' && this.state.selectedBlock) { e.preventDefault(); this.duplicateBlock(this.state.selectedBlock); }
     }
   }
 
-  saveProject() {
+  markDirty() {
+    if (!this.state.currentProject) return;
+    this.state.dirty = true;
+    this.state.currentProject.updated = Date.now();
+    const idx = this.state.projects.findIndex(p => p.id === this.state.currentProject.id);
+    if (idx !== -1) this.state.projects[idx] = this.state.currentProject;
+    this.updateSaveStatus('Unsaved', 'dirty');
+  }
+
+  saveProject({ notify = false } = {}) {
     if (this.state.currentProject) {
       this.state.currentProject.updated = Date.now();
       const idx = this.state.projects.findIndex(p => p.id === this.state.currentProject.id);
       if (idx !== -1) this.state.projects[idx] = this.state.currentProject;
       this.db.set('projects', this.state.projects);
-      this.updateAutosaveBadge();
+      this.state.dirty = false;
+      this.updateSaveStatus('Saved', 'saved');
+      if (notify) this.notify('Saved', 'success');
     }
   }
 
-  updateAutosaveBadge() {
-    const badge = document.getElementById('autosaveBadge');
-    badge.classList.remove('saved');
-    badge.classList.add('saving');
-    badge.querySelector('span').textContent = 'Saving...';
-    clearTimeout(this.autosaveTimer);
-    this.autosaveTimer = setTimeout(() => {
-      badge.classList.remove('saving');
-      badge.classList.add('saved');
-      badge.querySelector('span').textContent = 'Saved';
-    }, 500);
+  updateSaveStatus(text, status) {
+    const badge = document.getElementById('saveStatus');
+    if (!badge) return;
+    badge.classList.remove('dirty', 'saved');
+    badge.classList.add(status);
+    badge.querySelector('span').textContent = text;
+    clearTimeout(this.saveStatusTimer);
   }
 
   showModal(title, content, actions = []) {

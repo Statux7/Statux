@@ -24,7 +24,6 @@
     "maxFontSize": 72
   },
   "editor": {
-    "autosaveInterval": 2000,
     "defaultBlockTypes": [
       { "id": "hook",        "label": "HOOK",        "color": "#5DD62C" },
       { "id": "open-loop",   "label": "OPEN LOOP",   "color": "#00BFFF" },

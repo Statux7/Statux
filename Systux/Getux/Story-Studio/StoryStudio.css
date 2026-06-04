@@ -240,22 +240,26 @@ html, body {
   background: rgba(255,76,76,.1);
   color: var(--danger);
 }
+.btn-save {
+  min-width: 64px;
+  justify-content: center;
+}
 
-/* Autosave badge */
-.autosave-badge {
+/* Save status badge */
+.save-status-badge {
   font-family: var(--font-mono);
   font-size: 10px;
   color: var(--text-muted);
   display: flex; align-items: center; gap: 4px;
 }
-.autosave-badge .dot {
+.save-status-badge .dot {
   width: 6px; height: 6px;
   border-radius: 50%;
   background: var(--text-muted);
   transition: background .3s;
 }
-.autosave-badge.saving .dot { background: var(--warning); animation: pulse-dot .6s ease infinite; }
-.autosave-badge.saved  .dot { background: var(--accent-primary); }
+.save-status-badge.dirty .dot { background: var(--warning); animation: pulse-dot .9s ease infinite; }
+.save-status-badge.saved  .dot { background: var(--accent-primary); }
 @keyframes pulse-dot { 50% { transform: scale(1.5); } }
 
 /* ── Main Layout ── */
