@@ -150,6 +150,21 @@
     {
       "type": "getux",
       "section": "getux",
+      "title": "Statux landing",
+      "subtitle": "",
+      "code": "",
+      "price": "",
+      "image": "",
+      "description": "",
+      "yes": "",
+      "no": "",
+      "courseUrl": "landing/landing.html",
+      "link": "#",
+      "blocks": []
+    },
+    {
+      "type": "getux",
+      "section": "getux",
       "title": "Story Studio",
       "subtitle": "",
       "code": "",
