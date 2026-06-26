@@ -8,8 +8,9 @@ document.addEventListener('DOMContentLoaded', () => {
   Logs.purgeOld(60);
 
   const username = User.get();
+  const gender = User.getGender();
 
-  if (!username) {
+  if (!username || !gender) {
     showWelcomeScreen();
   } else {
     startApp(username);
@@ -17,7 +18,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 /* ============================================
-   WELCOME SCREEN
+   WELCOME SCREEN (paso 1: nombre, paso 2: género)
    ============================================ */
 function showWelcomeScreen() {
   const screenWelcome = el('screen-welcome');
@@ -25,6 +26,22 @@ function showWelcomeScreen() {
 
   if (screenWelcome) screenWelcome.classList.add('active');
   if (screenApp) screenApp.classList.remove('active');
+
+  // Si ya hay nombre pero falta género (caso de usuarios existentes tras la
+  // actualización), saltamos directo al paso de género.
+  const existingName = User.get();
+  if (existingName) {
+    showGenderStep(existingName);
+    return;
+  }
+
+  showNameStep();
+}
+
+function showNameStep() {
+  setText('welcome-step-title', '¿Cómo te llamas?');
+  show('welcome-step-name');
+  hide('welcome-step-gender');
 
   const input = el('welcome-name-input');
   const submit = el('welcome-submit');
@@ -42,12 +59,29 @@ function showWelcomeScreen() {
       const name = input.value.trim();
       if (name.length < 2) return;
       User.set(name);
-      startApp(name);
+      showGenderStep(name);
     });
   }
 
   // Focus input
   if (input) setTimeout(() => input.focus(), 100);
+}
+
+function showGenderStep(name) {
+  hide('welcome-step-name');
+  show('welcome-step-gender');
+  setText('welcome-step-title', `Un detalle más, ${name}`);
+
+  const btnMale = el('welcome-gender-male');
+  const btnFemale = el('welcome-gender-female');
+
+  const choose = (gender) => {
+    User.setGender(gender);
+    startApp(name);
+  };
+
+  if (btnMale) btnMale.onclick = () => choose('male');
+  if (btnFemale) btnFemale.onclick = () => choose('female');
 }
 
 /* ============================================
