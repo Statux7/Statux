@@ -1189,3 +1189,351 @@ input, textarea, select { font-family: inherit; }
 .text-muted { color: var(--muted-fg); }
 .text-sm { font-size: 12px; }
 .font-mono { font-family: var(--font-mono); }
+
+/* ============================================
+   CANVAS PAGE
+   ============================================ */
+.page-canvas {
+  display: none;
+  flex-direction: column;
+  padding: 0 !important;
+  max-width: 100% !important;
+  height: 100vh;
+  position: relative;
+  overflow: hidden;
+}
+
+.page-canvas.active { display: flex; }
+
+/* Toolbar flotante */
+.canvas-toolbar {
+  position: absolute;
+  top: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  gap: 0;
+  background: rgba(10,10,10,0.92);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 6px 10px;
+  backdrop-filter: blur(8px);
+  gap: 6px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.6);
+  white-space: nowrap;
+}
+
+.canvas-toolbar-left,
+.canvas-toolbar-right,
+.canvas-toolbar-center {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.canvas-brand-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  color: var(--muted-fg);
+  padding-right: 8px;
+  border-right: 1px solid var(--border);
+  margin-right: 2px;
+}
+
+.ctb-divider {
+  width: 1px;
+  height: 18px;
+  background: var(--border);
+  margin: 0 4px;
+}
+
+.ctb-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 10px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--muted-fg);
+  background: transparent;
+  border: 1px solid transparent;
+  transition: all var(--transition);
+}
+
+.ctb-btn:hover {
+  background: var(--muted);
+  color: var(--fg);
+  border-color: var(--border);
+}
+
+.ctb-btn-icon { gap: 5px; }
+
+.ctb-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  padding: 5px 8px;
+  border-radius: 6px;
+  transition: background var(--transition);
+}
+
+.ctb-toggle:hover { background: var(--muted); }
+
+.ctb-toggle input { display: none; }
+
+.ctb-toggle-label {
+  font-size: 11px;
+  color: var(--muted-fg);
+  transition: color var(--transition);
+  user-select: none;
+}
+
+.ctb-toggle input:checked ~ .ctb-toggle-label { color: var(--fg); }
+
+.ctb-toggle::before {
+  content: '';
+  width: 26px;
+  height: 14px;
+  border-radius: 7px;
+  background: var(--muted);
+  border: 1px solid var(--border);
+  transition: background var(--transition);
+  flex-shrink: 0;
+}
+
+.ctb-toggle:has(input:checked)::before { background: var(--fg); }
+
+/* Canvas container */
+.canvas-container {
+  flex: 1;
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+}
+
+/* ============================================
+   CONTEXT MENU
+   ============================================ */
+.canvas-context-menu {
+  position: fixed;
+  z-index: 200;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 4px;
+  min-width: 160px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.7);
+  animation: slideUp 0.12s ease;
+}
+
+.ctx-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 7px 10px;
+  border-radius: 5px;
+  font-size: 12px;
+  color: var(--secondary-fg);
+  background: none;
+  border: none;
+  text-align: left;
+  transition: all var(--transition);
+}
+
+.ctx-item:hover { background: var(--muted); color: var(--fg); }
+.ctx-item-danger { color: var(--destructive); }
+.ctx-item-danger:hover { background: rgba(220,50,50,0.1); color: var(--destructive); }
+
+.ctx-divider {
+  height: 1px;
+  background: var(--border);
+  margin: 3px 0;
+}
+
+/* ============================================
+   FOCUS DAY PANEL
+   ============================================ */
+.focus-day-panel {
+  position: absolute;
+  top: 60px;
+  right: 16px;
+  z-index: 60;
+  width: 260px;
+  background: rgba(10,10,10,0.95);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.7);
+  animation: slideUp 0.15s ease;
+  overflow: hidden;
+}
+
+.focus-day-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--border);
+}
+
+.focus-day-title {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  color: var(--muted-fg);
+}
+
+.focus-day-close {
+  background: none;
+  border: none;
+  color: var(--muted-fg);
+  font-size: 13px;
+  transition: color var(--transition);
+}
+
+.focus-day-close:hover { color: var(--fg); }
+
+.focus-day-list {
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+.focus-day-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: 6px;
+  background: var(--muted);
+  cursor: pointer;
+  transition: background var(--transition);
+}
+
+.focus-day-item:hover { background: var(--accent); }
+
+.focus-day-item.done { opacity: 0.45; }
+
+.focus-day-check {
+  width: 15px; height: 15px;
+  border-radius: 50%;
+  border: 1.5px solid var(--muted-fg);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 8px;
+  transition: all var(--transition);
+}
+
+.focus-day-item.done .focus-day-check {
+  background: #4ade80;
+  border-color: #4ade80;
+  color: #000;
+}
+
+.focus-day-name {
+  font-size: 11px;
+  flex: 1;
+  line-height: 1.3;
+}
+
+.focus-day-item.done .focus-day-name {
+  text-decoration: line-through;
+  color: var(--muted-fg);
+}
+
+.focus-day-type-badge {
+  font-size: 9px;
+  font-family: var(--font-mono);
+  color: var(--muted-fg);
+  padding: 1px 5px;
+  border-radius: 3px;
+  background: var(--border);
+}
+
+.focus-day-empty {
+  font-size: 12px;
+  color: var(--muted-fg);
+  text-align: center;
+  padding: 16px 0;
+}
+
+/* ============================================
+   TUTORIAL
+   ============================================ */
+.canvas-tutorial {
+  position: absolute;
+  inset: 0;
+  z-index: 80;
+  pointer-events: none;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: 40px;
+}
+
+.canvas-tutorial.hidden { display: none; }
+
+.tutorial-step {
+  pointer-events: all;
+}
+
+.tutorial-bubble {
+  background: rgba(10,10,10,0.95);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px 24px;
+  max-width: 360px;
+  text-align: center;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.8);
+  animation: slideUp 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.tutorial-step-num {
+  font-size: 10px;
+  font-family: var(--font-mono);
+  color: var(--muted-fg);
+  letter-spacing: 0.1em;
+}
+
+.tutorial-text {
+  font-size: 13px;
+  color: var(--secondary-fg);
+  line-height: 1.6;
+}
+
+.tutorial-text strong { color: var(--fg); }
+
+/* ============================================
+   RESPONSIVE canvas page
+   ============================================ */
+@media (max-width: 768px) {
+  .canvas-toolbar {
+    top: 56px;
+    left: 8px;
+    right: 8px;
+    transform: none;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .canvas-brand-label { display: none; }
+
+  .focus-day-panel {
+    width: calc(100vw - 32px);
+    right: 16px;
+  }
+}
