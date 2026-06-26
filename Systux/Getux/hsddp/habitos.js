@@ -135,6 +135,34 @@ const Habitos = (() => {
     const total = blockHabits.length;
     const pct = total > 0 ? completedToday / total : 0;
 
+    // Racha: días consecutivos con al menos 1 hábito del bloque completado
+    let streak = 0;
+    if (blockHabits.length > 0) {
+      for (let i = 0; i < 365; i++) {
+        const checkDate = i === 0 ? today : subDays(today, i);
+        const log = logs.find(l => l.date === checkDate);
+        const ids = log ? (log.completed_habits || []) : [];
+        const anyDone = blockHabits.some(h => ids.includes(h.id));
+        if (anyDone) streak++;
+        else if (i > 0) break; // rompe racha (día 0 = hoy, puede ser 0 sin romper)
+      }
+    }
+
+    // Ítem Habitór del día: buscar primer hábito de tipo habitor en este bloque
+    let habitorItem = null;
+    const habitorHabit = blockHabits.find(h => h.type === 'habitor');
+    if (habitorHabit) {
+      const td = habitorHabit.type_data || {};
+      if (td.current_item_id && td.items) {
+        const item = td.items.find(it => it.id === td.current_item_id);
+        if (item) habitorItem = item.label;
+      }
+    }
+
+    // Tipos presentes (para badge)
+    const hasHabitor = blockHabits.some(h => h.type === 'habitor');
+    const hasHabitod = blockHabits.some(h => h.type === 'habitod');
+
     return {
       id: block.id,
       x: block.x,
@@ -146,11 +174,59 @@ const Habitos = (() => {
       _habitCount: total,
       _completedToday: completedToday,
       _pct: pct,
+      _streak: streak,
+      _habitorItem: habitorItem,
+      _hasHabitor: hasHabitor,
+      _hasHabitod: hasHabitod,
       render: (ctx, node, cam, t) => renderBlockNode(ctx, node, t),
     };
   }
 
   function buildIdentityNode(identity, habits, logs, blocks, today) {
+    // BFS: encontrar todos los bloques que eventualmente conectan a esta identidad
+    const conns = Connections.list();
+    const reachableBlockIds = new Set();
+
+    // Cola BFS iniciada desde la identidad, yendo "hacia atrás" (quién apunta a mí)
+    const queue = [{ id: identity.id, type: 'identity' }];
+    const visited = new Set([identity.id]);
+
+    while (queue.length) {
+      const current = queue.shift();
+      // Buscar todas las conexiones que llegan a este nodo
+      conns.forEach(c => {
+        if (c.to_id === current.id && c.to_type === current.type) {
+          if (c.from_type === 'block' && !visited.has(c.from_id)) {
+            reachableBlockIds.add(c.from_id);
+            visited.add(c.from_id);
+            queue.push({ id: c.from_id, type: 'block' });
+          } else if (c.from_type === 'identity' && !visited.has(c.from_id)) {
+            visited.add(c.from_id);
+            queue.push({ id: c.from_id, type: 'identity' });
+          }
+        }
+      });
+    }
+
+    // Hábitos de los bloques alcanzados
+    const reachableHabits = habits.filter(h => h.block_id && reachableBlockIds.has(h.block_id) && h.active);
+
+    // Consistencia últimos 7 días
+    let consistencyPct = 0;
+    if (reachableHabits.length > 0) {
+      let total = 0, done = 0;
+      for (let i = 0; i < 7; i++) {
+        const d = subDays(today, i);
+        const log = logs.find(l => l.date === d);
+        const ids = log ? (log.completed_habits || []) : [];
+        reachableHabits.forEach(h => {
+          total++;
+          if (ids.includes(h.id)) done++;
+        });
+      }
+      consistencyPct = total > 0 ? Math.round((done / total) * 100) : 0;
+    }
+
     return {
       id: identity.id,
       x: identity.x,
@@ -161,6 +237,8 @@ const Habitos = (() => {
       _identity: true,
       _name: identity.label,
       _emoji: identity.emoji || '◈',
+      _consistencyPct: consistencyPct,
+      _hasHabits: reachableHabits.length > 0,
       render: (ctx, node, cam, t) => renderIdentityNode(ctx, node, t),
     };
   }
@@ -189,163 +267,243 @@ const Habitos = (() => {
     const pct = node._pct || 0;
     const total = node._habitCount || 0;
     const completed = node._completedToday || 0;
+    const streak = node._streak || 0;
+    const habitorItem = node._habitorItem || null;
 
-    // Borde por estado
-    let borderColor = '#333';
-    let glowAlpha = 0;
+    // ── Color de borde por estado ──
+    let borderColor = '#2a2a2a';
+    let glowColor = null;
     if (total === 0) {
       borderColor = '#2a2a2a';
     } else if (pct === 1) {
       borderColor = '#4ade80';
     } else if (pct > 0) {
       borderColor = '#fbbf24';
-      // Glow pulsante si hay pendientes
-      glowAlpha = 0.12 + 0.06 * Math.sin(t * 0.06);
+      glowColor = '#fbbf24';
     } else {
-      borderColor = '#444';
-      glowAlpha = 0.08 + 0.04 * Math.sin(t * 0.04);
+      borderColor = '#3a3a3a';
+      glowColor = '#ffffff';
     }
 
-    // Glow
-    if (glowAlpha > 0) {
+    // ── Glow pulsante si hay pendientes hoy ──
+    if (glowColor && total > 0) {
+      const a = (0.06 + 0.04 * Math.sin(t * 0.05)) * (pct === 0 ? 0.6 : 1);
+      ctx.save();
+      ctx.shadowColor = glowColor;
+      ctx.shadowBlur = 14;
+      ctx.globalAlpha = a;
+      roundRectPath(ctx, -1, -1, W + 2, H + 2, 11);
+      ctx.fillStyle = glowColor;
+      ctx.fill();
+      ctx.restore();
+    }
+
+    // ── Fondo ──
+    roundRectPath(ctx, 0, 0, W, H, 10);
+    ctx.fillStyle = '#0f0f0f';
+    ctx.fill();
+
+    // ── Borde ──
+    roundRectPath(ctx, 0, 0, W, H, 10);
+    ctx.strokeStyle = borderColor;
+    ctx.lineWidth = 1.2;
+    ctx.stroke();
+
+    // ── Nombre encima (fuera del nodo) ──
+    ctx.fillStyle = '#999';
+    ctx.font = '500 11px Inter, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(truncateText(ctx, node._name || 'Sin nombre', W - 8), W / 2, -8);
+
+    // ── Badges de tipo (R = Habitór, D = Habitód) ──
+    let badgeX = W - 8;
+    if (node._hasHabitod) {
+      drawBadge(ctx, badgeX, 8, 'D', '#a78bfa');
+      badgeX -= 18;
+    }
+    if (node._hasHabitor) {
+      drawBadge(ctx, badgeX, 8, 'R', '#60a5fa');
+    }
+
+    // ── Racha ──
+    if (streak > 0) {
+      ctx.fillStyle = '#f97316';
+      ctx.font = '10px Inter, sans-serif';
+      ctx.textAlign = 'left';
+      ctx.fillText('🔥 ' + streak, 8, 14);
+    }
+
+    if (total === 0) {
+      // Sin hábitos aún
+      ctx.fillStyle = '#2a2a2a';
+      ctx.font = '11px Inter, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('Doble clic para añadir', W / 2, H / 2 + 4);
+      return;
+    }
+
+    // ── Ítem Habitór del día ──
+    if (habitorItem) {
+      ctx.fillStyle = '#60a5fa';
+      ctx.font = '500 10px Inter, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText(truncateText(ctx, habitorItem, W - 16), W / 2, H / 2 - 16);
+    }
+
+    // ── Puntos de hábitos ──
+    const dotR = 5;
+    const dotSpacing = 14;
+    const dotsY = habitorItem ? H / 2 + 2 : H / 2 - 6;
+    const startX = W / 2 - ((total - 1) * dotSpacing) / 2;
+
+    for (let i = 0; i < total; i++) {
+      const done = i < completed;
+      ctx.beginPath();
+      ctx.arc(startX + i * dotSpacing, dotsY, dotR, 0, Math.PI * 2);
+      ctx.fillStyle = done ? '#4ade80' : '#252525';
+      ctx.fill();
+      ctx.strokeStyle = done ? '#4ade8088' : '#3a3a3a';
+      ctx.lineWidth = 1;
+      ctx.stroke();
+    }
+
+    // ── Barra de progreso ──
+    const barH = 3;
+    const barX = 12;
+    const barW = W - 24;
+    const barY = H - 14;
+
+    roundRectPath(ctx, barX, barY, barW, barH, 2);
+    ctx.fillStyle = '#1e1e1e';
+    ctx.fill();
+
+    if (pct > 0) {
+      roundRectPath(ctx, barX, barY, barW * pct, barH, 2);
+      ctx.fillStyle = pct === 1 ? '#4ade80' : '#fbbf24';
+      ctx.fill();
+    }
+
+    // Porcentaje
+    ctx.fillStyle = '#404040';
+    ctx.font = '9px JetBrains Mono, monospace';
+    ctx.textAlign = 'right';
+    ctx.fillText(Math.round(pct * 100) + '%', W - 8, barY - 3);
+  }
+
+  function renderIdentityNode(ctx, node, t) {
+    const W = node.width;
+    const H = node.height;
+    const pct = node._consistencyPct || 0;
+    const hasHabits = node._hasHabits || false;
+
+    // ── Color de borde por consistencia ──
+    let borderColor = '#222';
+    if (hasHabits) {
+      if (pct >= 70) borderColor = '#4ade8055';
+      else if (pct >= 40) borderColor = '#fbbf2455';
+      else borderColor = '#f8717155';
+    }
+
+    // ── Glow sutil pulsante ──
+    if (hasHabits && pct > 0) {
+      const a = 0.03 + 0.02 * Math.sin(t * 0.025);
       ctx.save();
       ctx.shadowColor = borderColor;
-      ctx.shadowBlur = 12;
-      ctx.globalAlpha = glowAlpha * 3;
+      ctx.shadowBlur = 16;
+      ctx.globalAlpha = a * 5;
       roundRectPath(ctx, 0, 0, W, H, 10);
       ctx.fillStyle = borderColor;
       ctx.fill();
       ctx.restore();
     }
 
-    // Fondo
+    // ── Fondo ──
     roundRectPath(ctx, 0, 0, W, H, 10);
-    ctx.fillStyle = '#111';
+    ctx.fillStyle = '#0a0a0a';
     ctx.fill();
 
-    // Borde
+    // ── Borde ──
     roundRectPath(ctx, 0, 0, W, H, 10);
     ctx.strokeStyle = borderColor;
-    ctx.lineWidth = 1.2;
-    ctx.stroke();
-
-    // Nombre (encima del nodo — fuera de la caja, se dibuja encima)
-    ctx.fillStyle = '#aaa';
-    ctx.font = '500 11px Inter, sans-serif';
-    ctx.textAlign = 'center';
-    ctx.fillText(node._name || 'Sin nombre', W / 2, -8);
-
-    // Puntos de hábitos
-    if (total > 0) {
-      const dotR = 5;
-      const spacing = 14;
-      const startX = W / 2 - ((total - 1) * spacing) / 2;
-      const dotY = H / 2 - 8;
-
-      for (let i = 0; i < total; i++) {
-        const done = i < completed;
-        ctx.beginPath();
-        ctx.arc(startX + i * spacing, dotY, dotR, 0, Math.PI * 2);
-        ctx.fillStyle = done ? '#4ade80' : '#333';
-        ctx.fill();
-        ctx.strokeStyle = done ? '#4ade80' : '#555';
-        ctx.lineWidth = 1;
-        ctx.stroke();
-      }
-    } else {
-      // Sin hábitos aún
-      ctx.fillStyle = '#333';
-      ctx.font = '11px Inter, sans-serif';
-      ctx.textAlign = 'center';
-      ctx.fillText('Sin hábitos', W / 2, H / 2);
-    }
-
-    // Mini barra de progreso
-    if (total > 0) {
-      const barY = H - 18;
-      const barW = W - 24;
-      const barH = 3;
-      const barX = 12;
-
-      ctx.fillStyle = '#222';
-      roundRectPath(ctx, barX, barY, barW, barH, 2);
-      ctx.fill();
-
-      if (pct > 0) {
-        ctx.fillStyle = pct === 1 ? '#4ade80' : '#fbbf24';
-        roundRectPath(ctx, barX, barY, barW * pct, barH, 2);
-        ctx.fill();
-      }
-
-      // Porcentaje texto
-      ctx.fillStyle = '#555';
-      ctx.font = '9px JetBrains Mono, monospace';
-      ctx.textAlign = 'right';
-      ctx.fillText(Math.round(pct * 100) + '%', W - 12, barY - 3);
-    }
-  }
-
-  function renderIdentityNode(ctx, node, t) {
-    const W = node.width;
-    const H = node.height;
-
-    // Fondo
-    roundRectPath(ctx, 0, 0, W, H, 10);
-    ctx.fillStyle = '#0d0d0d';
-    ctx.fill();
-
-    // Borde sutil
-    roundRectPath(ctx, 0, 0, W, H, 10);
-    ctx.strokeStyle = '#2a2a2a';
     ctx.lineWidth = 1;
     ctx.stroke();
 
-    // Nombre encima
-    ctx.fillStyle = '#888';
+    // ── Nombre encima ──
+    ctx.fillStyle = '#666';
     ctx.font = '500 10px Inter, sans-serif';
     ctx.textAlign = 'center';
-    ctx.fillText(node._name || 'Identidad', W / 2, -7);
+    ctx.fillText(truncateText(ctx, node._name || 'Identidad', W - 8), W / 2, -7);
 
-    // Emoji central
-    ctx.font = '22px sans-serif';
+    // ── Emoji central ──
+    ctx.font = '20px sans-serif';
     ctx.textAlign = 'center';
-    ctx.fillText(node._emoji || '◈', W / 2, H / 2 + 8);
+    ctx.fillText(node._emoji || '◈', W / 2, H / 2 + 5);
+
+    // ── Barra de consistencia (solo si tiene hábitos conectados) ──
+    if (hasHabits) {
+      const barW = W - 20;
+      const barX = 10;
+      const barY = H - 12;
+      const barH = 2;
+
+      roundRectPath(ctx, barX, barY, barW, barH, 1);
+      ctx.fillStyle = '#1a1a1a';
+      ctx.fill();
+
+      if (pct > 0) {
+        roundRectPath(ctx, barX, barY, barW * (pct / 100), barH, 1);
+        ctx.fillStyle = pct >= 70 ? '#4ade80' : pct >= 40 ? '#fbbf24' : '#f87171';
+        ctx.fill();
+      }
+
+      // Porcentaje pequeño
+      ctx.fillStyle = '#333';
+      ctx.font = '8px JetBrains Mono, monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText(pct + '%', W / 2, barY - 3);
+    }
   }
 
   function renderSilhouetteNode(ctx, node, t) {
     const W = node.width;
     const H = node.height;
-    const gender = User.getGender ? User.getGender() : 'male';
+    const gender = (User.getGender && User.getGender()) || 'male';
 
-    // Glow tenue pulsante
-    const glowA = 0.04 + 0.02 * Math.sin(t * 0.03);
+    // ── Glow blanco muy tenue, respira lento ──
+    const glowA = 0.03 + 0.015 * Math.sin(t * 0.02);
     ctx.save();
     ctx.shadowColor = '#ffffff';
-    ctx.shadowBlur = 20;
+    ctx.shadowBlur = 24;
     ctx.globalAlpha = glowA * 4;
     roundRectPath(ctx, 0, 0, W, H, 12);
     ctx.fillStyle = '#fff';
     ctx.fill();
     ctx.restore();
 
-    // Fondo
+    // ── Fondo ──
     roundRectPath(ctx, 0, 0, W, H, 12);
-    ctx.fillStyle = '#080808';
+    ctx.fillStyle = '#060606';
     ctx.fill();
 
-    // Borde
+    // ── Borde muy sutil ──
     roundRectPath(ctx, 0, 0, W, H, 12);
-    ctx.strokeStyle = '#2a2a2a';
+    ctx.strokeStyle = '#1e1e1e';
     ctx.lineWidth = 1;
     ctx.stroke();
 
-    // Placeholder SVG silueta (reemplazar con el SVG real en Fase 3)
+    // ── Silueta SVG placeholder (el usuario la reemplazará) ──
+    // NOTA PARA EL USUARIO: cuando tengas tus SVG listos, reemplaza
+    // la llamada drawPlaceholderSilhouette() por tu SVG real.
+    // Coloca tus archivos en: Systux/Getux/hsddp/assets/silueta-hombre.svg
+    // y assets/silueta-mujer.svg
+    // Instrucciones de integración al final de este archivo.
     drawPlaceholderSilhouette(ctx, W, H, gender, t);
 
-    // Etiqueta encima
-    ctx.fillStyle = '#555';
-    ctx.font = '9px JetBrains Mono, monospace';
+    // ── Etiqueta "TÚ" encima ──
+    ctx.fillStyle = '#333';
+    ctx.font = '700 9px JetBrains Mono, monospace';
     ctx.textAlign = 'center';
+    ctx.letterSpacing = '0.15em';
     ctx.fillText('TÚ', W / 2, -7);
   }
 
@@ -386,6 +544,37 @@ const Habitos = (() => {
     ctx.stroke();
 
     ctx.restore();
+  }
+
+  /* Truncar texto para que no desborde el ancho del nodo */
+  function truncateText(ctx, text, maxWidth) {
+    if (ctx.measureText(text).width <= maxWidth) return text;
+    let truncated = text;
+    while (truncated.length > 1 && ctx.measureText(truncated + '…').width > maxWidth) {
+      truncated = truncated.slice(0, -1);
+    }
+    return truncated + '…';
+  }
+
+  /* Badge de tipo (R, D) en esquina del nodo */
+  function drawBadge(ctx, x, y, label, color) {
+    const pad = 3;
+    ctx.font = '700 8px JetBrains Mono, monospace';
+    const tw = ctx.measureText(label).width;
+    const bw = tw + pad * 2;
+    const bh = 12;
+
+    roundRectPath(ctx, x - bw, y, bw, bh, 3);
+    ctx.fillStyle = color + '22';
+    ctx.fill();
+    roundRectPath(ctx, x - bw, y, bw, bh, 3);
+    ctx.strokeStyle = color + '66';
+    ctx.lineWidth = 0.8;
+    ctx.stroke();
+
+    ctx.fillStyle = color;
+    ctx.textAlign = 'center';
+    ctx.fillText(label, x - bw / 2, y + bh - 3);
   }
 
   /* Rounded rect path helper (sin fill/stroke) */
