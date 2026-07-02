@@ -1094,10 +1094,9 @@ const Habitos = (() => {
       };
     }
 
-    const frequency = el('habit-frequency').value;
-    const custom_days = [];
-    if (frequency === 'custom') {
-      qsa('.day-btn.active').forEach(btn => custom_days.push(parseInt(btn.dataset.day)));
+    const snapToggle = el('toggle-snap');
+    if (snapToggle) {
+      snapToggle.onchange = () => engine && engine.setSnap(snapToggle.checked);
     }
 
     const habitData = {
