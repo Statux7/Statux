@@ -322,6 +322,249 @@
 
   <!-- MODALS -->
 
+  <!-- Block Form Modal -->
+  <div id="modal-block" class="modal-overlay hidden">
+    <div class="modal modal-wide">
+      <div class="modal-header">
+        <h2 class="modal-title" id="modal-block-title">Nuevo Bloque</h2>
+        <button class="modal-close" data-close="modal-block">✕</button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="block-edit-id" />
+
+        <!-- Nombre del bloque -->
+        <div class="form-group">
+          <label class="form-label">Nombre del bloque</label>
+          <input type="text" id="block-name" class="form-input" placeholder="Ej: Comunicación, Salud, Mente..." />
+          <p class="form-error hidden" id="block-name-error">Nombre requerido.</p>
+        </div>
+
+        <!-- Hábitos dentro del bloque (máx 3) -->
+        <div class="block-habits-section">
+          <div class="block-habits-header">
+            <p class="form-label">Hábitos del bloque <span class="block-habits-count" id="block-habits-count">(0/3)</span></p>
+            <button class="btn btn-outline btn-xs" id="btn-add-habit-to-block">+ Añadir hábito</button>
+          </div>
+          <div id="block-habits-list" class="block-habits-list">
+            <p class="items-empty" id="block-habits-empty">Sin hábitos aún. Añade hasta 3.</p>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" data-close="modal-block">Cancelar</button>
+        <button class="btn btn-primary" id="btn-save-block">Crear Bloque</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Habit Type Selector Modal -->
+  <div id="modal-habit-type" class="modal-overlay hidden">
+    <div class="modal modal-sm">
+      <div class="modal-header">
+        <h2 class="modal-title">Tipo de Hábito</h2>
+        <button class="modal-close" data-close="modal-habit-type">✕</button>
+      </div>
+      <div class="modal-body">
+        <p class="type-selector-hint">Elige el tipo de hábito a añadir:</p>
+        <div class="type-selector-grid">
+          <button class="type-card" data-type="habito">
+            <span class="type-card-label">Habitó</span>
+            <span class="type-card-desc">Acción repetitiva. Ej: Leer, Entrenar, Meditar.</span>
+          </button>
+          <button class="type-card" data-type="habitor">
+            <span class="type-card-label">Habitór</span>
+            <span class="type-card-desc">Repositorio dinámico. El sistema elige un ítem cada X días. Ej: Expandir vocabulario.</span>
+          </button>
+          <button class="type-card" data-type="habitod">
+            <span class="type-card-label">Habitód</span>
+            <span class="type-card-desc">Acción programada con recordatorio. Ej: Depilarme cada 15 días.</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Habit Form Modal -->
+  <div id="modal-habit" class="modal-overlay hidden">
+    <div class="modal modal-wide">
+      <div class="modal-header">
+        <h2 class="modal-title" id="modal-habit-title">Nuevo Hábito</h2>
+        <button class="modal-close" data-close="modal-habit">✕</button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="habit-edit-id" />
+        <input type="hidden" id="habit-type-hidden" />
+
+        <!-- Badge de tipo (siempre visible) -->
+        <div class="habit-type-badge-row">
+          <span class="habit-type-badge" id="habit-type-badge">HABITÓ</span>
+        </div>
+
+        <!-- Campo nombre (todos los tipos) -->
+        <div class="form-group">
+          <label class="form-label">Nombre</label>
+          <input type="text" id="habit-name" class="form-input" placeholder="Ej: Leer 20 minutos" />
+        </div>
+
+        <!-- ── CAMPOS HABITÓ ── -->
+        <div id="fields-habito" class="habit-type-fields">
+          <div class="form-group">
+            <label class="form-label">Propósito</label>
+            <textarea id="habit-purpose" class="form-input form-textarea" placeholder="¿Por qué este hábito importa?"></textarea>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Beneficio</label>
+            <input type="text" id="habit-benefit" class="form-input" placeholder="¿Qué obtienes al cumplirlo?" />
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Frecuencia</label>
+              <select id="habit-frequency" class="form-input form-select">
+                <option value="daily">Diario</option>
+                <option value="weekdays">Lun–Vie</option>
+                <option value="weekends">Sáb–Dom</option>
+                <option value="custom">Personalizado</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Prioridad</label>
+              <select id="habit-priority" class="form-input form-select">
+                <option value="critical">Crítica</option>
+                <option value="high">Alta</option>
+                <option value="medium" selected>Media</option>
+                <option value="low">Baja</option>
+              </select>
+            </div>
+          </div>
+          <div id="custom-days-group" class="form-group hidden">
+            <label class="form-label">Días</label>
+            <div class="day-picker">
+              <button type="button" class="day-btn" data-day="0">Dom</button>
+              <button type="button" class="day-btn" data-day="1">Lun</button>
+              <button type="button" class="day-btn" data-day="2">Mar</button>
+              <button type="button" class="day-btn" data-day="3">Mié</button>
+              <button type="button" class="day-btn" data-day="4">Jue</button>
+              <button type="button" class="day-btn" data-day="5">Vie</button>
+              <button type="button" class="day-btn" data-day="6">Sáb</button>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Dificultad</label>
+              <select id="habit-difficulty" class="form-input form-select">
+                <option value="trivial">Trivial</option>
+                <option value="easy">Fácil</option>
+                <option value="moderate" selected>Moderada</option>
+                <option value="hard">Difícil</option>
+                <option value="extreme">Extrema</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Horario</label>
+              <input type="time" id="habit-time" class="form-input" />
+            </div>
+          </div>
+        </div>
+
+        <!-- ── CAMPOS HABITÓR ── -->
+        <div id="fields-habitor" class="habit-type-fields hidden">
+          <div class="form-group">
+            <label class="form-label">Ítems del repositorio</label>
+            <div class="habitor-items-input">
+              <input type="text" id="habitor-new-item" class="form-input" placeholder="Ej: Resiliencia, Elocuencia..." />
+              <button class="btn btn-outline btn-sm" id="btn-add-habitor-item">+</button>
+            </div>
+            <div id="habitor-items-list" class="habitor-items-list"></div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Rotar ítem cada (días)</label>
+            <input type="number" id="habitor-rotation-days" class="form-input" value="1" min="1" max="30" />
+          </div>
+        </div>
+
+        <!-- ── CAMPOS HABITÓD ── -->
+        <div id="fields-habitod" class="habit-type-fields hidden">
+          <div class="form-group">
+            <label class="form-label">Repetir cada (días)</label>
+            <input type="number" id="habitod-every-days" class="form-input" value="7" min="1" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Mensaje de notificación</label>
+            <input type="text" id="habitod-message" class="form-input" placeholder="Ej: Tienes que depilarte hoy." />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Recordar si no se completa (días)</label>
+            <input type="number" id="habitod-persist-days" class="form-input" value="3" min="1" max="14" />
+          </div>
+        </div>
+
+        <p class="form-error hidden" id="habit-error"></p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" data-close="modal-habit">Cancelar</button>
+        <button class="btn btn-primary" id="btn-save-habit">Guardar Hábito</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Identity Form Modal -->
+  <div id="modal-identity" class="modal-overlay hidden">
+    <div class="modal">
+      <div class="modal-header">
+        <h2 class="modal-title" id="modal-identity-title">Nueva Identidad</h2>
+        <button class="modal-close" data-close="modal-identity">✕</button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="identity-edit-id" />
+        <div class="form-group">
+          <label class="form-label">Nombre</label>
+          <input type="text" id="identity-label" class="form-input" placeholder="Ej: Seguridad, Salud, Conocimiento..." />
+          <p class="form-error hidden" id="identity-error">Nombre requerido.</p>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Emoji</label>
+          <div class="emoji-picker" id="emoji-picker">
+            <button type="button" class="emoji-btn active" data-emoji="◈">◈</button>
+            <button type="button" class="emoji-btn" data-emoji="💪">💪</button>
+            <button type="button" class="emoji-btn" data-emoji="🧠">🧠</button>
+            <button type="button" class="emoji-btn" data-emoji="📚">📚</button>
+            <button type="button" class="emoji-btn" data-emoji="🎯">🎯</button>
+            <button type="button" class="emoji-btn" data-emoji="⚡">⚡</button>
+            <button type="button" class="emoji-btn" data-emoji="🔥">🔥</button>
+            <button type="button" class="emoji-btn" data-emoji="🌱">🌱</button>
+            <button type="button" class="emoji-btn" data-emoji="👁">👁</button>
+            <button type="button" class="emoji-btn" data-emoji="✦">✦</button>
+            <button type="button" class="emoji-btn" data-emoji="◉">◉</button>
+            <button type="button" class="emoji-btn" data-emoji="⬡">⬡</button>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" data-close="modal-identity">Cancelar</button>
+        <button class="btn btn-primary" id="btn-save-identity">Crear Identidad</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Connect Modal -->
+  <div id="modal-connect" class="modal-overlay hidden">
+    <div class="modal">
+      <div class="modal-header">
+        <h2 class="modal-title">Conectar nodo</h2>
+        <button class="modal-close" data-close="modal-connect">✕</button>
+      </div>
+      <div class="modal-body">
+        <p class="connect-modal-hint" id="connect-modal-hint">Selecciona el nodo destino:</p>
+        <div id="connect-options-list" class="connect-options-list"></div>
+        <p class="form-error hidden" id="connect-error">Selecciona un destino.</p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" data-close="modal-connect">Cancelar</button>
+        <button class="btn btn-primary" id="btn-save-connect">Conectar</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Task Form Modal -->
   <div id="modal-task" class="modal-overlay hidden">
     <div class="modal">

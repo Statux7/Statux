@@ -800,94 +800,472 @@ const Habitos = (() => {
   }
 
   /* ============================================
-     BLOCK FORM (stub — formulario completo en Fase 4)
+     BLOCK FORM
      ============================================ */
-  function openBlockForm(block) {
-    // Stub: en Fase 4 se abre el modal de bloque con sus 3 tipos de hábito.
-    // Por ahora solo permite crear/renombrar un bloque.
-    const name = prompt(block ? 'Renombrar bloque:' : 'Nombre del bloque:', block ? block.name : '');
-    if (!name || !name.trim()) return;
+  /* Estado interno del modal de bloque */
+  let _blockEditId = null;          // id del bloque que se está editando (null = nuevo)
+  let _blockPendingHabits = [];     // hábitos pendientes (aún no guardados en storage)
 
-    if (block) {
-      Blocks.update(block.id, { name: name.trim() });
+  function openBlockForm(block) {
+    _blockEditId = block ? block.id : null;
+    _blockPendingHabits = block ? Habits.byBlock(block.id).map(h => ({ ...h })) : [];
+
+    el('block-edit-id').value = block ? block.id : '';
+    el('block-name').value = block ? block.name : '';
+    hide('block-name-error');
+    setText('modal-block-title', block ? 'Editar Bloque' : 'Nuevo Bloque');
+    setText('btn-save-block', block ? 'Guardar Cambios' : 'Crear Bloque');
+
+    renderBlockHabitsList();
+    bindBlockModal();
+    openModal('modal-block');
+  }
+
+  function renderBlockHabitsList() {
+    const list = el('block-habits-list');
+    const empty = el('block-habits-empty');
+    const count = el('block-habits-count');
+    if (!list) return;
+
+    const n = _blockPendingHabits.length;
+    if (count) count.textContent = `(${n}/3)`;
+
+    // Botón añadir: deshabilitado si ya hay 3
+    const btnAdd = el('btn-add-habit-to-block');
+    if (btnAdd) btnAdd.disabled = n >= 3;
+
+    if (!n) {
+      if (empty) empty.classList.remove('hidden');
+      list.innerHTML = '';
+      if (empty) list.appendChild(empty);
+      return;
+    }
+
+    if (empty) empty.classList.add('hidden');
+
+    list.innerHTML = _blockPendingHabits.map((h, i) => {
+      const typeLabel = h.type === 'habitor' ? 'Habitór' : h.type === 'habitod' ? 'Habitód' : 'Habitó';
+      return `
+        <div class="block-habit-row">
+          <span class="block-habit-type ${h.type}">${typeLabel}</span>
+          <span class="block-habit-name">${h.name || 'Sin nombre'}</span>
+          <button class="block-habit-remove" data-index="${i}" title="Eliminar">✕</button>
+        </div>`;
+    }).join('');
+
+    list.querySelectorAll('.block-habit-remove').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const idx = parseInt(btn.dataset.index);
+        // Si el hábito ya existe en storage, lo eliminamos al guardar el bloque
+        _blockPendingHabits.splice(idx, 1);
+        renderBlockHabitsList();
+      });
+    });
+  }
+
+  function bindBlockModal() {
+    const btnAdd = el('btn-add-habit-to-block');
+    if (btnAdd) {
+      // Remover listener previo para evitar duplicados
+      btnAdd.replaceWith(btnAdd.cloneNode(true));
+      el('btn-add-habit-to-block').addEventListener('click', () => {
+        if (_blockPendingHabits.length >= 3) return;
+        openHabitTypeSelector();
+      });
+    }
+
+    const btnSave = el('btn-save-block');
+    if (btnSave) {
+      btnSave.replaceWith(btnSave.cloneNode(true));
+      el('btn-save-block').addEventListener('click', saveBlock);
+    }
+  }
+
+  function saveBlock() {
+    const name = el('block-name').value.trim();
+    if (!name) { show('block-name-error'); return; }
+    hide('block-name-error');
+
+    let blockId = _blockEditId;
+
+    if (blockId) {
+      // Editar bloque existente
+      Blocks.update(blockId, { name });
+
+      // Eliminar hábitos del bloque que ya no están en _blockPendingHabits
+      const existingIds = _blockPendingHabits.filter(h => h.id).map(h => h.id);
+      Habits.byBlock(blockId).forEach(h => {
+        if (!existingIds.includes(h.id)) Habits.remove(h.id);
+      });
     } else {
-      // Posición inicial: centro del canvas visible
+      // Nuevo bloque: posición en centro del canvas visible
       const cam = engine ? engine.getCamera() : { x: 0, y: 0, scale: 1 };
       const container = el('canvas-container');
       const cx = container ? container.clientWidth / 2 : 300;
       const cy = container ? container.clientHeight / 2 : 200;
       const wx = (cx - cam.x) / cam.scale;
       const wy = (cy - cam.y) / cam.scale;
-      Blocks.create({ name: name.trim(), x: wx - BLOCK_W / 2, y: wy - BLOCK_H / 2 });
+      const newBlock = Blocks.create({ name, x: wx - BLOCK_W / 2, y: wy - BLOCK_H / 2 });
+      blockId = newBlock.id;
     }
 
+    // Guardar hábitos nuevos (sin id) y actualizar los existentes (con id)
+    _blockPendingHabits.forEach(h => {
+      if (h.id) {
+        Habits.update(h.id, { ...h, block_id: blockId });
+      } else {
+        Habits.create({ ...h, block_id: blockId, active: true });
+      }
+    });
+
+    closeModal('modal-block');
     refreshCanvas();
   }
 
+  function openHabitTypeSelector() {
+    openModal('modal-habit-type');
+
+    // Bind type cards
+    qsa('.type-card').forEach(card => {
+      card.replaceWith(card.cloneNode(true));
+    });
+    qsa('.type-card').forEach(card => {
+      card.addEventListener('click', () => {
+        closeModal('modal-habit-type');
+        openHabitForm(null, card.dataset.type);
+      });
+    });
+  }
+
+  /* Estado interno del formulario de hábito */
+  let _habitFormType = 'habito';
+  let _habitorItems = [];   // [{ id, label }]
+
+  function openHabitForm(habit, type) {
+    _habitFormType = type || (habit ? habit.type : 'habito');
+    _habitorItems = habit && habit.type_data && habit.type_data.items
+      ? [...habit.type_data.items]
+      : [];
+
+    el('habit-edit-id').value = habit ? (habit.id || '') : '';
+    el('habit-type-hidden').value = _habitFormType;
+    el('habit-name').value = habit ? habit.name : '';
+
+    // Campos Habitó
+    el('habit-purpose').value = (habit && habit.purpose) || '';
+    el('habit-benefit').value = (habit && habit.benefit) || '';
+    el('habit-frequency').value = (habit && habit.frequency) || 'daily';
+    el('habit-priority').value = (habit && habit.priority) || 'medium';
+    el('habit-difficulty').value = (habit && habit.difficulty) || 'moderate';
+    el('habit-time').value = (habit && habit.schedule_time) || '';
+
+    // Custom days
+    const selectedDays = (habit && habit.custom_days) || [];
+    qsa('.day-btn').forEach(btn => {
+      btn.classList.toggle('active', selectedDays.includes(parseInt(btn.dataset.day)));
+    });
+    toggleCustomDays(el('habit-frequency').value);
+
+    // Campos Habitór
+    el('habitor-rotation-days').value = (habit && habit.type_data && habit.type_data.rotation_days) || 1;
+    renderHabitorItems();
+
+    // Campos Habitód
+    el('habitod-every-days').value = (habit && habit.type_data && habit.type_data.every_days) || 7;
+    el('habitod-message').value = (habit && habit.type_data && habit.type_data.message) || '';
+    el('habitod-persist-days').value = (habit && habit.type_data && habit.type_data.persist_days) || 3;
+
+    // Mostrar campos según tipo
+    switchHabitTypeFields(_habitFormType);
+
+    // Badge de tipo
+    const badge = el('habit-type-badge');
+    if (badge) {
+      const labels = { habito: 'HABITÓ', habitor: 'HABITÓR', habitod: 'HABITÓD' };
+      badge.textContent = labels[_habitFormType] || 'HABITÓ';
+      badge.className = 'habit-type-badge ' + _habitFormType;
+    }
+
+    setText('modal-habit-title', habit ? 'Editar Hábito' : 'Nuevo Hábito');
+    hide('habit-error');
+    bindHabitForm();
+    openModal('modal-habit');
+  }
+
+  function switchHabitTypeFields(type) {
+    ['habito', 'habitor', 'habitod'].forEach(t => {
+      const fields = el('fields-' + t);
+      if (fields) fields.classList.toggle('hidden', t !== type);
+    });
+  }
+
+  function toggleCustomDays(freq) {
+    const g = el('custom-days-group');
+    if (g) g.classList.toggle('hidden', freq !== 'custom');
+  }
+
+  function renderHabitorItems() {
+    const list = el('habitor-items-list');
+    if (!list) return;
+    list.innerHTML = _habitorItems.map((item, i) => `
+      <span class="habitor-item-tag">
+        ${item.label}
+        <button class="habitor-item-remove" data-index="${i}">✕</button>
+      </span>`).join('');
+
+    list.querySelectorAll('.habitor-item-remove').forEach(btn => {
+      btn.addEventListener('click', () => {
+        _habitorItems.splice(parseInt(btn.dataset.index), 1);
+        renderHabitorItems();
+      });
+    });
+  }
+
+  function bindHabitForm() {
+    // Frecuencia
+    const freqSel = el('habit-frequency');
+    if (freqSel) freqSel.onchange = () => toggleCustomDays(freqSel.value);
+
+    // Day buttons
+    qsa('.day-btn').forEach(btn => {
+      btn.onclick = () => btn.classList.toggle('active');
+    });
+
+    // Añadir ítem Habitór
+    const btnAddItem = el('btn-add-habitor-item');
+    if (btnAddItem) {
+      btnAddItem.replaceWith(btnAddItem.cloneNode(true));
+      el('btn-add-habitor-item').addEventListener('click', addHabitorItem);
+    }
+    const itemInput = el('habitor-new-item');
+    if (itemInput) {
+      itemInput.onkeydown = (e) => { if (e.key === 'Enter') { e.preventDefault(); addHabitorItem(); } };
+    }
+
+    // Guardar hábito
+    const btnSave = el('btn-save-habit');
+    if (btnSave) {
+      btnSave.replaceWith(btnSave.cloneNode(true));
+      el('btn-save-habit').addEventListener('click', saveHabit);
+    }
+  }
+
+  function addHabitorItem() {
+    const input = el('habitor-new-item');
+    const val = input ? input.value.trim() : '';
+    if (!val) return;
+    _habitorItems.push({ id: Date.now().toString(36), label: val });
+    if (input) input.value = '';
+    renderHabitorItems();
+  }
+
+  function saveHabit() {
+    const name = el('habit-name').value.trim();
+    if (!name) { show('habit-error'); el('habit-error').textContent = 'Nombre requerido.'; return; }
+
+    const type = el('habit-type-hidden').value || 'habito';
+    let type_data = {};
+
+    if (type === 'habitor') {
+      if (!_habitorItems.length) {
+        show('habit-error');
+        el('habit-error').textContent = 'Añade al menos un ítem al repositorio.';
+        return;
+      }
+      type_data = {
+        items: _habitorItems,
+        rotation_days: parseInt(el('habitor-rotation-days').value) || 1,
+        current_item_id: _habitorItems[0] ? _habitorItems[0].id : null,
+        current_item_set_date: todayStr(),
+      };
+    } else if (type === 'habitod') {
+      const msg = el('habitod-message').value.trim();
+      if (!msg) {
+        show('habit-error');
+        el('habit-error').textContent = 'El mensaje de notificación es obligatorio.';
+        return;
+      }
+      type_data = {
+        every_days: parseInt(el('habitod-every-days').value) || 7,
+        message: msg,
+        persist_days: parseInt(el('habitod-persist-days').value) || 3,
+        last_triggered_date: null,
+        pending_until: null,
+      };
+    }
+
+    const snapToggle = el('toggle-snap');
+    if (snapToggle) {
+      snapToggle.onchange = () => engine && engine.setSnap(snapToggle.checked);
+    }
+
+    const habitData = {
+      name,
+      type,
+      type_data,
+      purpose: el('habit-purpose').value.trim(),
+      benefit: el('habit-benefit').value.trim(),
+      frequency,
+      custom_days,
+      priority: el('habit-priority').value,
+      difficulty: el('habit-difficulty').value,
+      schedule_time: el('habit-time').value,
+      active: true,
+    };
+
+    const editId = el('habit-edit-id').value;
+
+    if (editId) {
+      // Actualizar hábito existente en storage directamente
+      Habits.update(editId, habitData);
+      closeModal('modal-habit');
+      refreshCanvas();
+    } else {
+      // Hábito nuevo: añadir a _blockPendingHabits (se guarda al guardar el bloque)
+      _blockPendingHabits.push({ ...habitData, id: null });
+      closeModal('modal-habit');
+      renderBlockHabitsList();
+      openModal('modal-block');
+    }
+
+    hide('habit-error');
+  }
+
   /* ============================================
-     IDENTITY FORM (stub — formulario completo en Fase 4)
+     IDENTITY FORM
      ============================================ */
   function openIdentityForm(identity) {
-    const label = prompt(identity ? 'Renombrar identidad:' : 'Nombre de la identidad:', identity ? identity.label : '');
-    if (!label || !label.trim()) return;
+    el('identity-edit-id').value = identity ? identity.id : '';
+    el('identity-label').value = identity ? identity.label : '';
+    hide('identity-error');
+    setText('modal-identity-title', identity ? 'Editar Identidad' : 'Nueva Identidad');
+    setText('btn-save-identity', identity ? 'Guardar Cambios' : 'Crear Identidad');
 
-    if (identity) {
-      Identities.update(identity.id, { label: label.trim() });
-    } else {
-      const emoji = prompt('Emoji para esta identidad (opcional):', '◈') || '◈';
-      const cam = engine ? engine.getCamera() : { x: 0, y: 0, scale: 1 };
-      const container = el('canvas-container');
-      const cx = container ? container.clientWidth / 2 : 300;
-      const cy = container ? container.clientHeight / 2 : 400;
-      const wx = (cx - cam.x) / cam.scale;
-      const wy = (cy - cam.y) / cam.scale + 200;
-      Identities.create({ label: label.trim(), emoji, x: wx - IDENTITY_W / 2, y: wy });
+    // Seleccionar emoji activo
+    const currentEmoji = (identity && identity.emoji) || '◈';
+    qsa('.emoji-btn').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.emoji === currentEmoji);
+    });
+
+    // Bind emoji picker
+    qsa('.emoji-btn').forEach(btn => {
+      btn.onclick = () => {
+        qsa('.emoji-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+      };
+    });
+
+    // Bind guardar
+    const btnSave = el('btn-save-identity');
+    if (btnSave) {
+      btnSave.replaceWith(btnSave.cloneNode(true));
+      el('btn-save-identity').addEventListener('click', () => {
+        const label = el('identity-label').value.trim();
+        if (!label) { show('identity-error'); return; }
+        hide('identity-error');
+
+        const activeEmoji = qs('.emoji-btn.active');
+        const emoji = activeEmoji ? activeEmoji.dataset.emoji : '◈';
+
+        if (identity) {
+          Identities.update(identity.id, { label, emoji });
+        } else {
+          const cam = engine ? engine.getCamera() : { x: 0, y: 0, scale: 1 };
+          const container = el('canvas-container');
+          const cx = container ? container.clientWidth / 2 : 300;
+          const cy = container ? container.clientHeight / 2 : 300;
+          const wx = (cx - cam.x) / cam.scale;
+          const wy = (cy - cam.y) / cam.scale + 160;
+          Identities.create({ label, emoji, x: wx - IDENTITY_W / 2, y: wy });
+        }
+
+        closeModal('modal-identity');
+        refreshCanvas();
+      });
     }
 
-    refreshCanvas();
+    openModal('modal-identity');
   }
 
   /* ============================================
-     CONNECT MODAL (stub — completo en Fase 4)
+     CONNECT MODAL
      ============================================ */
+  let _connectFromId = null;
+  let _connectSelectedTargetId = null;
+  let _connectSelectedType = null;
+
   function openConnectModal(fromId) {
+    _connectFromId = fromId;
+    _connectSelectedTargetId = null;
+    _connectSelectedType = null;
+    hide('connect-error');
+
     const blocks = Blocks.list();
     const identities = Identities.list();
     const fromBlock = Blocks.find(fromId);
     const fromIdentity = Identities.find(fromId);
+    const fromName = fromBlock ? fromBlock.name : fromIdentity ? fromIdentity.label : '?';
+
+    const hint = el('connect-modal-hint');
+    if (hint) hint.textContent = `Conectar "${fromName}" a:`;
 
     let options = [];
     if (fromBlock) {
       options = [
         ...blocks.filter(b => b.id !== fromId).map(b => ({ id: b.id, type: 'block', label: b.name })),
-        ...identities.map(id => ({ id: id.id, type: 'identity', label: id.label })),
+        ...identities.map(id => ({ id: id.id, type: 'identity', label: id.label, emoji: id.emoji })),
       ];
     } else if (fromIdentity) {
-      options = [{ id: 'silhouette', type: 'silhouette', label: 'Silueta (tú)' }];
+      options = [{ id: 'silhouette', type: 'silhouette', label: 'Silueta — Tú', emoji: '◈' }];
     }
 
     if (!options.length) {
-      alert('No hay nodos disponibles para conectar. Crea más bloques o identidades primero.');
+      const optList = el('connect-options-list');
+      if (optList) optList.innerHTML = '<p class="items-empty">No hay nodos disponibles. Crea bloques o identidades primero.</p>';
+      openModal('modal-connect');
       return;
     }
 
-    const choice = prompt(
-      'Conectar a:\n' + options.map((o, i) => `${i + 1}. ${o.label} (${o.type})`).join('\n') +
-      '\n\nEscribe el número:'
-    );
-    const idx = parseInt(choice) - 1;
-    if (isNaN(idx) || idx < 0 || idx >= options.length) return;
+    const optList = el('connect-options-list');
+    if (optList) {
+      optList.innerHTML = options.map(o => `
+        <button class="connect-option-btn" data-target-id="${o.id}" data-target-type="${o.type}">
+          <span>${o.emoji || ''} ${o.label}</span>
+          <span class="connect-option-type">${o.type}</span>
+        </button>`).join('');
 
-    const target = options[idx];
-    const fromType = fromBlock ? 'block' : 'identity';
-    Connections.create({
-      from_id: fromId,
-      from_type: fromType,
-      to_id: target.id,
-      to_type: target.type,
-    });
+      optList.querySelectorAll('.connect-option-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          optList.querySelectorAll('.connect-option-btn').forEach(b => b.classList.remove('selected'));
+          btn.classList.add('selected');
+          _connectSelectedTargetId = btn.dataset.targetId;
+          _connectSelectedType = btn.dataset.targetType;
+        });
+      });
+    }
 
-    refreshCanvas();
+    // Bind guardar conexión
+    const btnSave = el('btn-save-connect');
+    if (btnSave) {
+      btnSave.replaceWith(btnSave.cloneNode(true));
+      el('btn-save-connect').addEventListener('click', () => {
+        if (!_connectSelectedTargetId) { show('connect-error'); return; }
+        hide('connect-error');
+
+        const fromType = fromBlock ? 'block' : 'identity';
+        Connections.create({
+          from_id: _connectFromId,
+          from_type: fromType,
+          to_id: _connectSelectedTargetId,
+          to_type: _connectSelectedType,
+        });
+
+        closeModal('modal-connect');
+        refreshCanvas();
+      });
+    }
+
+    openModal('modal-connect');
   }
 
   /* ============================================
@@ -897,12 +1275,14 @@ const Habitos = (() => {
     const block = Blocks.find(id);
     const identity = Identities.find(id);
     const label = block ? block.name : identity ? identity.label : id;
-    if (!confirm(`¿Eliminar "${label}"? Las conexiones también se eliminarán.`)) return;
 
-    if (block) Blocks.remove(id);
-    else if (identity) Identities.remove(id);
-
-    refreshCanvas();
+    setText('confirm-text', `¿Eliminar "${label}"? Las conexiones también se eliminarán.`);
+    Habitos._pendingDeleteFn = () => {
+      if (block) Blocks.remove(id);
+      else if (identity) Identities.remove(id);
+      refreshCanvas();
+    };
+    openModal('modal-confirm');
   }
 
   /* ============================================
