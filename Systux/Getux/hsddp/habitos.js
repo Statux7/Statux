@@ -1094,6 +1094,16 @@ const Habitos = (() => {
       };
     }
 
+       // --- Obtener frecuencia y días personalizados ---
+  const frequency = (el('habit-frequency') && el('habit-frequency').value) || 'daily';
+  // Si es custom, tomar botones con clase .day-btn que tengan la clase 'active'
+  const custom_days = [];
+  if (frequency === 'custom') {
+    qsa('.day-btn').forEach(b => {
+      if (b.classList.contains('active')) custom_days.push(parseInt(b.dataset.day, 10));
+    });
+  }
+
     const snapToggle = el('toggle-snap');
     if (snapToggle) {
       snapToggle.onchange = () => engine && engine.setSnap(snapToggle.checked);
