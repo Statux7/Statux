@@ -11,6 +11,7 @@
  *   engine.on('nodeClick', (id, e) => { ... });
  *   engine.on('nodeDblClick', (id, e) => { ... });
  *   engine.on('nodeRightClick', (id, e) => { ... });
+ *   engine.on('nodeLongPress', (id, e, pos) => { ... }); // NUEVO: para móvil
  *   engine.on('canvasClick', (worldX, worldY) => { ... });
  *   engine.destroy();
  */
@@ -30,28 +31,34 @@ const CanvasEngine = (() => {
   const CONNECTION_COLOR = '#ffffff22';
   const CONNECTION_HOVER_COLOR = '#ffffff55';
   const BEZIER_CP_OFFSET = 120; // control point horizontal offset
+  const LONG_PRESS_DURATION = 500; // ms para considerar long press en móvil
 
   /* ============================================
-     STARLIGHT BACKGROUND
+     STARLIGHT BACKGROUND (MEJORADO)
      ============================================ */
   function createStars(count) {
     return Array.from({ length: count }, () => ({
       x: Math.random(),        // 0–1 normalized (relative to canvas size)
       y: Math.random(),
       r: Math.random() < 0.7 ? 0.5 : Math.random() < 0.9 ? 0.8 : 1,
-      baseAlpha: 0.08 + Math.random() * 0.25,
-      twinkleSpeed: Math.random() < 0.25 ? 0.0008 + Math.random() * 0.002 : 0,
+      baseAlpha: 0.06 + Math.random() * 0.18,
+      twinkleSpeed: Math.random() < 0.35 ? 0.0004 + Math.random() * 0.0012 : 0,
       twinkleOffset: Math.random() * Math.PI * 2,
+      pulsePhase: Math.random() * Math.PI * 2,
     }));
   }
 
   function drawStars(ctx, stars, w, h, t) {
     stars.forEach(s => {
       let alpha = s.baseAlpha;
+      // Twinkle suave con variación de fade
       if (s.twinkleSpeed > 0) {
-        alpha = s.baseAlpha * (0.5 + 0.5 * Math.sin(t * s.twinkleSpeed + s.twinkleOffset));
+        alpha = s.baseAlpha * (0.4 + 0.6 * Math.sin(t * s.twinkleSpeed + s.twinkleOffset));
       }
-      ctx.globalAlpha = alpha;
+      // Agregar micro-pulsación para más vida
+      alpha *= (0.9 + 0.1 * Math.sin(t * 0.0001 + s.pulsePhase));
+      
+      ctx.globalAlpha = Math.max(0, Math.min(1, alpha));
       ctx.fillStyle = '#ffffff';
       ctx.beginPath();
       ctx.arc(s.x * w, s.y * h, s.r, 0, Math.PI * 2);
@@ -263,6 +270,8 @@ const CanvasEngine = (() => {
     let rafId = null;
     let t = 0;
     let stars = createStars(opts.starCount);
+    let longPressTimer = null;
+    let longPressNode = null;
 
     /* --- Canvas setup --- */
     const canvas = document.createElement('canvas');
@@ -312,6 +321,15 @@ const CanvasEngine = (() => {
       const world = screenToWorld(pos.x, pos.y, camera);
       const node = hitNodeAt(nodes, world.x, world.y);
 
+      // Start long-press timer para móvil
+      if (node && (e.touches || window.innerWidth <= 768)) {
+        longPressNode = node;
+        longPressTimer = setTimeout(() => {
+          emit('nodeLongPress', node.id, e, pos);
+          longPressTimer = null;
+        }, LONG_PRESS_DURATION);
+      }
+
       if (node) {
         dragging = {
           node,
@@ -335,6 +353,12 @@ const CanvasEngine = (() => {
     function onPointerMove(e) {
       const pos = getMousePos(e);
       const world = screenToWorld(pos.x, pos.y, camera);
+
+      // Cancelar long-press si hay movimiento
+      if (dragging && longPressTimer) {
+        clearTimeout(longPressTimer);
+        longPressTimer = null;
+      }
 
       if (dragging) {
         const dx = world.x - dragging.startWorldX;
@@ -370,6 +394,12 @@ const CanvasEngine = (() => {
 
     /* --- Pointer up --- */
     function onPointerUp(e) {
+      // Cancelar long-press si termina sin hacer movimiento significativo
+      if (longPressTimer) {
+        clearTimeout(longPressTimer);
+        longPressTimer = null;
+      }
+
       if (dragging) {
         if (dragging.moved) {
           emit('nodeMoved', dragging.node.id, dragging.node.x, dragging.node.y);
@@ -467,7 +497,7 @@ const CanvasEngine = (() => {
       ctx.fillStyle = '#000';
       ctx.fillRect(0, 0, W, H);
 
-      // Starlight
+      // Starlight (con más vida)
       drawStars(ctx, stars, W, H, t);
 
       // Transform: world space
@@ -556,6 +586,7 @@ const CanvasEngine = (() => {
 
     function destroy() {
       cancelAnimationFrame(rafId);
+      if (longPressTimer) clearTimeout(longPressTimer);
       ro.disconnect();
       canvas.removeEventListener('mousedown', onPointerDown);
       canvas.removeEventListener('mousemove', onPointerMove);

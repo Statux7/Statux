@@ -160,9 +160,10 @@ const Calandrier = (() => {
 
     if (dayTasks.length) {
       dayTasks.forEach(t => {
+        const canModify = !isPast || isToday;
         html += `
-          <div class="day-panel-item ${t.completed ? 'completed' : ''}"
-               data-task-id="${t.id}" data-date="${dateStr}">
+          <div class="day-panel-item ${t.completed ? 'completed' : ''} ${canModify ? '' : 'no-pointer'}"
+               data-task-id="${t.id}" data-date="${dateStr}" data-can-modify="${canModify}">
             <div class="today-check">${t.completed ? '✓' : ''}</div>
             <span class="day-panel-item-name">${t.name}</span>
           </div>`;
@@ -188,9 +189,10 @@ const Calandrier = (() => {
         });
       });
 
-      // Task toggles
+      // Task toggles (BLOQUEADO para fechas pasadas)
       body.querySelectorAll('[data-task-id]').forEach(item => {
-        if (isPast) return;
+        const canModify = item.dataset.canModify === 'true';
+        if (!canModify) return; // No permitir modificación en fechas pasadas
         item.addEventListener('click', () => {
           Tasks.toggle(item.dataset.taskId, item.dataset.date);
           openDayPanel(dateStr, Habits.list(), Tasks.list(), Logs.list());

@@ -54,10 +54,14 @@ const Router = (() => {
       }
     });
 
-    // Modal close buttons
+    // Modal close buttons - MEJORADO con mejor delegación de eventos
     document.addEventListener('click', (e) => {
       const btn = e.target.closest('[data-close]');
-      if (btn) closeModal(btn.dataset.close);
+      if (btn) {
+        e.preventDefault();
+        e.stopPropagation();
+        closeModal(btn.dataset.close);
+      }
     });
 
     // Close modal on overlay click
