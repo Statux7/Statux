@@ -1,7 +1,7 @@
 /**
  * dashboard.js — Lógica del Dashboard
  */
-/* global Habits, Tasks, Logs, User, el, setText, show, hide, todayStr, subDays, calculateConsistency, calculateStreak, getOperationalStatus, getTrend, getDomainLevel, getMostConsistentHabit, getMostAbandonedHabit, getDayOfWeek, getActiveHabitsForDate, isHabitDue, getWeeklyIdentityReport, IdentityReport, Identity */
+/* global Habits, Tasks, Logs, User, el, setText, show, hide, todayStr, subDays, calculateConsistency, calculateStreak, getOperationalStatus, getTrend, getDomainLevel, getMostConsistentHabit, getMostAbandonedHabit, getActiveHabitsForDate, getWeeklyIdentityReport, getDayOfWeek */
 
 const Dashboard = (() => {
 

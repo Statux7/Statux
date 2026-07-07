@@ -142,8 +142,7 @@ function getMostAbandonedHabit(logs, habits) {
 /* --- Identity weekly report --- */
 function getWeeklyIdentityReport(logs, habits) {
   const reportData = IdentityReport.get();
-  const identity = Identity.get();
-  if (!identity.current.length && !identity.target.length) return null;
+  if (!reportData) return null;
 
   const now = todayStr();
   const daysSinceLast = reportData.lastShown
@@ -152,7 +151,6 @@ function getWeeklyIdentityReport(logs, habits) {
 
   if (daysSinceLast < 7) return null;
 
-  // Habits connected to identity targets
   const connectedHabits = habits.filter(h => h.target_identity_ids && h.target_identity_ids.length > 0);
   if (!connectedHabits.length) return null;
 
@@ -162,11 +160,10 @@ function getWeeklyIdentityReport(logs, habits) {
 
   IdentityReport.save({ lastShown: now, lastWeekPct: thisWeekPct });
 
-  const targetLabels = identity.target.map(t => t.label).join(', ');
   const arrow = diff > 0 ? 'más' : diff < 0 ? 'menos' : 'igual de';
   const absDiff = Math.abs(Math.round(diff));
 
-  return `Esta semana estuviste ${absDiff > 0 ? absDiff + '% ' : ''}${arrow} consistente que la semana anterior en los hábitos conectados a tus objetivos de identidad (${targetLabels}). Consistencia actual: ${thisWeekPct}%.`;
+  return `Esta semana estuviste ${absDiff > 0 ? absDiff + '% ' : ''}${arrow} consistente que la semana anterior. Persistencia: ${thisWeekPct}%.`;
 }
 
 /* --- Format helpers --- */

@@ -110,7 +110,9 @@ const Habits = {
   byBlock: (blockId) => Habits.list().filter(h => h.block_id === blockId),
 };
 
-/* --- Tasks --- */
+/* --- Tasks ---
+ * SEGURIDAD: Solo se puede editar/eliminar tareas de hoy o futuro
+ */
 const Tasks = {
   list: () => load(KEYS.TASKS, []),
   create: (data) => {
@@ -121,6 +123,14 @@ const Tasks = {
     return t;
   },
   update: (id, data) => {
+    const task = Tasks.find(id);
+    if (!task) return null;
+    // Verificar que no sea una tarea pasada (seguridad)
+    const today = new Date().toISOString().slice(0, 10);
+    if (task.due_date && task.due_date < today) {
+      console.warn('❌ No se puede editar una tarea pasada');
+      return null;
+    }
     const tasks = Tasks.list().map(t =>
       t.id === id ? { ...t, ...data, updated_date: now() } : t
     );
@@ -128,16 +138,32 @@ const Tasks = {
     return tasks.find(t => t.id === id);
   },
   remove: (id) => {
+    const task = Tasks.find(id);
+    if (!task) return false;
+    // Verificar que no sea una tarea pasada (seguridad)
+    const today = new Date().toISOString().slice(0, 10);
+    if (task.due_date && task.due_date < today) {
+      console.warn('❌ No se puede eliminar una tarea pasada');
+      return false;
+    }
     save(KEYS.TASKS, Tasks.list().filter(t => t.id !== id));
+    return true;
   },
   toggle: (id, dateStr) => {
     const tasks = Tasks.list();
     const task = tasks.find(t => t.id === id);
     if (!task) return;
+    // Permitir toggle en cualquier fecha (solo consulta, no edición destructiva)
     const completed = !task.completed;
     Tasks.update(id, { completed, completed_date: completed ? dateStr : null });
   },
   find: (id) => Tasks.list().find(t => t.id === id),
+  canEdit: (id) => {
+    const task = Tasks.find(id);
+    if (!task) return false;
+    const today = new Date().toISOString().slice(0, 10);
+    return !task.due_date || task.due_date >= today;
+  },
 };
 
 /* --- Logs --- */
