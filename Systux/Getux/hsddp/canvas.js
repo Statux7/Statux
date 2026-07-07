@@ -40,8 +40,8 @@ const CanvasEngine = (() => {
     return Array.from({ length: count }, () => ({
       x: Math.random(),        // 0–1 normalized (relative to canvas size)
       y: Math.random(),
-      r: Math.random() < 0.7 ? 0.5 : Math.random() < 0.9 ? 0.8 : 1,
-      baseAlpha: 0.06 + Math.random() * 0.18,
+      r: Math.random() < 0.5 ? 1 : Math.random() < 0.85 ? 1.4 : 1.8, // Estrellas más gruesas
+      baseAlpha: 0.08 + Math.random() * 0.20,
       twinkleSpeed: Math.random() < 0.35 ? 0.0004 + Math.random() * 0.0012 : 0,
       twinkleOffset: Math.random() * Math.PI * 2,
       pulsePhase: Math.random() * Math.PI * 2,
