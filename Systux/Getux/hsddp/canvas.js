@@ -31,7 +31,6 @@ const CanvasEngine = (() => {
   const CONNECTION_COLOR = '#ffffff22';
   const CONNECTION_HOVER_COLOR = '#ffffff55';
   const BEZIER_CP_OFFSET = 120; // control point horizontal offset
-  const LONG_PRESS_DURATION = 500; // ms para considerar long press en móvil
 
   /* ============================================
      STARLIGHT BACKGROUND (MEJORADO)
@@ -270,8 +269,6 @@ const CanvasEngine = (() => {
     let rafId = null;
     let t = 0;
     let stars = createStars(opts.starCount);
-    let longPressTimer = null;
-    let longPressNode = null;
 
     /* --- Canvas setup --- */
     const canvas = document.createElement('canvas');
@@ -320,15 +317,6 @@ const CanvasEngine = (() => {
       const pos = getMousePos(e);
       const world = screenToWorld(pos.x, pos.y, camera);
       const node = hitNodeAt(nodes, world.x, world.y);
-
-      // Start long-press timer para móvil
-      if (node && (e.touches || window.innerWidth <= 768)) {
-        longPressNode = node;
-        longPressTimer = setTimeout(() => {
-          emit('nodeLongPress', node.id, e, pos);
-          longPressTimer = null;
-        }, LONG_PRESS_DURATION);
-      }
 
       if (node) {
         dragging = {
@@ -452,7 +440,66 @@ const CanvasEngine = (() => {
 
     /* --- Touch --- */
     let lastTouchDist = null;
+
+    /* ── Doble tap ── */
+    let lastTapTime = 0;
+    let lastTapPos = { x: 0, y: 0 };
+    const DOUBLE_TAP_DELAY = 300;   // ms
+    const DOUBLE_TAP_RADIUS = 20;   // px
+
+    /* ── Long press ── */
+    let longPressTimer = null;
+    let longPressPos = { x: 0, y: 0 };
+    const LONG_PRESS_DELAY = 550;   // ms
+
+    function clearLongPress() {
+      if (longPressTimer) { clearTimeout(longPressTimer); longPressTimer = null; }
+    }
+
+    function onTouchStart(e) {
+      clearLongPress();
+
+      if (e.touches.length === 1) {
+        const touch = e.touches[0];
+        const pos = getMousePos(e);
+        longPressPos = pos;
+
+        // Long press → dispara contextmenu táctil
+        longPressTimer = setTimeout(() => {
+          const world = screenToWorld(longPressPos.x, longPressPos.y, camera);
+          const node = hitNodeAt(nodes, world.x, world.y);
+          if (node) emit('nodeRightClick', node.id, e, longPressPos);
+          else emit('canvasRightClick', world.x, world.y, e);
+          longPressTimer = null;
+        }, LONG_PRESS_DELAY);
+
+        // Doble tap
+        const now = Date.now();
+        const dx = pos.x - lastTapPos.x;
+        const dy = pos.y - lastTapPos.y;
+        const dist = Math.hypot(dx, dy);
+        if (now - lastTapTime < DOUBLE_TAP_DELAY && dist < DOUBLE_TAP_RADIUS) {
+          // Es doble tap
+          clearLongPress();
+          const world = screenToWorld(pos.x, pos.y, camera);
+          const node = hitNodeAt(nodes, world.x, world.y);
+          if (node) emit('nodeDblClick', node.id, e);
+          else emit('canvasDblClick', world.x, world.y);
+          lastTapTime = 0;
+          e.preventDefault();
+          return;
+        }
+        lastTapTime = now;
+        lastTapPos = pos;
+      }
+
+      onPointerDown(e);
+    }
+
     function onTouchMove(e) {
+      // Cualquier movimiento cancela el long press
+      clearLongPress();
+
       if (e.touches.length === 2) {
         e.preventDefault();
         const dx = e.touches[0].clientX - e.touches[1].clientX;
@@ -469,6 +516,12 @@ const CanvasEngine = (() => {
       }
     }
 
+    function onTouchEnd(e) {
+      clearLongPress();
+      lastTouchDist = null;
+      onPointerUp(e);
+    }
+
     canvas.addEventListener('mousedown', onPointerDown);
     canvas.addEventListener('mousemove', onPointerMove);
     canvas.addEventListener('mouseup', onPointerUp);
@@ -476,9 +529,9 @@ const CanvasEngine = (() => {
     canvas.addEventListener('dblclick', onDblClick);
     canvas.addEventListener('contextmenu', onContextMenu);
     canvas.addEventListener('wheel', onWheel, { passive: false });
-    canvas.addEventListener('touchstart', onPointerDown, { passive: false });
+    canvas.addEventListener('touchstart', onTouchStart, { passive: false });
     canvas.addEventListener('touchmove', onTouchMove, { passive: false });
-    canvas.addEventListener('touchend', onPointerUp);
+    canvas.addEventListener('touchend', onTouchEnd);
 
     /* ============================================
        RENDER LOOP
@@ -586,7 +639,7 @@ const CanvasEngine = (() => {
 
     function destroy() {
       cancelAnimationFrame(rafId);
-      if (longPressTimer) clearTimeout(longPressTimer);
+      clearLongPress();
       ro.disconnect();
       canvas.removeEventListener('mousedown', onPointerDown);
       canvas.removeEventListener('mousemove', onPointerMove);
@@ -595,9 +648,9 @@ const CanvasEngine = (() => {
       canvas.removeEventListener('dblclick', onDblClick);
       canvas.removeEventListener('contextmenu', onContextMenu);
       canvas.removeEventListener('wheel', onWheel);
-      canvas.removeEventListener('touchstart', onPointerDown);
+      canvas.removeEventListener('touchstart', onTouchStart);
       canvas.removeEventListener('touchmove', onTouchMove);
-      canvas.removeEventListener('touchend', onPointerUp);
+      canvas.removeEventListener('touchend', onTouchEnd);
       if (canvas.parentNode) canvas.parentNode.removeChild(canvas);
     }
 
