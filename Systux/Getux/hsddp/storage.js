@@ -46,7 +46,7 @@ const User = {
 };
 
 /* --- Habits ---
- * type: 'habito' | 'habitor' | 'habitod'  (default: 'habito' para compatibilidad)
+ * type: 'habito' | 'habitor' | 'habitod' | 'unhabit'  (default: 'habito' para compatibilidad)
  * block_id: id del Block (nodo contenedor) al que pertenece este hábito; null si está huérfano
  *
  * Campos comunes (todos los tipos): name, priority, active
@@ -72,6 +72,14 @@ const User = {
  *      last_triggered_date: string|null,// última fecha en que se generó la notificación
  *      pending_until: string|null,      // fecha límite (YYYY-MM-DD) hasta la que sigue pendiente/insistiendo
  *    }
+ *
+ *  unhabit (conducta negativa a eliminar, ej "Ver la página naranja"):
+ *    type_data = {
+ *      relapse_dates: [string],   // array de fechas YYYY-MM-DD en que ocurrió
+ *    }
+ *    Nota: los unhábits NO se registran en Logs.completed_habits.
+ *    Se registran en type_data.relapse_dates directamente en el hábito.
+ *    La métrica "días limpios" = días desde la última fecha en relapse_dates.
  */
 const Habits = {
   list: () => load(KEYS.HABITS, []),
@@ -108,6 +116,44 @@ const Habits = {
   },
   find: (id) => Habits.list().find(h => h.id === id),
   byBlock: (blockId) => Habits.list().filter(h => h.block_id === blockId),
+
+  /* Registrar una recaída de unhabit para una fecha dada */
+  addRelapse: (id, dateStr) => {
+    const h = Habits.find(id);
+    if (!h || h.type !== 'unhabit') return;
+    const dates = (h.type_data && h.type_data.relapse_dates) || [];
+    if (!dates.includes(dateStr)) {
+      Habits.update(id, {
+        type_data: { ...h.type_data, relapse_dates: [...dates, dateStr] },
+      });
+    }
+  },
+
+  /* Quitar una recaída de unhabit (el usuario se equivocó al registrar) */
+  removeRelapse: (id, dateStr) => {
+    const h = Habits.find(id);
+    if (!h || h.type !== 'unhabit') return;
+    const dates = ((h.type_data && h.type_data.relapse_dates) || []).filter(d => d !== dateStr);
+    Habits.update(id, { type_data: { ...h.type_data, relapse_dates: dates } });
+  },
+
+  /* Días limpios: días consecutivos desde hoy hacia atrás sin recaída */
+  cleanDays: (id) => {
+    const h = Habits.find(id);
+    if (!h || h.type !== 'unhabit') return 0;
+    const dates = new Set((h.type_data && h.type_data.relapse_dates) || []);
+    let count = 0;
+    const today = new Date();
+    for (let i = 0; i < 365; i++) {
+      const d = new Date(today);
+      d.setDate(d.getDate() - i);
+      const ds = d.toISOString().slice(0, 10);
+      if (dates.has(ds)) break;
+      count++;
+    }
+    // El día de hoy cuenta como limpio si no hay recaída hoy
+    return count;
+  },
 };
 
 /* --- Tasks ---

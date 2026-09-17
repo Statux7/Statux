@@ -162,6 +162,7 @@ const Habitos = (() => {
     // Tipos presentes (para badge)
     const hasHabitor = blockHabits.some(h => h.type === 'habitor');
     const hasHabitod = blockHabits.some(h => h.type === 'habitod');
+    const hasUnhabit = blockHabits.some(h => h.type === 'unhabit');
 
     return {
       id: block.id,
@@ -178,6 +179,7 @@ const Habitos = (() => {
       _habitorItem: habitorItem,
       _hasHabitor: hasHabitor,
       _hasHabitod: hasHabitod,
+      _hasUnhabit: hasUnhabit,
       render: (ctx, node, cam, t) => renderBlockNode(ctx, node, t),
     };
   }
@@ -298,16 +300,22 @@ const Habitos = (() => {
       ctx.restore();
     }
 
-    // ── Fondo ──
+    // ── Fondo (opacidad reducida si hay unhábits) ──
+    ctx.globalAlpha = node._hasUnhabit ? 0.82 : 1;
     roundRectPath(ctx, 0, 0, W, H, 10);
     ctx.fillStyle = '#0f0f0f';
     ctx.fill();
 
-    // ── Borde ──
+    // ── Borde (dashed si contiene unhábits) ──
     roundRectPath(ctx, 0, 0, W, H, 10);
     ctx.strokeStyle = borderColor;
     ctx.lineWidth = 1.2;
+    if (node._hasUnhabit) {
+      ctx.setLineDash([5, 3]);
+    }
     ctx.stroke();
+    ctx.setLineDash([]);   // restaurar siempre
+    ctx.globalAlpha = 1;
 
     // ── Nombre encima (fuera del nodo) ──
     ctx.fillStyle = '#999';
@@ -315,8 +323,12 @@ const Habitos = (() => {
     ctx.textAlign = 'center';
     ctx.fillText(truncateText(ctx, node._name || 'Sin nombre', W - 8), W / 2, -8);
 
-    // ── Badges de tipo (R = Habitór, D = Habitód) ──
+    // ── Badges de tipo (U = Unhabit, R = Habitór, D = Habitód) ──
     let badgeX = W - 8;
+    if (node._hasUnhabit) {
+      drawBadge(ctx, badgeX, 8, 'U', '#fb923c');
+      badgeX -= 18;
+    }
     if (node._hasHabitod) {
       drawBadge(ctx, badgeX, 8, 'D', '#a78bfa');
       badgeX -= 18;
@@ -743,32 +755,84 @@ const Habitos = (() => {
     const todayLog = Logs.get(today);
     const completedIds = todayLog ? (todayLog.completed_habits || []) : [];
 
-    // Solo hábitos con bloque, tipo habito/habitor que sean activos hoy
-    const todayHabits = habits.filter(h => {
-      if (h.type === 'habitod') return false; // habitod tienen su propia lógica de notificación
-      return true;
-    });
+    // Separar unhábits de hábitos normales
+    const normalHabits = habits.filter(h => h.type !== 'unhabit' && h.type !== 'habitod');
+    const unhábits = habits.filter(h => h.type === 'unhabit');
 
-    if (!todayHabits.length) {
+    if (!normalHabits.length && !unhábits.length) {
       list.innerHTML = '<p class="focus-day-empty">Sin hábitos para hoy.</p>';
       return;
     }
 
-    list.innerHTML = todayHabits.map(h => {
-      const done = completedIds.includes(h.id);
-      const typeBadge = h.type === 'habitor' ? 'R' : h.type === 'habitod' ? 'D' : '';
-      return `
-        <div class="focus-day-item ${done ? 'done' : ''}" data-habit-id="${h.id}">
-          <div class="focus-day-check">${done ? '✓' : ''}</div>
-          <span class="focus-day-name">${h.name}</span>
-          ${typeBadge ? `<span class="focus-day-type-badge">${typeBadge}</span>` : ''}
-        </div>`;
-    }).join('');
+    let html = '';
 
-    list.querySelectorAll('[data-habit-id]').forEach(item => {
+    // ── Hábitos normales ──
+    if (normalHabits.length) {
+      normalHabits.forEach(h => {
+        const done = completedIds.includes(h.id);
+        const typeBadge = h.type === 'habitor' ? 'R' : '';
+        html += `
+          <div class="focus-day-item ${done ? 'done' : ''}" data-habit-id="${h.id}" data-habit-type="normal">
+            <div class="focus-day-check">${done ? '✓' : ''}</div>
+            <span class="focus-day-name">${h.name}</span>
+            ${typeBadge ? `<span class="focus-day-type-badge">${typeBadge}</span>` : ''}
+          </div>`;
+      });
+    }
+
+    // ── Separador si hay ambos tipos ──
+    if (normalHabits.length && unhábits.length) {
+      html += `<div class="focus-day-separator">
+        <span class="focus-day-separator-label">UNHÁBITS</span>
+      </div>`;
+    }
+
+    // ── Unhábits: botón "Ocurrió" ──
+    if (unhábits.length) {
+      unhábits.forEach(h => {
+        const relapses = (h.type_data && h.type_data.relapse_dates) || [];
+        const relapedToday = relapses.includes(today);
+        const cleanDays = Habits.cleanDays(h.id);
+        html += `
+          <div class="focus-day-item unhabit-item ${relapedToday ? 'relapsed' : ''}"
+               data-habit-id="${h.id}" data-habit-type="unhabit">
+            <div class="focus-day-check">${relapedToday ? '!' : ''}</div>
+            <span class="focus-day-name">${h.name}</span>
+            ${!relapedToday
+              ? `<span class="unhabit-clean-days">${cleanDays}d limpios</span>`
+              : `<span class="focus-day-type-badge" style="color:#fb923c">recaída</span>`
+            }
+            <button class="focus-day-relapse-btn ${relapedToday ? 'relapsed' : ''}"
+                    data-habit-id="${h.id}" data-relapsed="${relapedToday}">
+              ${relapedToday ? 'Deshacer' : 'Ocurrió'}
+            </button>
+          </div>`;
+      });
+    }
+
+    list.innerHTML = html;
+
+    // Toggle hábitos normales
+    list.querySelectorAll('[data-habit-type="normal"]').forEach(item => {
       item.addEventListener('click', () => {
         const activeCount = habits.length;
         Logs.toggleHabit(item.dataset.habitId, today, activeCount);
+        renderFocusDay();
+        refreshCanvas();
+      });
+    });
+
+    // Botones Ocurrió / Deshacer en unhábits
+    list.querySelectorAll('.focus-day-relapse-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const id = btn.dataset.habitId;
+        const wasRelapsed = btn.dataset.relapsed === 'true';
+        if (wasRelapsed) {
+          Habits.removeRelapse(id, today);
+        } else {
+          Habits.addRelapse(id, today);
+        }
         renderFocusDay();
         refreshCanvas();
       });
@@ -975,13 +1039,19 @@ const Habitos = (() => {
     el('habitod-message').value = (habit && habit.type_data && habit.type_data.message) || '';
     el('habitod-persist-days').value = (habit && habit.type_data && habit.type_data.persist_days) || 3;
 
+    // Campos Unhabit
+    const unhabitDesc = el('unhabit-description');
+    if (unhabitDesc) {
+      unhabitDesc.value = (habit && habit.type_data && habit.type_data.description) || '';
+    }
+
     // Mostrar campos según tipo
     switchHabitTypeFields(_habitFormType);
 
     // Badge de tipo
     const badge = el('habit-type-badge');
     if (badge) {
-      const labels = { habito: 'HABITÓ', habitor: 'HABITÓR', habitod: 'HABITÓD' };
+      const labels = { habito: 'HABITÓ', habitor: 'HABITÓR', habitod: 'HABITÓD', unhabit: 'UNHABIT' };
       badge.textContent = labels[_habitFormType] || 'HABITÓ';
       badge.className = 'habit-type-badge ' + _habitFormType;
     }
@@ -993,7 +1063,7 @@ const Habitos = (() => {
   }
 
   function switchHabitTypeFields(type) {
-    ['habito', 'habitor', 'habitod'].forEach(t => {
+    ['habito', 'habitor', 'habitod', 'unhabit'].forEach(t => {
       const fields = el('fields-' + t);
       if (fields) fields.classList.toggle('hidden', t !== type);
     });
@@ -1091,6 +1161,12 @@ const Habitos = (() => {
         persist_days: parseInt(el('habitod-persist-days').value) || 3,
         last_triggered_date: null,
         pending_until: null,
+      };
+    } else if (type === 'unhabit') {
+      const desc = el('unhabit-description') ? el('unhabit-description').value.trim() : '';
+      type_data = {
+        description: desc,
+        relapse_dates: [],   // se llena con Habits.addRelapse() / removeRelapse()
       };
     }
 

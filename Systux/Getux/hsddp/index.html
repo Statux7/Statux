@@ -373,11 +373,15 @@
           </button>
           <button class="type-card" data-type="habitor">
             <span class="type-card-label">Habitór</span>
-            <span class="type-card-desc">Repositorio dinámico. El sistema elige un ítem cada X días. Ej: Expandir vocabulario.</span>
+            <span class="type-card-desc">Repositorio dinámico. El sistema elige un ítem cada X días.</span>
           </button>
           <button class="type-card" data-type="habitod">
             <span class="type-card-label">Habitód</span>
-            <span class="type-card-desc">Acción programada con recordatorio. Ej: Depilarme cada 15 días.</span>
+            <span class="type-card-desc">Acción programada con recordatorio cada X días.</span>
+          </button>
+          <button class="type-card type-card-unhabit" data-type="unhabit">
+            <span class="type-card-label">Unhabit</span>
+            <span class="type-card-desc">Conducta negativa a eliminar. Registra recaídas y mide tus días limpios.</span>
           </button>
         </div>
       </div>
@@ -495,6 +499,23 @@
           <div class="form-group">
             <label class="form-label">Recordar si no se completa (días)</label>
             <input type="number" id="habitod-persist-days" class="form-input" value="3" min="1" max="14" />
+          </div>
+        </div>
+
+        <!-- ── CAMPOS UNHABIT ── -->
+        <div id="fields-unhabit" class="habit-type-fields hidden">
+          <div class="unhabit-info-box">
+            <p class="unhabit-info-title">¿Qué es un Unhabit?</p>
+            <p class="unhabit-info-text">
+              Un Unhabit es una conducta negativa que quieres eliminar.
+              No se marca como "completado" — en cambio, registras
+              cuándo ocurrió (recaída). El sistema mide tus días limpios.
+            </p>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Describe la conducta</label>
+            <input type="text" id="unhabit-description" class="form-input"
+              placeholder="Ej: Ver la página naranja, Morderme las uñas..." />
           </div>
         </div>
 
