@@ -31,6 +31,9 @@ const CanvasEngine = (() => {
   const CONNECTION_COLOR = '#ffffff22';
   const CONNECTION_HOVER_COLOR = '#ffffff55';
   const BEZIER_CP_OFFSET = 120; // control point horizontal offset
+  const CONNECTION_DRAW_DURATION = 900;
+  const CONNECTION_FLOW_DURATION = 1800;
+  const CONNECTION_PARTICLE_COUNT = 3;
 
   /* ============================================
      STARLIGHT BACKGROUND (MEJORADO)
@@ -114,7 +117,7 @@ const CanvasEngine = (() => {
   /* ============================================
      CONNECTION DRAWING
      ============================================ */
-  function drawConnection(ctx, from, to, color, hovered) {
+  function drawConnection(ctx, from, to, color, hovered, animation, now, reduceMotion) {
     const fx = from.x + from.width;
     const fy = from.y + from.height / 2;
     const tx = to.x;
@@ -124,30 +127,63 @@ const CanvasEngine = (() => {
     if (to._silhouette) {
       const tsx = to.x + to.width / 2;
       const tsy = to.y;
-      drawBezier(ctx, fx, fy, tsx, tsy, color, hovered, true);
+      drawBezier(ctx, fx, fy, tsx, tsy, color, hovered, true, animation, now, reduceMotion);
       return;
     }
 
-    drawBezier(ctx, fx, fy, tx, ty, color, hovered, false);
+    drawBezier(ctx, fx, fy, tx, ty, color, hovered, false, animation, now, reduceMotion);
   }
 
-  function drawBezier(ctx, fx, fy, tx, ty, color, hovered, toCenter) {
+  function drawBezier(ctx, fx, fy, tx, ty, color, hovered, toCenter, animation, now, reduceMotion) {
     const dx = Math.abs(tx - fx);
     const cpOffset = Math.max(BEZIER_CP_OFFSET, dx * 0.5);
+    const cp1x = fx + cpOffset;
+    const cp2x = tx - (toCenter ? 0 : cpOffset);
+    const curveLength = Math.hypot(cp1x - fx, 0) +
+      Math.hypot(cp2x - cp1x, ty - fy) +
+      Math.hypot(tx - cp2x, 0);
+    const dashLength = Math.max(1, curveLength * 1.1);
+    const elapsed = animation ? Math.max(0, now - animation.startedAt) : CONNECTION_DRAW_DURATION;
+    const rawProgress = reduceMotion ? 1 : Math.min(1, elapsed / CONNECTION_DRAW_DURATION);
+    const traceProgress = rawProgress * rawProgress * (3 - 2 * rawProgress);
 
     ctx.beginPath();
     ctx.moveTo(fx, fy);
-    ctx.bezierCurveTo(
-      fx + cpOffset, fy,
-      tx - (toCenter ? 0 : cpOffset), ty,
-      tx, ty
-    );
+    ctx.bezierCurveTo(cp1x, fy, cp2x, ty, tx, ty);
     ctx.strokeStyle = hovered ? CONNECTION_HOVER_COLOR : (color || CONNECTION_COLOR);
     ctx.lineWidth = hovered ? 1.5 : 1;
+    ctx.setLineDash([dashLength, dashLength]);
+    ctx.lineDashOffset = dashLength * (1 - traceProgress);
     ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.lineDashOffset = 0;
 
-    // Arrowhead
-    drawArrow(ctx, tx - (toCenter ? 0 : 6), ty, tx, ty, hovered ? CONNECTION_HOVER_COLOR : (color || CONNECTION_COLOR));
+    // Arrowhead appears when the trace reaches the destination.
+    if (rawProgress >= 1) {
+      drawArrow(ctx, tx - (toCenter ? 0 : 6), ty, tx, ty, hovered ? CONNECTION_HOVER_COLOR : (color || CONNECTION_COLOR));
+    }
+
+    // A small stream of lights travels from source to destination after the trace.
+    if (!reduceMotion && rawProgress >= 1 && animation) {
+      const flowProgress = Math.max(0, now - animation.startedAt - CONNECTION_DRAW_DURATION) / CONNECTION_FLOW_DURATION;
+      for (let i = 0; i < CONNECTION_PARTICLE_COUNT; i++) {
+        const u = (flowProgress + i / CONNECTION_PARTICLE_COUNT) % 1;
+        const inv = 1 - u;
+        const x = inv * inv * inv * fx +
+          3 * inv * inv * u * cp1x +
+          3 * inv * u * u * cp2x +
+          u * u * u * tx;
+        const y = inv * inv * inv * fy +
+          3 * inv * inv * u * fy +
+          3 * inv * u * u * ty +
+          u * u * u * ty;
+
+        ctx.beginPath();
+        ctx.arc(x, y, 2 - i * 0.25, 0, Math.PI * 2);
+        ctx.fillStyle = hovered ? 'rgba(255,255,255,0.95)' : 'rgba(255,255,255,0.72)';
+        ctx.fill();
+      }
+    }
   }
 
   function drawArrow(ctx, fromX, fromY, toX, toY, color) {
@@ -258,6 +294,8 @@ const CanvasEngine = (() => {
     /* --- State --- */
     let nodes = [];
     let connections = [];
+    const connectionAnimations = new Map();
+    const reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     let camera = CanvasView ? CanvasView.get() : { x: 0, y: 0, scale: 1 };
     let dragging = null;        // { node, startWorldX, startWorldY, startNodeX, startNodeY }
     let panning = false;
@@ -565,7 +603,7 @@ const CanvasEngine = (() => {
         const toNode = nodes.find(n => n.id === conn.toId);
         if (!fromNode || !toNode) return;
         const hovered = hoveredConnId === conn.id;
-        drawConnection(ctx, fromNode, toNode, conn.color, hovered);
+        drawConnection(ctx, fromNode, toNode, conn.color, hovered, connectionAnimations.get(conn.id), performance.now(), reduceMotion);
       });
       ctx.restore();
 
@@ -591,6 +629,19 @@ const CanvasEngine = (() => {
     }
 
     function setConnections(newConns) {
+      const now = performance.now();
+      const activeIds = new Set();
+
+      newConns.forEach(conn => {
+        activeIds.add(conn.id);
+        if (!connectionAnimations.has(conn.id)) {
+          connectionAnimations.set(conn.id, { startedAt: now });
+        }
+      });
+
+      connectionAnimations.forEach((animation, id) => {
+        if (!activeIds.has(id)) connectionAnimations.delete(id);
+      });
       connections = newConns;
     }
 
