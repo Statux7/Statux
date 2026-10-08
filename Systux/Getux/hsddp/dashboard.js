@@ -1,7 +1,7 @@
 /**
  * dashboard.js — Lógica del Dashboard
  */
-/* global Habits, Tasks, Logs, User, el, setText, show, hide, todayStr, subDays, calculateConsistency, calculateStreak, getOperationalStatus, getTrend, getDomainLevel, getMostConsistentHabit, getMostAbandonedHabit, getActiveHabitsForDate, getWeeklyIdentityReport, getDayOfWeek */
+/* global Habits, Tasks, Logs, User, el, setText, show, hide, todayStr, subDays, calculateConsistency, calculateStreak, getOperationalStatus, getTrend, getDomainLevel, getMostConsistentHabit, getMostAbandonedHabit, getActiveHabitsForDate, getWeeklyIdentityReport, getDayOfWeek, getDataMaturity, hasMaturity */
 
 const Dashboard = (() => {
 
@@ -44,16 +44,29 @@ const Dashboard = (() => {
     setText('mc-consistency', consistency + '%');
     setText('mc-streak', streak);
     setText('mc-streak-sub', streak === 1 ? 'día' : 'días');
-    setText('mc-trend', trend.symbol);
-    setText('mc-trend-sub', trend.direction === 'up' ? 'Mejorando' : trend.direction === 'down' ? 'Decayendo' : 'Estable');
+    if (hasMaturity(logs, habits, 1)) {
+      setText('mc-trend', trend.symbol);
+      setText('mc-trend-sub', trend.direction === 'up' ? 'Mejorando' : trend.direction === 'down' ? 'Decayendo' : 'Estable');
+    } else {
+      setText('mc-trend', '·');
+      setText('mc-trend-sub', 'Observando');
+    }
     setText('mc-domain', domain.label);
     setText('mc-domain-sub', `Nivel ${domain.level}/5`);
 
     if (best) { setText('mc-best', best.habit.name); setText('mc-best-sub', best.rate + '%'); }
     else { setText('mc-best', '—'); setText('mc-best-sub', '—'); }
 
-    if (worst) { setText('mc-worst', worst.habit.name); setText('mc-worst-sub', worst.rate + '%'); }
-    else { setText('mc-worst', '—'); setText('mc-worst-sub', '—'); }
+    if (!hasMaturity(logs, habits, 2)) {
+      setText('mc-worst', '—');
+      setText('mc-worst-sub', 'Observando...');
+    } else if (worst) {
+      setText('mc-worst', worst.habit.name);
+      setText('mc-worst-sub', worst.rate + '%');
+    } else {
+      setText('mc-worst', '—');
+      setText('mc-worst-sub', '—');
+    }
 
     renderWeeklyChart(logs, habits);
     renderAlerts(logs, habits);
@@ -107,6 +120,14 @@ const Dashboard = (() => {
   function renderAlerts(logs, habits) {
     const list = el('alerts-list');
     if (!list) return;
+    if (!hasMaturity(logs, habits, 2)) {
+      const level = getDataMaturity(logs, habits);
+      const msg = level === 0
+        ? 'Recopilando datos. El análisis se activa tras 7 días de uso.'
+        : 'Datos básicos listos. El análisis completo se activa en 14 días.';
+      list.innerHTML = `<p class="no-alerts maturity-msg">${msg}</p>`;
+      return;
+    }
     const alerts = generateAlerts(logs, habits);
     if (!alerts.length) {
       list.innerHTML = '<p class="no-alerts">Sin alertas activas.</p>';

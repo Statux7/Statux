@@ -166,6 +166,42 @@ function getWeeklyIdentityReport(logs, habits) {
   return `Esta semana estuviste ${absDiff > 0 ? absDiff + '% ' : ''}${arrow} consistente que la semana anterior. Persistencia: ${thisWeekPct}%.`;
 }
 
+/* --- Data maturity --- */
+/**
+ * Nivel de madurez del sistema (0–3).
+ * 0 = observando  → cuenta < 7 días Y < 10 registros válidos
+ * 1 = básico      → 7+ días O 10+ registros válidos
+ * 2 = análisis    → 14+ días Y 10+ registros válidos
+ * 3 = completo    → 30+ días Y 30+ registros válidos
+ *
+ * "Registro válido" = día en que completed_habits.length > 0
+ */
+function getDataMaturity(logs, habits) {
+  if (!habits.length) return 0;
+  const oldest = habits.reduce((min, h) => {
+    const d = h.created_date ? new Date(h.created_date) : new Date();
+    return d < min ? d : min;
+  }, new Date());
+  const daysSinceStart = Math.floor((Date.now() - oldest.getTime()) / 86400000);
+  const validDays = new Set(
+    logs.filter(l => l.completed_habits && l.completed_habits.length > 0).map(l => l.date)
+  ).size;
+  if (daysSinceStart >= 30 && validDays >= 30) return 3;
+  if (daysSinceStart >= 14 && validDays >= 10) return 2;
+  if (daysSinceStart >= 7 || validDays >= 10) return 1;
+  return 0;
+}
+
+/**
+ * Devuelve true si la madurez es >= level.
+ * level 1 = básico (tendencia, racha)
+ * level 2 = alertas y hábito más abandonado
+ * level 3 = informe de identidad
+ */
+function hasMaturity(logs, habits, level) {
+  return getDataMaturity(logs, habits) >= level;
+}
+
 /* --- Format helpers --- */
 function formatPriority(p) {
   const map = { critical: 'Crítica', high: 'Alta', medium: 'Media', low: 'Baja' };
