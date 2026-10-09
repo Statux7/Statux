@@ -48,8 +48,8 @@ const CanvasEngine = (() => {
       twinkleOffset: Math.random() * Math.PI * 2,
       pulsePhase: Math.random() * Math.PI * 2,
       // Movimiento leve (drift)
-      driftX: (Math.random() - 0.5) * 0.00008,
-      driftY: (Math.random() - 0.5) * 0.00008,
+      driftX: (Math.random() - 1) * 0.00008,
+      driftY: (Math.random() - 1) * 0.00008,
     }));
   }
 
