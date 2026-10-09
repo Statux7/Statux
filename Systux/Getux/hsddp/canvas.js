@@ -31,9 +31,9 @@ const CanvasEngine = (() => {
   const CONNECTION_COLOR = '#ffffff22';
   const CONNECTION_HOVER_COLOR = '#ffffff55';
   const BEZIER_CP_OFFSET = 120; // control point horizontal offset
-  const CONNECTION_DRAW_DURATION = 900;
-  const CONNECTION_FLOW_DURATION = 1800;
-  const CONNECTION_PARTICLE_COUNT = 3;
+  const CONNECTION_DRAW_DURATION = 1000;
+  const CONNECTION_FLOW_DURATION = 2800;
+  const CONNECTION_PARTICLE_COUNT = 2;
 
   /* ============================================
      STARLIGHT BACKGROUND (MEJORADO)
