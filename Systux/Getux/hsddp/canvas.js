@@ -42,8 +42,8 @@ const CanvasEngine = (() => {
     return Array.from({ length: count }, () => ({
       x: Math.random(),        // 0–1 normalized (relative to canvas size)
       y: Math.random(),
-      r: Math.random() < 0.7 ? 0.5 : Math.random() < 0.9 ? 0.8 : 1,
-      baseAlpha: 0.06 + Math.random() * 0.18,
+      r: Math.random() < 0.7 ? 1.2 : Math.random() < 0.9 ? 1.6 : 2.2,
+      baseAlpha: 0.3 + Math.random() * 0.4,
       twinkleSpeed: Math.random() < 0.35 ? 0.0004 + Math.random() * 0.0012 : 0,
       twinkleOffset: Math.random() * Math.PI * 2,
       pulsePhase: Math.random() * Math.PI * 2,
