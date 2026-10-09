@@ -183,8 +183,11 @@ function getDataMaturity(logs, habits) {
     return d < min ? d : min;
   }, new Date());
   const daysSinceStart = Math.floor((Date.now() - oldest.getTime()) / 86400000);
+  const today = todayStr();
   const validDays = new Set(
-    logs.filter(l => l.completed_habits && l.completed_habits.length > 0).map(l => l.date)
+    logs
+      .filter(l => l.date <= today && l.completed_habits && l.completed_habits.length > 0)
+      .map(l => l.date)
   ).size;
   if (daysSinceStart >= 30 && validDays >= 30) return 3;
   if (daysSinceStart >= 14 && validDays >= 10) return 2;
