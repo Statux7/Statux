@@ -47,6 +47,9 @@ const CanvasEngine = (() => {
       twinkleSpeed: Math.random() < 0.35 ? 0.0004 + Math.random() * 0.0012 : 0,
       twinkleOffset: Math.random() * Math.PI * 2,
       pulsePhase: Math.random() * Math.PI * 2,
+      // Movimiento leve (drift)
+      driftX: (Math.random() - 0.5) * 0.00008,
+      driftY: (Math.random() - 0.5) * 0.00008,
     }));
   }
 
@@ -60,10 +63,14 @@ const CanvasEngine = (() => {
       // Agregar micro-pulsación para más vida
       alpha *= (0.9 + 0.1 * Math.sin(t * 0.0001 + s.pulsePhase));
       
+      // Movimiento leve (drift) para que "floten" sutilmente
+      const driftedX = (s.x + t * s.driftX) % 1;
+      const driftedY = (s.y + t * s.driftY) % 1;
+      
       ctx.globalAlpha = Math.max(0, Math.min(1, alpha));
       ctx.fillStyle = '#ffffff';
       ctx.beginPath();
-      ctx.arc(s.x * w, s.y * h, s.r, 0, Math.PI * 2);
+      ctx.arc(driftedX * w, driftedY * h, s.r, 0, Math.PI * 2);
       ctx.fill();
     });
     ctx.globalAlpha = 1;
@@ -147,16 +154,25 @@ const CanvasEngine = (() => {
     const rawProgress = reduceMotion ? 1 : Math.min(1, elapsed / CONNECTION_DRAW_DURATION);
     const traceProgress = rawProgress * rawProgress * (3 - 2 * rawProgress);
 
+    // Shadow para la conexión (leve, solo cuando está visible)
+    ctx.save();
+    ctx.shadowColor = 'rgba(255, 255, 255, 0.15)';
+    ctx.shadowBlur = 8;
+    ctx.shadowOffsetX = 0;
+    ctx.shadowOffsetY = 0;
+
     ctx.beginPath();
     ctx.moveTo(fx, fy);
     ctx.bezierCurveTo(cp1x, fy, cp2x, ty, tx, ty);
     ctx.strokeStyle = hovered ? CONNECTION_HOVER_COLOR : (color || CONNECTION_COLOR);
-    ctx.lineWidth = hovered ? 1.5 : 1;
+    ctx.lineWidth = hovered ? 2.5 : 1.8;
     ctx.setLineDash([dashLength, dashLength]);
     ctx.lineDashOffset = dashLength * (1 - traceProgress);
     ctx.stroke();
     ctx.setLineDash([]);
     ctx.lineDashOffset = 0;
+
+    ctx.restore();
 
     // Arrowhead appears when the trace reaches the destination.
     if (rawProgress >= 1) {
@@ -588,7 +604,7 @@ const CanvasEngine = (() => {
       ctx.fillStyle = '#000';
       ctx.fillRect(0, 0, W, H);
 
-      // Starlight (con más vida)
+      // Starlight (con más vida y movimiento)
       drawStars(ctx, stars, W, H, t);
 
       // Transform: world space
