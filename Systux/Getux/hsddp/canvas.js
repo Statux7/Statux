@@ -24,16 +24,16 @@ const CanvasEngine = (() => {
   const ZOOM_MIN = 0.2;
   const ZOOM_MAX = 3;
   const ZOOM_STEP = 0.1;
-  const GRID_SIZE = 20;
+  const GRID_SIZE = 15;
   const MINIMAP_W = 160;
   const MINIMAP_H = 100;
   const MINIMAP_PAD = 12;
-  const CONNECTION_COLOR = '#ffffff22';
-  const CONNECTION_HOVER_COLOR = '#ffffff55';
-  const BEZIER_CP_OFFSET = 120; // control point horizontal offset
-  const CONNECTION_DRAW_DURATION = 1000;
-  const CONNECTION_FLOW_DURATION = 2800;
-  const CONNECTION_PARTICLE_COUNT = 2;
+  const CONNECTION_COLOR = '#ffffff';
+  const CONNECTION_HOVER_COLOR = '#ffffff';
+  const BEZIER_CP_OFFSET = 125; // control point horizontal offset
+  const CONNECTION_DRAW_DURATION = 100;
+  const CONNECTION_FLOW_DURATION = 4850;
+  const CONNECTION_PARTICLE_COUNT = 5;
 
   /* ============================================
      STARLIGHT BACKGROUND (MEJORADO)
