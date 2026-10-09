@@ -468,6 +468,63 @@ input, textarea, select { font-family: inherit; }
   font-family: var(--font-mono);
   line-height: 1.7;
 }
+/* ── Frase del día ── */
+.phrase-card {
+  border-left: 2px solid #2a2a2a;
+}
+
+.phrase-text {
+  font-size: 12px;
+  color: var(--secondary-fg);
+  line-height: 1.75;
+  font-style: italic;
+}
+
+.phrase-author {
+  font-size: 10px;
+  color: var(--muted-fg);
+  font-family: var(--font-mono);
+  margin-top: 8px;
+  letter-spacing: 0.05em;
+}
+
+/* ── Propósito y beneficio ── */
+.purpose-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.purpose-item {
+  padding: 10px 12px;
+  background: var(--muted);
+  border-radius: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.purpose-habit-name {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--fg);
+  margin-bottom: 2px;
+}
+
+.purpose-text {
+  font-size: 11px;
+  color: var(--muted-fg);
+  line-height: 1.5;
+}
+
+.purpose-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--muted-fg);
+  letter-spacing: 0.05em;
+  margin-right: 4px;
+}
+
 
 /* ============================================
    HABITOS PAGE
