@@ -337,12 +337,40 @@ const Habitos = (() => {
       drawBadge(ctx, badgeX, 8, 'R', '#60a5fa');
     }
 
-    // ── Racha ──
+    // ── Racha (llama Path2D, sin emoji) ──
     if (streak > 0) {
-      ctx.fillStyle = '#f97316';
-      ctx.font = '10px Inter, sans-serif';
+      ctx.save();
+
+      const fx = 9, fy = 5;
+
+      // Cuerpo de la llama
+      ctx.fillStyle = '#888';
+      ctx.beginPath();
+      ctx.moveTo(fx + 3.5, fy);
+      ctx.bezierCurveTo(fx + 7, fy + 3, fx + 7, fy + 7, fx + 3.5, fy + 10);
+      ctx.bezierCurveTo(fx + 5, fy + 8, fx + 2, fy + 8, fx, fy + 10);
+      ctx.bezierCurveTo(fx, fy + 7, fx, fy + 3, fx + 3.5, fy);
+      ctx.closePath();
+      ctx.fill();
+
+      // Núcleo interior (destello sutil)
+      ctx.fillStyle = '#fff';
+      ctx.globalAlpha = 0.12;
+      ctx.beginPath();
+      ctx.moveTo(fx + 3.5, fy + 3);
+      ctx.bezierCurveTo(fx + 5.5, fy + 5, fx + 5.5, fy + 8, fx + 3.5, fy + 9.5);
+      ctx.bezierCurveTo(fx + 2, fy + 8, fx + 1.5, fy + 5, fx + 3.5, fy + 3);
+      ctx.closePath();
+      ctx.fill();
+      ctx.globalAlpha = 1;
+
+      // Número de racha
+      ctx.fillStyle = '#777';
+      ctx.font = '500 9px Inter, sans-serif';
       ctx.textAlign = 'left';
-      ctx.fillText('🔥 ' + streak, 8, 14);
+      ctx.fillText(streak, fx + 11, fy + 8.5);
+
+      ctx.restore();
     }
 
     if (total === 0) {
@@ -751,7 +779,11 @@ const Habitos = (() => {
     if (!list) return;
 
     const today = todayStr();
-    const habits = Habits.list().filter(h => h.active);
+    // Solo hábitos que pertenecen a un bloque existente (block_id válido)
+    const existingBlockIds = new Set(Blocks.list().map(b => b.id));
+    const habits = Habits.list().filter(h =>
+      h.active && h.block_id && existingBlockIds.has(h.block_id)
+    );
     const todayLog = Logs.get(today);
     const completedIds = todayLog ? (todayLog.completed_habits || []) : [];
 
