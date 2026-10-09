@@ -5,6 +5,44 @@
 
 const Dashboard = (() => {
 
+  /* ── Frases del día ──
+   * Lee phrases.json del mismo directorio. La frase cambia cada día
+   * y, si el archivo falta, la tarjeta se oculta sin mostrar error.
+   */
+  let _phrases = null;
+  let _phraseLoadPromise = null;
+
+  function renderPhrase() {
+    const block = el('phrase-block');
+    const phraseEl = el('phrase-text');
+    const authorEl = el('phrase-author');
+    if (!block || !phraseEl || !authorEl) return;
+
+    if (_phrases) {
+      _applyPhrase(_phrases, block, phraseEl, authorEl);
+      return;
+    }
+    if (_phraseLoadPromise) return;
+
+    _phraseLoadPromise = fetch('./phrases.json')
+      .then(r => { if (!r.ok) throw new Error('not found'); return r.json(); })
+      .then(data => {
+        if (!Array.isArray(data) || !data.length) throw new Error('empty');
+        _phrases = data;
+        _applyPhrase(_phrases, block, phraseEl, authorEl);
+      })
+      .catch(() => block.classList.add('hidden'));
+  }
+
+  function _applyPhrase(phrases, block, phraseEl, authorEl) {
+    const start = new Date(new Date().getFullYear(), 0, 0);
+    const dayOfYear = Math.floor((Date.now() - start) / 86400000);
+    const phrase = phrases[dayOfYear % phrases.length] || {};
+    phraseEl.textContent = phrase.text || '';
+    authorEl.textContent = phrase.author || '';
+    block.classList.remove('hidden');
+  }
+
   function render() {
     const habits = Habits.list();
     const tasks = Tasks.list();
@@ -16,6 +54,7 @@ const Dashboard = (() => {
     const d = new Date();
     const dateLabel = d.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' }).replace(/\//g, '.');
     setText('dashboard-subtitle', `${dateLabel} — ${getGreeting(username)}`);
+    renderPhrase();
 
     const hasData = habits.length > 0 || logs.length > 0;
 
@@ -73,6 +112,7 @@ const Dashboard = (() => {
     renderTodayHabits(habits, logs, today);
     renderTodayTasks(tasks, today);
     renderIdentityReport(logs, habits);
+    renderPurposeBlock(habits);
   }
 
   function getGreeting(name) {
@@ -230,6 +270,54 @@ const Dashboard = (() => {
     }
     show('identity-report-block');
     setText('identity-report-text', report);
+  }
+
+  function renderPurposeBlock(habits) {
+    const block = el('purpose-block');
+    const list = el('purpose-list');
+    if (!block || !list) return;
+
+    const withPurpose = habits.filter(h =>
+      h.type === 'habito' && h.active && (h.purpose || h.benefit)
+    );
+
+    if (!withPurpose.length) {
+      block.classList.add('hidden');
+      return;
+    }
+
+    block.classList.remove('hidden');
+    list.replaceChildren(...withPurpose.map(h => {
+      const item = document.createElement('div');
+      item.className = 'purpose-item';
+
+      const name = document.createElement('p');
+      name.className = 'purpose-habit-name';
+      name.textContent = h.name || '';
+      item.appendChild(name);
+
+      if (h.purpose) {
+        const purpose = document.createElement('p');
+        purpose.className = 'purpose-text';
+        const label = document.createElement('span');
+        label.className = 'purpose-label';
+        label.textContent = 'Por qué:';
+        purpose.append(label, document.createTextNode(' ' + h.purpose));
+        item.appendChild(purpose);
+      }
+
+      if (h.benefit) {
+        const benefit = document.createElement('p');
+        benefit.className = 'purpose-text';
+        const label = document.createElement('span');
+        label.className = 'purpose-label';
+        label.textContent = 'Beneficio:';
+        benefit.append(label, document.createTextNode(' ' + h.benefit));
+        item.appendChild(benefit);
+      }
+
+      return item;
+    }));
   }
 
   return { render };
