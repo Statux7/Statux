@@ -1,7 +1,7 @@
 /**
  * dashboard.js — Lógica del Dashboard
  */
-/* global Habits, Tasks, Logs, User, el, setText, show, hide, todayStr, subDays, calculateConsistency, calculateStreak, getOperationalStatus, getTrend, getDomainLevel, getMostConsistentHabit, getMostAbandonedHabit, getActiveHabitsForDate, getWeeklyIdentityReport, getDayOfWeek, getDataMaturity, hasMaturity */
+/* global Habits, Tasks, Logs, User, el, setText, show, hide, todayStr, subDays, calculateConsistency, calculateStreak, getOperationalStatus, getTrend, getDomainLevel, getMostConsistentHabit, getMostAbandonedHabit, getActiveHabitsForDate, hasMaturity, getDataMaturity, getWeeklyIdentityReport, getDaysRemainingToMaturity, isHabitDue */
 
 const Dashboard = (() => {
 
@@ -148,7 +148,7 @@ const Dashboard = (() => {
       html += `
         <div class="chart-bar-wrap">
           <div class="chart-bar-bg">
-            <div class="chart-bar-fill ${fillCls}" style="height:${pct}%"></div>
+            <div class="chart-bar-fill ${fillCls}" style="height:${pct}%; transition: height 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);"></div>
           </div>
           <span class="chart-bar-label">${days[dow]}</span>
         </div>`;
@@ -161,11 +161,8 @@ const Dashboard = (() => {
     const list = el('alerts-list');
     if (!list) return;
     if (!hasMaturity(logs, habits, 2)) {
-      const level = getDataMaturity(logs, habits);
-      const msg = level === 0
-        ? 'Recopilando datos. El análisis se activa tras 7 días de uso.'
-        : 'Datos básicos listos. El análisis completo se activa en 14 días.';
-      list.innerHTML = `<p class="no-alerts maturity-msg">${msg}</p>`;
+      const maturityInfo = getDaysRemainingToMaturity(logs, habits);
+      list.innerHTML = `<p class="no-alerts maturity-msg">${maturityInfo.message}</p>`;
       return;
     }
     const alerts = generateAlerts(logs, habits);
