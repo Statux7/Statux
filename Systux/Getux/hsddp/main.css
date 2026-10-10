@@ -1247,6 +1247,49 @@ input, textarea, select { font-family: inherit; }
   .grid-4, .grid-3 { grid-template-columns: 1fr; }
 }
 
+/* ══════════════════════════════════════════════
+   SILUETAS — ANIMACIONES CSS
+
+   Clases disponibles:
+     .silhouette-male   → paths del SVG del hombre
+     .silhouette-female → paths del SVG de la mujer
+
+   Pega aquí el CSS de tus animaciones.
+   Estas clases NO afectan al canvas (que usa Path2D),
+   solo a los SVG inline del DOM si los usas en otras partes de la UI.
+   ══════════════════════════════════════════════ */
+
+/* ── ANIMACIONES HOMBRE ── */
+/* PEGAR CSS ANIMACIONES HOMBRE AQUÍ */
+
+/* ── ANIMACIONES MUJER ── */
+/* PEGAR CSS ANIMACIONES MUJER AQUÍ */
+
+/* ── KEYFRAMES COMPARTIDOS (si aplica) ── */
+/* PEGAR KEYFRAMES AQUÍ */
+
+/* Botón de eliminación de tarea en las cards del dashboard */
+.today-item-delete,
+.focus-day-task-delete {
+  border: 0;
+  background: transparent;
+  color: var(--muted-fg);
+  font-size: 18px;
+  line-height: 1;
+  padding: 2px 6px;
+  cursor: pointer;
+  border-radius: 4px;
+  flex: 0 0 auto;
+}
+
+.today-item-delete:hover,
+.focus-day-task-delete:hover {
+  color: var(--destructive);
+  background: rgba(220, 50, 50, 0.1);
+}
+
+.focus-day-task-delete { margin-left: auto; }
+
 /* ============================================
    UTILITIES
    ============================================ */
