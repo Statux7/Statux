@@ -1119,6 +1119,9 @@ const Habitos = (() => {
 
     closeModal('modal-block');
     refreshCanvas();
+    renderFocusDay();
+    if (Dashboard) Dashboard.render();
+    if (Calandrier) Calandrier.render();
   }
 
   function openHabitTypeSelector() {
@@ -1341,6 +1344,9 @@ const Habitos = (() => {
       Habits.update(editId, habitData);
       closeModal('modal-habit');
       refreshCanvas();
+      renderFocusDay();
+      if (Dashboard) Dashboard.render();
+      if (Calandrier) Calandrier.render();
     } else {
       // Hábito nuevo: añadir a _blockPendingHabits (se guarda al guardar el bloque)
       _blockPendingHabits.push({ ...habitData, id: null });
