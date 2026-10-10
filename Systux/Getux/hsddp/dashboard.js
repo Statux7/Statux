@@ -93,8 +93,16 @@ const Dashboard = (() => {
     setText('mc-domain', domain.label);
     setText('mc-domain-sub', `Nivel ${domain.level}/5`);
 
-    if (best) { setText('mc-best', best.habit.name); setText('mc-best-sub', best.rate + '%'); }
-    else { setText('mc-best', '—'); setText('mc-best-sub', '—'); }
+    if (!hasMaturity(logs, habits, 1)) {
+      setText('mc-best', '—');
+      setText('mc-best-sub', 'Observando...');
+    } else if (best) {
+      setText('mc-best', best.habit.name);
+      setText('mc-best-sub', best.rate + '%');
+    } else {
+      setText('mc-best', '—');
+      setText('mc-best-sub', '—');
+    }
 
     if (!hasMaturity(logs, habits, 2)) {
       setText('mc-worst', '—');
@@ -249,12 +257,21 @@ const Dashboard = (() => {
         <div class="today-check">${t.completed ? '✓' : ''}</div>
         <span class="today-item-name">${t.name}</span>
         <span class="priority-dot ${t.priority || 'medium'}"></span>
+        <button class="today-item-delete" type="button" data-delete-task-id="${t.id}" aria-label="Eliminar ${t.name}" title="Eliminar tarea">×</button>
       </div>`).join('');
 
     container.querySelectorAll('.today-item[data-type="task"]').forEach(item => {
-      item.addEventListener('click', () => {
+      item.addEventListener('click', (event) => {
+        if (event.target.closest('[data-delete-task-id]')) return;
         Tasks.toggle(item.dataset.id, today);
         render();
+      });
+    });
+
+    container.querySelectorAll('[data-delete-task-id]').forEach(button => {
+      button.addEventListener('click', event => {
+        event.stopPropagation();
+        Habitos.confirmDeleteTask(button.dataset.deleteTaskId);
       });
     });
   }
