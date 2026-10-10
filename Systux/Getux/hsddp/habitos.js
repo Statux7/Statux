@@ -6,7 +6,7 @@
  */
 /* global el, setText, show, hide, openModal, closeModal,
    Tasks, Habits, Logs, Blocks, Identities, Connections, Silhouette,
-   CanvasView, User, todayStr, CanvasEngine */
+   CanvasView, User, todayStr, CanvasEngine, isHabitDue, Dashboard, Calandrier */
 
 const Habitos = (() => {
 
@@ -548,44 +548,95 @@ const Habitos = (() => {
   }
 
   function drawPlaceholderSilhouette(ctx, W, H, gender, t) {
-    // Silueta humana simplificada (placeholder hasta que el usuario entregue los SVG)
-    const cx = W / 2;
-    const pulse = 0.85 + 0.05 * Math.sin(t * 0.03);
     ctx.save();
-    ctx.globalAlpha = pulse * 0.6;
-    ctx.fillStyle = '#ffffff18';
-    ctx.strokeStyle = '#ffffff33';
-    ctx.lineWidth = 1;
 
-    // Cabeza
-    ctx.beginPath();
-    ctx.arc(cx, H * 0.18, 10, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.stroke();
+    /*
+     * Las siluetas se escalan para caber en el nodo del canvas.
+     * viewBox original del SVG: el usuario debe revisar su SVG y
+     * ajustar SVG_W y SVG_H al viewBox real de sus archivos.
+     * Ejemplo: si el SVG tiene viewBox="0 0 100 200", SVG_W=100, SVG_H=200.
+     */
+    const SVG_W = 100;   // ajustar al viewBox real del SVG del usuario
+    const SVG_H = 200;   // ajustar al viewBox real del SVG del usuario
 
-    // Cuerpo
-    ctx.beginPath();
-    ctx.moveTo(cx, H * 0.28);
-    ctx.lineTo(cx, H * 0.62);
-    ctx.stroke();
+    // Escalar y centrar la silueta dentro del nodo
+    const scaleX = W / SVG_W;
+    const scaleY = H / SVG_H;
+    const scale = Math.min(scaleX, scaleY) * 0.85;
+    const offsetX = (W - SVG_W * scale) / 2;
+    const offsetY = (H - SVG_H * scale) / 2;
 
-    // Brazos
-    ctx.beginPath();
-    ctx.moveTo(cx - 14, H * 0.38);
-    ctx.lineTo(cx + 14, H * 0.38);
-    ctx.stroke();
+    ctx.translate(offsetX, offsetY);
+    ctx.scale(scale, scale);
 
-    // Piernas
-    ctx.beginPath();
-    ctx.moveTo(cx, H * 0.62);
-    ctx.lineTo(cx - 10, H * 0.85);
-    ctx.moveTo(cx, H * 0.62);
-    ctx.lineTo(cx + 10, H * 0.85);
-    ctx.stroke();
+    // Pulso de opacidad suave (animación de respiración)
+    const pulse = 0.55 + 0.08 * Math.sin(t * 0.025);
+    ctx.globalAlpha = pulse;
+
+    if (gender === 'male') {
+      /*
+       * SILUETA HOMBRE
+       * Formato por path SVG:
+       * ctx.fillStyle = '#fff';
+       * ctx.fill(new Path2D('M ... Z'));
+       * Clase CSS para SVG inline: silhouette-male
+       */
+      // PEGAR PATHS DEL HOMBRE AQUÍ ↓
+
+      // Placeholder temporal hasta que se peguen los paths:
+      ctx.strokeStyle = '#ffffff22';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.arc(SVG_W / 2, SVG_H * 0.12, SVG_W * 0.1, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(SVG_W / 2, SVG_H * 0.22);
+      ctx.lineTo(SVG_W / 2, SVG_H * 0.62);
+      ctx.moveTo(SVG_W * 0.3, SVG_H * 0.35);
+      ctx.lineTo(SVG_W * 0.7, SVG_H * 0.35);
+      ctx.moveTo(SVG_W / 2, SVG_H * 0.62);
+      ctx.lineTo(SVG_W * 0.35, SVG_H * 0.92);
+      ctx.moveTo(SVG_W / 2, SVG_H * 0.62);
+      ctx.lineTo(SVG_W * 0.65, SVG_H * 0.92);
+      ctx.stroke();
+
+    } else {
+      /*
+       * SILUETA MUJER
+       * Clase CSS para SVG inline: silhouette-female
+       */
+      // PEGAR PATHS DE LA MUJER AQUÍ ↓
+
+      // Placeholder temporal hasta que se peguen los paths:
+      ctx.strokeStyle = '#ffffff22';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.arc(SVG_W / 2, SVG_H * 0.12, SVG_W * 0.09, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(SVG_W / 2, SVG_H * 0.22);
+      ctx.bezierCurveTo(
+        SVG_W * 0.35, SVG_H * 0.35,
+        SVG_W * 0.3,  SVG_H * 0.55,
+        SVG_W * 0.35, SVG_H * 0.62
+      );
+      ctx.moveTo(SVG_W / 2, SVG_H * 0.22);
+      ctx.bezierCurveTo(
+        SVG_W * 0.65, SVG_H * 0.35,
+        SVG_W * 0.7,  SVG_H * 0.55,
+        SVG_W * 0.65, SVG_H * 0.62
+      );
+      ctx.moveTo(SVG_W * 0.35, SVG_H * 0.62);
+      ctx.lineTo(SVG_W * 0.38, SVG_H * 0.92);
+      ctx.moveTo(SVG_W * 0.65, SVG_H * 0.62);
+      ctx.lineTo(SVG_W * 0.62, SVG_H * 0.92);
+      ctx.moveTo(SVG_W * 0.28, SVG_H * 0.32);
+      ctx.lineTo(SVG_W * 0.72, SVG_H * 0.32);
+      ctx.stroke();
+    }
 
     ctx.restore();
   }
-
   /* Truncar texto para que no desborde el ancho del nodo */
   function truncateText(ctx, text, maxWidth) {
     if (ctx.measureText(text).width <= maxWidth) return text;
@@ -788,10 +839,11 @@ const Habitos = (() => {
     const completedIds = todayLog ? (todayLog.completed_habits || []) : [];
 
     // Separar unhábits de hábitos normales
-    const normalHabits = habits.filter(h => h.type !== 'unhabit' && h.type !== 'habitod');
+    const normalHabits = habits.filter(h => h.type !== 'unhabit' && h.type !== 'habitod' && isHabitDue(h, today));
     const unhábits = habits.filter(h => h.type === 'unhabit');
+    const todayTasks = Tasks.list().filter(task => task.due_date === today);
 
-    if (!normalHabits.length && !unhábits.length) {
+    if (!normalHabits.length && !unhábits.length && !todayTasks.length) {
       list.innerHTML = '<p class="focus-day-empty">Sin hábitos para hoy.</p>';
       return;
     }
@@ -842,6 +894,19 @@ const Habitos = (() => {
       });
     }
 
+    // ── Tareas con fecha de hoy ──
+    if (todayTasks.length) {
+      html += `<div class="focus-day-separator"><span class="focus-day-separator-label">TAREAS DE HOY</span></div>`;
+      todayTasks.forEach(task => {
+        html += `
+          <div class="focus-day-item focus-day-task ${task.completed ? 'done' : ''}" data-task-id="${task.id}">
+            <div class="focus-day-check">${task.completed ? '✓' : ''}</div>
+            <span class="focus-day-name">${task.name}</span>
+            <button class="focus-day-task-delete" type="button" data-delete-task-id="${task.id}" aria-label="Eliminar ${task.name}" title="Eliminar tarea">×</button>
+          </div>`;
+      });
+    }
+
     list.innerHTML = html;
 
     // Toggle hábitos normales
@@ -851,6 +916,23 @@ const Habitos = (() => {
         Logs.toggleHabit(item.dataset.habitId, today, activeCount);
         renderFocusDay();
         refreshCanvas();
+      });
+    });
+
+    // Toggle y eliminación de tareas del día
+    list.querySelectorAll('.focus-day-task').forEach(item => {
+      item.addEventListener('click', event => {
+        if (event.target.closest('[data-delete-task-id]')) return;
+        Tasks.toggle(item.dataset.taskId, today);
+        renderFocusDay();
+        if (Dashboard) Dashboard.render();
+        if (Calandrier) Calandrier.render();
+      });
+    });
+    list.querySelectorAll('[data-delete-task-id]').forEach(button => {
+      button.addEventListener('click', event => {
+        event.stopPropagation();
+        confirmDeleteTask(button.dataset.deleteTaskId);
       });
     });
 
@@ -1399,6 +1481,9 @@ const Habitos = (() => {
       if (block) Blocks.remove(id);
       else if (identity) Identities.remove(id);
       refreshCanvas();
+      renderFocusDay();
+      if (Dashboard) Dashboard.render();
+      if (Calandrier) Calandrier.render();
     };
     openModal('modal-confirm');
   }
@@ -1418,6 +1503,26 @@ const Habitos = (() => {
     openModal('modal-task');
   }
 
+  function confirmDeleteTask(id) {
+    const task = Tasks.find(id);
+    if (!task || !Tasks.canEdit(id)) return;
+    setText('confirm-text', `¿Eliminar la tarea "${task.name}"?`);
+    Habitos._pendingDeleteFn = () => {
+      if (!Tasks.remove(id)) return;
+      renderFocusDay();
+      refreshCanvas();
+      if (Dashboard) Dashboard.render();
+      if (Calandrier) Calandrier.render();
+    };
+    openModal('modal-confirm');
+  }
+
+  function refreshTaskViews() {
+    renderFocusDay();
+    if (Dashboard) Dashboard.render();
+    if (Calandrier) Calandrier.render();
+  }
+
   function bindTaskModal() {
     const btnSaveTask = el('btn-save-task');
     if (btnSaveTask) {
@@ -1435,6 +1540,7 @@ const Habitos = (() => {
         if (editId) Tasks.update(editId, data);
         else Tasks.create(data);
         closeModal('modal-task');
+        refreshTaskViews();
       };
     }
 
@@ -1452,5 +1558,5 @@ const Habitos = (() => {
     if (e) { e.textContent = msg; e.classList.remove('hidden'); }
   }
 
-  return { render, refreshCanvas, _pendingDeleteFn: null };
+  return { render, refreshCanvas, confirmDeleteTask, _pendingDeleteFn: null };
 })();
