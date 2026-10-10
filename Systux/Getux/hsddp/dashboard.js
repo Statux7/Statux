@@ -44,6 +44,18 @@ const Dashboard = (() => {
   }
 
   function render() {
+    const confirmDeleteButton = el('btn-confirm-delete');
+    if (confirmDeleteButton) {
+      confirmDeleteButton.onclick = () => {
+        if (Habitos._pendingDeleteFn) {
+          Habitos._pendingDeleteFn();
+          Habitos._pendingDeleteFn = null;
+        }
+        const confirmModal = el('modal-confirm');
+        if (confirmModal) confirmModal.classList.add('hidden');
+      };
+    }
+
     const habits = Habits.list();
     const tasks = Tasks.list();
     const logs = Logs.list();
