@@ -276,9 +276,9 @@ const Blocks = {
   },
   remove: (id) => {
     save(KEYS.BLOCKS, Blocks.list().filter(b => b.id !== id));
-    // Huérfanos: los hábitos del bloque eliminado quedan sin bloque (no se borran)
-    const habits = Habits.list().map(h => h.block_id === id ? { ...h, block_id: null } : h);
-    save(KEYS.HABITS, habits);
+    // 🔥 IMPORTANTE: Eliminar todos los hábitos asociados al bloque
+    const habitsToDelete = Habits.byBlock(id).map(h => h.id);
+    habitsToDelete.forEach(habitId => Habits.remove(habitId));
     // Limpiar conexiones que tocaban este bloque
     Connections.removeForNode(id, 'block');
   },
