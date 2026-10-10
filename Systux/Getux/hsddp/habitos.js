@@ -12,6 +12,27 @@ const Habitos = (() => {
 
   let engine = null;
   let contextTarget = null;  // { type: 'block'|'identity'|'silhouette', id }
+  const progressTransitions = new Map();
+  const PROGRESS_TRANSITION_MS = 650;
+
+  function getAnimatedProgress(id, target) {
+    const now = performance.now();
+    let state = progressTransitions.get(id);
+    if (!state) {
+      state = { from: 0, to: target, startedAt: now };
+      progressTransitions.set(id, state);
+    } else if (state.to !== target) {
+      const elapsed = Math.min(1, (now - state.startedAt) / PROGRESS_TRANSITION_MS);
+      const eased = 0.5 - Math.cos(elapsed * Math.PI) / 2;
+      const current = state.from + (state.to - state.from) * eased;
+      state = { from: current, to: target, startedAt: now };
+      progressTransitions.set(id, state);
+    }
+
+    const elapsed = Math.min(1, (now - state.startedAt) / PROGRESS_TRANSITION_MS);
+    const eased = 0.5 - Math.cos(elapsed * Math.PI) / 2;
+    return state.from + (state.to - state.from) * eased;
+  }
 
   /* ============================================
      RENDER PRINCIPAL
@@ -266,7 +287,7 @@ const Habitos = (() => {
   function renderBlockNode(ctx, node, t) {
     const W = node.width;
     const H = node.height;
-    const pct = node._pct || 0;
+    const pct = getAnimatedProgress(node.id, node._pct || 0);
     const total = node._habitCount || 0;
     const completed = node._completedToday || 0;
     const streak = node._streak || 0;
@@ -433,7 +454,7 @@ const Habitos = (() => {
   function renderIdentityNode(ctx, node, t) {
     const W = node.width;
     const H = node.height;
-    const pct = node._consistencyPct || 0;
+    const pct = getAnimatedProgress(node.id, node._consistencyPct || 0);
     const hasHabits = node._hasHabits || false;
 
     // ── Color de borde por consistencia ──
