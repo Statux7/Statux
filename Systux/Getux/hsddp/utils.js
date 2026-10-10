@@ -229,10 +229,16 @@ function getDaysRemainingToMaturity(logs, habits) {
   }
 
   const parts = [];
-  if (daysRemaining > 0) {
-    const hours = Math.floor((remainingMs % millisecondsPerDay) / 3600000);
-    const timeLabel = hours ? `${daysRemaining} ${daysRemaining === 1 ? 'día' : 'días'} y ${hours} ${hours === 1 ? 'hora' : 'horas'}` : `${daysRemaining} ${daysRemaining === 1 ? 'día' : 'días'}`;
-    parts.push(`disponible en ${timeLabel}`);
+  if (remainingMs > 0) {
+    const totalMinutes = Math.ceil(remainingMs / 60000);
+    const days = Math.floor(totalMinutes / 1440);
+    const hours = Math.floor((totalMinutes % 1440) / 60);
+    const minutes = totalMinutes % 60;
+    const timeParts = [];
+    if (days) timeParts.push(`${days} ${days === 1 ? 'día' : 'días'}`);
+    if (hours) timeParts.push(`${hours} ${hours === 1 ? 'hora' : 'horas'}`);
+    if (minutes || !timeParts.length) timeParts.push(`${minutes} ${minutes === 1 ? 'minuto' : 'minutos'}`);
+    parts.push(`disponible en ${timeParts.join(', ')}`);
   }
   if (validDaysRemaining > 0) {
     parts.push(`faltan ${validDaysRemaining} ${validDaysRemaining === 1 ? 'día' : 'días'} con actividad registrada`);
