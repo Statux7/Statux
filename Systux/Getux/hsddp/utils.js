@@ -186,7 +186,7 @@ function getDataMaturity(logs, habits) {
   const today = todayStr();
   const validDays = new Set(
     logs
-      .filter(l => l.date <= today && l.completed_habits && l.completed_habits.length > 0)
+      .filter(l => l.date <= today && (l.completed_habits || []).some(id => habits.some(h => h.id === id)))
       .map(l => l.date)
   ).size;
   if (daysSinceStart >= 30 && validDays >= 30) return 3;
@@ -201,6 +201,49 @@ function getDataMaturity(logs, habits) {
  * level 2 = alertas y hábito más abandonado
  * level 3 = informe de identidad
  */
+/**
+ * Cuenta el tiempo que falta para cumplir los dos requisitos del análisis:
+ * 14 días desde el primer hábito y 10 días distintos con actividad válida.
+ */
+function getDaysRemainingToMaturity(logs, habits) {
+  if (!habits.length) {
+    return { daysRemaining: 14, validDaysRemaining: 10, message: 'Crea un hábito para comenzar a reunir datos.' };
+  }
+
+  const oldest = habits.reduce((min, h) => {
+    const created = h.created_date ? new Date(h.created_date) : new Date();
+    return created < min ? created : min;
+  }, new Date());
+  const millisecondsPerDay = 86400000;
+  const remainingMs = Math.max(0, oldest.getTime() + 14 * millisecondsPerDay - Date.now());
+  const daysRemaining = Math.ceil(remainingMs / millisecondsPerDay);
+  const validHabitIds = new Set(habits.map(h => h.id));
+  const validDays = new Set(logs
+    .filter(l => l.date <= todayStr() && (l.completed_habits || []).some(id => validHabitIds.has(id)))
+    .map(l => l.date)
+  ).size;
+  const validDaysRemaining = Math.max(0, 10 - validDays);
+
+  if (daysRemaining === 0 && validDaysRemaining === 0) {
+    return { daysRemaining, validDaysRemaining, message: 'El análisis está listo.' };
+  }
+
+  const parts = [];
+  if (daysRemaining > 0) {
+    const hours = Math.floor((remainingMs % millisecondsPerDay) / 3600000);
+    const timeLabel = hours ? `${daysRemaining} ${daysRemaining === 1 ? 'día' : 'días'} y ${hours} ${hours === 1 ? 'hora' : 'horas'}` : `${daysRemaining} ${daysRemaining === 1 ? 'día' : 'días'}`;
+    parts.push(`disponible en ${timeLabel}`);
+  }
+  if (validDaysRemaining > 0) {
+    parts.push(`faltan ${validDaysRemaining} ${validDaysRemaining === 1 ? 'día' : 'días'} con actividad registrada`);
+  }
+  return {
+    daysRemaining,
+    validDaysRemaining,
+    message: `Análisis ${parts.join('; ')}.`,
+  };
+}
+
 function hasMaturity(logs, habits, level) {
   return getDataMaturity(logs, habits) >= level;
 }
