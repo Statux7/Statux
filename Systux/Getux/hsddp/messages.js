@@ -10,8 +10,11 @@ const MessageCenter = (() => {
   let listening = false;
 
   function readState() {
-    try { return JSON.parse(localStorage.getItem(KEY)) || { lastVisit: '', daily: {}, domainLevel: null, events: {} }; }
-    catch { return { lastVisit: '', daily: {}, domainLevel: null, events: {} }; }
+    const defaults = { lastVisit: '', daily: {}, domainLevel: null, events: {} };
+    try {
+      const saved = JSON.parse(localStorage.getItem(KEY)) || {};
+      return { ...defaults, ...saved, daily: saved.daily || {}, events: saved.events || {} };
+    } catch { return defaults; }
   }
   function saveState(state) {
     try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (err) { console.warn('No se pudo guardar el estado de mensajes.', err); }
@@ -75,7 +78,10 @@ const MessageCenter = (() => {
         if (!isHabitDue(h, date)) continue;
         due++;
         const log = logs.find(item => item.date === date);
-        if (log && (log.completed_habits || []).includes(h.id)) done++;
+        const frozen = log && log.frozen_habit_rates;
+        if (frozen && Object.prototype.hasOwnProperty.call(frozen, h.id)
+          ? frozen[h.id] === 1
+          : log && (log.completed_habits || []).includes(h.id)) done++;
       }
       if (due >= 3 && done / due < 0.25) push(out, 'calibration:' + h.id,
         `Sugerencia de calibración: “${h.name}” registra menos de 25% de cumplimiento. Prueba reducir su dificultad o cambiar su horario.`, 'alert');
@@ -129,7 +135,13 @@ const MessageCenter = (() => {
         const due = habits.filter(h => h.active && h.block_id === block.id && !['unhabit', 'habitod'].includes(h.type) && isHabitDue(h, date));
         if (!due.length) continue;
         const log = logs.find(item => item.date === date), done = new Set(log ? log.completed_habits || [] : []);
-        if (!due.every(h => done.has(h.id))) break;
+        const complete = h => {
+          const rates = log && log.frozen_habit_rates;
+          return rates && Object.prototype.hasOwnProperty.call(rates, h.id)
+            ? rates[h.id] === 1
+            : done.has(h.id);
+        };
+        if (!due.every(complete)) break;
         streak++;
       }
       [3, 7, 15].forEach(mark => {
@@ -152,7 +164,10 @@ const MessageCenter = (() => {
         if (!isHabitDue(h, date)) continue;
         due++;
         const log = logs.find(item => item.date === date);
-        if (log && (log.completed_habits || []).includes(h.id)) done++;
+        const frozen = log && log.frozen_habit_rates;
+        if (frozen && Object.prototype.hasOwnProperty.call(frozen, h.id)
+          ? frozen[h.id] === 1
+          : log && (log.completed_habits || []).includes(h.id)) done++;
       }
       const ratio = due ? done / due : 0;
       if (ratio > 0 && (!best || ratio > best.ratio)) best = { habit: h, ratio };
@@ -165,6 +180,7 @@ const MessageCenter = (() => {
     const today = todayStr(), state = readState();
     makeDaily(state, logs, habits, today);
     const level = getDomainLevel(calculateConsistency(logs, habits, 7)).level;
+    state.daily[today] = state.daily[today] || [];
     if (state.domainLevel !== null && level > state.domainLevel)
       state.daily[today].push({ id: 'level:' + today, text: `⚡ Nivel de Dominio Incrementado: ascendiste al nivel ${level}/5.`, tone: 'positive' });
     state.domainLevel = level;
