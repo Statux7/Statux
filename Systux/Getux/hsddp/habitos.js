@@ -12,6 +12,10 @@ const Habitos = (() => {
 
   let engine = null;
   let contextTarget = null;  // { type: 'block'|'identity'|'silhouette', id }
+  let selectedIdentityIcon = null;
+  let iconSearchTimer = null;
+  let iconSearchRequest = 0;
+  const iconifyImages = new Map();
   const progressTransitions = new Map();
   const PROGRESS_TRANSITION_MS = 650;
 
@@ -260,6 +264,7 @@ const Habitos = (() => {
       _identity: true,
       _name: identity.label,
       _emoji: identity.emoji || '◈',
+      _icon: identity.icon || null,
       _consistencyPct: consistencyPct,
       _hasHabits: reachableHabits.length > 0,
       render: (ctx, node, cam, t) => renderIdentityNode(ctx, node, t),
@@ -451,6 +456,25 @@ const Habitos = (() => {
     ctx.fillText(Math.round(pct * 100) + '%', W - 8, barY - 3);
   }
 
+  function drawIconifyIdentity(ctx, iconName, centerX, centerY, size) {
+    if (!iconName || !/^[a-z0-9-]+:[a-z0-9-]+$/i.test(iconName)) return false;
+    let image = iconifyImages.get(iconName);
+    if (!image) {
+      const [prefix, name] = iconName.split(':');
+      image = new Image();
+      image.crossOrigin = 'anonymous';
+      image.onload = () => { if (engine) refreshCanvas(); };
+      image.onerror = () => iconifyImages.delete(iconName);
+      image.src = `https://api.iconify.design/${encodeURIComponent(prefix)}/${encodeURIComponent(name)}.svg?color=%23ffffff`;
+      iconifyImages.set(iconName, image);
+    }
+    if (image.complete && image.naturalWidth > 0) {
+      ctx.drawImage(image, centerX - size / 2, centerY - size / 2, size, size);
+      return true;
+    }
+    return false;
+  }
+
   function renderIdentityNode(ctx, node, t) {
     const W = node.width;
     const H = node.height;
@@ -495,10 +519,12 @@ const Habitos = (() => {
     ctx.textAlign = 'center';
     ctx.fillText(truncateText(ctx, node._name || 'Identidad', W - 8), W / 2, -7);
 
-    // ── Emoji central ──
-    ctx.font = '20px sans-serif';
-    ctx.textAlign = 'center';
-    ctx.fillText(node._emoji || '◈', W / 2, H / 2 + 5);
+    // ── Icono central: SVG de Iconify con símbolo local como fallback ──
+    if (!drawIconifyIdentity(ctx, node._icon, W / 2, H / 2 + 5, 24)) {
+      ctx.font = '20px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText(node._emoji || '◈', W / 2, H / 2 + 5);
+    }
 
     // ── Barra de consistencia (solo si tiene hábitos conectados) ──
     if (hasHabits) {
@@ -1301,22 +1327,86 @@ const Habitos = (() => {
   /* ============================================
      IDENTITY FORM
      ============================================ */
+  function bindIdentityIconSearch() {
+    const input = el('identity-icon-query');
+    const results = el('identity-icon-results');
+    const status = el('identity-icon-status');
+    if (!input || !results || !status) return;
+    input.value = '';
+    results.replaceChildren();
+    status.textContent = selectedIdentityIcon
+      ? `Icono seleccionado: ${selectedIdentityIcon}`
+      : 'Busca por palabra clave en inglés o español. También puedes elegir un símbolo alternativo.';
+
+    input.oninput = () => {
+      clearTimeout(iconSearchTimer);
+      const query = input.value.trim();
+      if (query.length < 2) {
+        results.replaceChildren();
+        status.textContent = 'Escribe al menos dos caracteres.';
+        return;
+      }
+      status.textContent = 'Buscando iconos…';
+      iconSearchTimer = setTimeout(async () => {
+        const requestId = ++iconSearchRequest;
+        try {
+          const response = await fetch(`https://api.iconify.design/search?query=${encodeURIComponent(query)}&limit=32`);
+          if (!response.ok) throw new Error('search failed');
+          const data = await response.json();
+          if (requestId !== iconSearchRequest) return;
+          results.replaceChildren();
+          (data.icons || []).forEach(iconName => {
+            const button = document.createElement('button');
+            button.type = 'button';
+            button.className = 'identity-icon-result';
+            button.setAttribute('aria-label', iconName);
+            button.title = iconName;
+            const image = document.createElement('img');
+            image.src = `https://api.iconify.design/${iconName.replace(':', '/')}.svg?color=%23ffffff`;
+            image.alt = '';
+            image.loading = 'lazy';
+            const label = document.createElement('span');
+            label.textContent = iconName;
+            button.append(image, label);
+            button.classList.toggle('selected', iconName === selectedIdentityIcon);
+            button.onclick = () => {
+              selectedIdentityIcon = iconName;
+              qsa('.emoji-btn').forEach(b => b.classList.remove('active'));
+              results.querySelectorAll('.identity-icon-result').forEach(b => b.classList.toggle('selected', b.title === iconName));
+              status.textContent = `Icono seleccionado: ${iconName}`;
+            };
+            results.appendChild(button);
+          });
+          status.textContent = data.icons && data.icons.length
+            ? `${data.total} resultados. Selecciona uno o un símbolo alternativo.`
+            : 'No se encontraron iconos para esa búsqueda.';
+        } catch {
+          if (requestId !== iconSearchRequest) return;
+          results.replaceChildren();
+          status.textContent = 'No se pudo consultar Iconify. Puedes usar un símbolo alternativo.';
+        }
+      }, 250);
+    };
+  }
+
   function openIdentityForm(identity) {
+    selectedIdentityIcon = identity ? (identity.icon || null) : null;
     el('identity-edit-id').value = identity ? identity.id : '';
     el('identity-label').value = identity ? identity.label : '';
     hide('identity-error');
     setText('modal-identity-title', identity ? 'Editar Identidad' : 'Nueva Identidad');
     setText('btn-save-identity', identity ? 'Guardar Cambios' : 'Crear Identidad');
 
-    // Seleccionar emoji activo
+    // Seleccionar símbolo alternativo y habilitar búsqueda de iconos
     const currentEmoji = (identity && identity.emoji) || '◈';
     qsa('.emoji-btn').forEach(btn => {
-      btn.classList.toggle('active', btn.dataset.emoji === currentEmoji);
+      btn.classList.toggle('active', !selectedIdentityIcon && btn.dataset.emoji === currentEmoji);
     });
+    bindIdentityIconSearch();
 
-    // Bind emoji picker
     qsa('.emoji-btn').forEach(btn => {
       btn.onclick = () => {
+        selectedIdentityIcon = null;
         qsa('.emoji-btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
       };
@@ -1333,9 +1423,10 @@ const Habitos = (() => {
 
         const activeEmoji = qs('.emoji-btn.active');
         const emoji = activeEmoji ? activeEmoji.dataset.emoji : '◈';
+        const icon = selectedIdentityIcon;
 
         if (identity) {
-          Identities.update(identity.id, { label, emoji });
+          Identities.update(identity.id, { label, emoji, icon });
         } else {
           const cam = engine ? engine.getCamera() : { x: 0, y: 0, scale: 1 };
           const container = el('canvas-container');
@@ -1343,7 +1434,7 @@ const Habitos = (() => {
           const cy = container ? container.clientHeight / 2 : 300;
           const wx = (cx - cam.x) / cam.scale;
           const wy = (cy - cam.y) / cam.scale + 160;
-          Identities.create({ label, emoji, x: wx - IDENTITY_W / 2, y: wy });
+          Identities.create({ label, emoji, icon, x: wx - IDENTITY_W / 2, y: wy });
         }
 
         closeModal('modal-identity');
