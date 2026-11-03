@@ -4,8 +4,8 @@
 /* global Logs, User, el, setText, Router, Dashboard, Habitos, Calandrier */
 
 document.addEventListener('DOMContentLoaded', () => {
-  // Purge old logs on startup
-  Logs.purgeOld(60);
+  // Compactar el historial una vez al día y conservar el porcentaje por fecha.
+  Logs.maintainHistory();
 
   const username = User.get();
   const gender = User.getGender();
