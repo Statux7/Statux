@@ -1,0 +1,68 @@
+{
+  "categoria": "recordatorios",
+  "mensajes": [
+    {
+      "id": "rec_001",
+      "tipo": "item_del_dia",
+      "condicion": {},
+      "caduca": "fin_del_dia",
+      "prioridad": 2,
+      "variantes": [
+        "{{habito}}: tu ítem asignado hoy es \"{{item}}\".",
+        "Parámetro rotativo para {{habito}}: \"{{item}}\".",
+        "{{habito}} requiere hoy el elemento: \"{{item}}\".",
+        "Revisión de {{habito}}. Ítem operativo: \"{{item}}\".",
+        "{{habito}} (habitór): procesar hoy \"{{item}}\".",
+        "Asignación diaria en {{habito}}: \"{{item}}\".",
+        "Tarea programada para hoy: {{tarea}}.",
+        "{{tarea}} está en la agenda de esta jornada.",
+        "El sistema marca {{tarea}} como tarea de hoy.",
+        "Hoy corresponde {{tarea}}.",
+        "Recordatorio: {{tarea}} tiene fecha para hoy.",
+        "Agenda del día: {{tarea}}."
+      ]
+    },
+    {
+      "id": "rec_002",
+      "tipo": "tarea_hoy",
+      "condicion": {},
+      "caduca": "fin_del_dia",
+      "prioridad": 2,
+      "variantes": [
+        "Tarea programada para hoy: {{tarea}}.",
+        "Pendiente en agenda: {{tarea}}.",
+        "El sistema señala la tarea de hoy: {{tarea}}.",
+        "Ejecución prevista: {{tarea}}.",
+        "{{tarea}} figura como tarea activa para esta jornada.",
+        "Recordatorio táctico: completar {{tarea}} hoy.",
+        "Tarea programada para hoy: {{tarea}}.",
+        "{{tarea}} está en la agenda de esta jornada.",
+        "El sistema marca {{tarea}} como tarea de hoy.",
+        "Hoy corresponde {{tarea}}.",
+        "Recordatorio: {{tarea}} tiene fecha para hoy.",
+        "Agenda del día: {{tarea}}."
+      ]
+    },
+    {
+      "id": "rec_003",
+      "tipo": "bloque_inactivo",
+      "condicion": { "hora": "18:30", "progreso": 0 },
+      "caduca": "fin_del_dia",
+      "prioridad": 1,
+      "variantes": [
+        "El bloque {{bloque}} sigue en cero. Ventana operativa abierta.",
+        "{{bloque}} sin actividad registrada a esta hora.",
+        "Aún no hay registros en el bloque {{bloque}}.",
+        "El sistema detecta el bloque {{bloque}} pendiente de ejecución.",
+        "{{bloque}}: tiempo disponible para procesar los registros de hoy.",
+        "Bloque {{bloque}} inactivo. Quedan horas en la jornada.",
+        "{{bloque}} sigue en 0% a esta hora. Queda jornada por delante.",
+        "Las 6:30 y {{bloque}} no registra avances todavía.",
+        "{{bloque}} está en cero. El día no terminó.",
+        "El bloque {{bloque}} aún no tiene registro en esta jornada.",
+        "{{bloque}}: 0% al cierre de la tarde. Aún hay margen.",
+        "El sistema nota {{bloque}} sin actividad. La jornada sigue abierta."
+      ]
+    }
+  ]
+}
