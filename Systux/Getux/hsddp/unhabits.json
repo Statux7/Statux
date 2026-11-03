@@ -1,0 +1,72 @@
+{
+  "categoria": "unhabits",
+  "mensajes": [
+    {
+      "id": "unh_001",
+      "tipo": "hito_dias_limpios",
+      "condicion": { "hitos": [3, 7, 15, 30, 60, 90] },
+      "caduca": "fin_del_dia",
+      "prioridad": 2,
+      "variantes": [
+        "{{dias_limpios}} días limpios registrados para la conducta: {{conducta}}.",
+        "Intervalo sin registros de {{conducta}}: {{dias_limpios}} días.",
+        "{{conducta}}: {{dias_limpios}} jornadas consecutivas sin incidencias.",
+        "Se contabilizan {{dias_limpios}} días limpios en {{conducta}}.",
+        "Parámetro estable: {{dias_limpios}} días sin activar {{conducta}}.",
+        "El registro de {{conducta}} se mantiene limpio por {{dias_limpios}} días.",
+        "{{dias_limpios}} días de separación respecto a {{conducta}}.",
+        "Control efectivo de {{conducta}} durante {{dias_limpios}} días.",
+        "{{dias_limpios}} días sin {{conducta}}. El registro lo anota.",
+        "Hito alcanzado: {{dias_limpios}} días limpios de {{conducta}}.",
+        "{{dias_limpios}} jornadas sin registrar {{conducta}}. Constancia medible.",
+        "El sistema marca {{dias_limpios}} días limpios en {{conducta}}.",
+        "{{conducta}}: {{dias_limpios}} días sin recaídas registradas.",
+        "{{dias_limpios}} días de registro limpio en {{conducta}}. Se anota como hito.",
+        "Hito de {{dias_limpios}} días: {{conducta}} sin registros de recaída.",
+        "{{dias_limpios}} días manteniendo {{conducta}} fuera del registro."
+      ]
+    },
+    {
+      "id": "unh_002",
+      "tipo": "aviso_fin_de_semana",
+      "condicion": { "dia": "viernes", "momento": "tarde" },
+      "caduca": "fin_del_dia",
+      "prioridad": 2,
+      "variantes": [
+        "Fin de semana en puerta. Mantén el foco en {{conducta}}.",
+        "Atención a los patrones habituales al gestionar {{conducta}} estos días.",
+        "Transición al fin de semana. Vigila los estímulos de {{conducta}}.",
+        "Periodo de descanso por delante. Mantén el control sobre {{conducta}}.",
+        "{{conducta}}: mantén la atención estable durante el fin de semana.",
+        "Fase de fin de semana. Aplica el protocolo analítico para {{conducta}}.",
+        "Viernes por la tarde. {{conducta}} suele ponerse a prueba en este tramo.",
+        "Fin de semana cerca. {{conducta}} entra en la zona de mayor exposición habitual.",
+        "{{conducta}}: el sistema sugiere atención extra este fin de semana.",
+        "Viernes. El registro de {{conducta}} suele tensarse estos días.",
+        "{{conducta}} en fin de semana: momento de mantener el registro activo.",
+        "Cierre de semana. {{conducta}} requiere el mismo cuidado de siempre."
+      ]
+    },
+    {
+      "id": "unh_003",
+      "tipo": "apoyo_tras_recaida",
+      "condicion": { "evento": "recaida_registrada" },
+      "caduca": "fin_del_dia",
+      "prioridad": 1,
+      "variantes": [
+        "Incidencia registrada en {{conducta}}. El sistema reinicia el conteo con calma.",
+        "Dato registrado para {{conducta}}. Analiza el contexto y continúa.",
+        "Recaída anotada en {{conducta}}. Un registro no define tu sistema.",
+        "{{conducta}}: evento guardado. Retoma la calibración sin distracciones.",
+        "Se ha registrado la ocurrencia de {{conducta}}. Siguiente ciclo.",
+        "Incidencia procesada en {{conducta}}. El sistema sigue operativo.",
+        "Recaída registrada en {{conducta}}. El contador se reinicia, nada más.",
+        "{{conducta}} registrada. Es un dato, no un juicio.",
+        "Registro anotado en {{conducta}}. El sistema sigue funcionando igual.",
+        "{{conducta}}: recaída registrada. Mañana el contador vuelve a correr.",
+        "Una recaída en {{conducta}} queda como dato. El proceso continúa.",
+        "{{conducta}} volvió a aparecer y quedó registrada. Sin drama, sin borrón."
+      ]
+    }
+  ]
+}
