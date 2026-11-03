@@ -1,0 +1,68 @@
+{
+  "categoria": "identidades",
+  "mensajes": [
+    {
+      "id": "ide_001",
+      "tipo": "identidad_sube",
+      "condicion": {},
+      "caduca": "fin_del_dia",
+      "prioridad": 2,
+      "variantes": [
+        "{{identidad}} asciende a {{porcentaje}}% de integración.",
+        "El índice de {{identidad}} sube y se ubica en {{porcentaje}}%.",
+        "Progreso favorable en {{identidad}}: {{porcentaje}}% alcanzado.",
+        "La identidad {{identidad}} incrementa su solidez al {{porcentaje}}%.",
+        "Alineación positiva en {{identidad}}: {{porcentaje}}% registrado.",
+        "{{identidad}} eleva su parámetro estructural a {{porcentaje}}%.",
+        "{{identidad}} subió a {{porcentaje}}%. El registro lo confirma.",
+        "Mejora en {{identidad}}: {{porcentaje}}%.",
+        "{{identidad}} avanzó al {{porcentaje}}%. Consistencia al alza.",
+        "El sistema marca subida en {{identidad}}: {{porcentaje}}%.",
+        "{{identidad}} está en {{porcentaje}}%, por encima del registro anterior.",
+        "Alza en {{identidad}}: {{porcentaje}}%. Los datos acompañan."
+      ]
+    },
+    {
+      "id": "ide_002",
+      "tipo": "identidad_baja",
+      "condicion": {},
+      "caduca": "fin_del_dia",
+      "prioridad": 2,
+      "variantes": [
+        "{{identidad}} desciende a {{porcentaje}}%. Ajusta los hábitos vinculados.",
+        "El índice de {{identidad}} baja al {{porcentaje}}%. Datos para revisar.",
+        "Variación a la baja en {{identidad}}: {{porcentaje}}%.",
+        "{{identidad}} se sitúa en {{porcentaje}}%. Analiza la consistencia.",
+        "Disminución en el parámetro de {{identidad}}: {{porcentaje}}%.",
+        "El indicador de {{identidad}} retrocede a {{porcentaje}}%.",
+        "{{identidad}} bajó a {{porcentaje}}%. Un dato para revisar.",
+        "Descenso en {{identidad}}: {{porcentaje}}%. El sistema lo anota.",
+        "{{identidad}} está en {{porcentaje}}%. Momento de calibrar.",
+        "El registro de {{identidad}} cayó a {{porcentaje}}%. Sin alarma, con datos.",
+        "{{identidad}}: {{porcentaje}}%. Un descenso es información, no veredicto.",
+        "Baja en {{identidad}} hasta {{porcentaje}}%. Ocasión para ajustar el plan."
+      ]
+    },
+    {
+      "id": "ide_003",
+      "tipo": "identidad_estable",
+      "condicion": {},
+      "caduca": "fin_del_dia",
+      "prioridad": 2,
+      "variantes": [
+        "{{identidad}} se mantiene estable en {{porcentaje}}%.",
+        "Sin alteraciones en {{identidad}}: parámetro fijo en {{porcentaje}}%.",
+        "El índice de {{identidad}} conserva un {{porcentaje}}% constante.",
+        "{{identidad}} registra un equilibrio sostenido al {{porcentaje}}%.",
+        "Parámetro neutral para {{identidad}} en {{porcentaje}}%.",
+        "Consistencia horizontal en {{identidad}}: {{porcentaje}}%.",
+        "{{identidad}} se mantiene en {{porcentaje}}%.",
+        "Sin cambios relevantes en {{identidad}}: {{porcentaje}}%.",
+        "{{identidad}} estable, con {{porcentaje}}% de registro.",
+        "El sistema no detecta variación en {{identidad}}: sigue en {{porcentaje}}%.",
+        "{{identidad}} conserva su nivel: {{porcentaje}}%.",
+        "Estabilidad en {{identidad}}, {{porcentaje}}%. La línea se mantiene."
+      ]
+    }
+  ]
+}
