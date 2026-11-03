@@ -158,8 +158,7 @@ const Dashboard = (() => {
       const d = subDays(today, i);
       const dueHabits = getActiveHabitsForDate(habits, d);
       const log = logs.find(l => l.date === d);
-      const completed = log ? (log.completed_habits || []).filter(id => dueHabits.some(h => h.id === id)).length : 0;
-      const pct = dueHabits.length > 0 ? Math.round((completed / dueHabits.length) * 100) : 0;
+      const pct = getDayProgress(log, dueHabits);
 
       const isToday = d === today;
       const fillCls = isToday ? 'today' : pct >= 70 ? 'good' : pct >= 40 ? 'ok' : '';
