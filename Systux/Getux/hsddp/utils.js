@@ -199,7 +199,8 @@ function getDataMaturity(logs, habits) {
   const today = todayStr();
   const validDays = new Set(
     logs
-      .filter(l => l.date <= today && (l.completed_habits || []).some(id => habits.some(h => h.id === id)))
+      .filter(l => l.date <= today && ((l.completed_habits || []).some(id => habits.some(h => h.id === id)) ||
+        Number(l.valid_activity_count) > 0 || Number(l.frozen_completed) > 0))
       .map(l => l.date)
   ).size;
   if (daysSinceStart >= 30 && validDays >= 30) return 3;
@@ -232,7 +233,8 @@ function getDaysRemainingToMaturity(logs, habits) {
   const daysRemaining = Math.ceil(remainingMs / millisecondsPerDay);
   const validHabitIds = new Set(habits.map(h => h.id));
   const validDays = new Set(logs
-    .filter(l => l.date <= todayStr() && (l.completed_habits || []).some(id => validHabitIds.has(id)))
+    .filter(l => l.date <= todayStr() && ((l.completed_habits || []).some(id => validHabitIds.has(id)) ||
+      Number(l.valid_activity_count) > 0 || Number(l.frozen_completed) > 0))
     .map(l => l.date)
   ).size;
   const validDaysRemaining = Math.max(0, 10 - validDays);
