@@ -1,7 +1,7 @@
 /**
  * dashboard.js — Lógica del Dashboard
  */
-/* global Habits, Tasks, Logs, User, el, setText, show, hide, todayStr, subDays, calculateConsistency, calculateStreak, getOperationalStatus, getTrend, getDomainLevel, getMostConsistentHabit, getMostAbandonedHabit, getActiveHabitsForDate, hasMaturity, getDataMaturity, getWeeklyIdentityReport, getDaysRemainingToMaturity, isHabitDue */
+/* global Habits, Tasks, Logs, User, el, setText, show, hide, todayStr, subDays, calculateConsistency, calculateStreak, getOperationalStatus, getTrend, getDomainLevel, getMostConsistentHabit, getMostAbandonedHabit, getActiveHabitsForDate, hasMaturity, getDataMaturity, getWeeklyIdentityReport, getDaysRemainingToMaturity, isHabitDue, MessageCenter */
 
 const Dashboard = (() => {
 
@@ -128,11 +128,11 @@ const Dashboard = (() => {
     }
 
     renderWeeklyChart(logs, habits);
-    renderAlerts(logs, habits);
     renderTodayHabits(habits, logs, today);
     renderTodayTasks(tasks, today);
     renderIdentityReport(logs, habits);
     renderPurposeBlock(habits);
+    renderAlerts(logs, habits);
   }
 
   function getGreeting(name) {
@@ -177,19 +177,7 @@ const Dashboard = (() => {
   }
 
   function renderAlerts(logs, habits) {
-    const list = el('alerts-list');
-    if (!list) return;
-    if (!hasMaturity(logs, habits, 2)) {
-      const maturityInfo = getDaysRemainingToMaturity(logs, habits);
-      list.innerHTML = `<p class="no-alerts maturity-msg">${maturityInfo.message}</p>`;
-      return;
-    }
-    const alerts = generateAlerts(logs, habits);
-    if (!alerts.length) {
-      list.innerHTML = '<p class="no-alerts">Sin alertas activas.</p>';
-      return;
-    }
-    list.innerHTML = alerts.map(a => `<div class="alert-item">${a}</div>`).join('');
+    MessageCenter.render(logs, habits, Tasks.list());
   }
 
   function generateAlerts(logs, habits) {
