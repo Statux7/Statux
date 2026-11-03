@@ -5,7 +5,7 @@
 /* --- Date helpers --- */
 function getDateStr(date) {
   const d = date instanceof Date ? date : new Date(date);
-  return d.toISOString().slice(0, 10);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 }
 
 function todayStr() {
@@ -29,6 +29,7 @@ function getDayOfWeek(dateStr) {
 /* --- Habit scheduling --- */
 function isHabitDue(habit, dateStr) {
   if (!habit.active) return false;
+  if (habit.created_date && dateStr < habit.created_date.slice(0, 10)) return false;
   const dow = getDayOfWeek(dateStr);
   switch (habit.frequency) {
     case 'daily': return true;
@@ -248,6 +249,15 @@ function getDaysRemainingToMaturity(logs, habits) {
     validDaysRemaining,
     message: `Análisis ${parts.join('; ')}.`,
   };
+}
+
+function getDayProgress(log, dueHabits) {
+  if (!log) return 0;
+  if (Number.isFinite(log.frozen_pct)) return log.frozen_pct;
+  const validIds = new Set(dueHabits.map(h => h.id));
+  const done = (log.completed_habits || []).filter(id => validIds.has(id)).length;
+  const total = dueHabits.length || log.total_habits || 0;
+  return total ? Math.min(100, Math.round(done / total * 100)) : 0;
 }
 
 function hasMaturity(logs, habits, level) {
