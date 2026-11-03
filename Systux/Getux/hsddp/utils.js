@@ -4,19 +4,8 @@
 
 /* --- Date helpers --- */
 function getDateStr(date) {
-  // Si ya es 'YYYY-MM-DD', devolver tal cual (evita desfase por zona horaria)
-  if (typeof date === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(date)) return date;
   const d = date instanceof Date ? date : new Date(date);
-  const y = d.getFullYear();
-  const m = String(d.getMonth() + 1).padStart(2, '0');
-  const day = String(d.getDate()).padStart(2, '0');
-  return `${y}-${m}-${day}`;   // FECHA LOCAL, no UTC
-}
-
-function daysBetween(fromStr, toStr) {
-  const a = new Date(fromStr + 'T00:00:00');
-  const b = new Date(toStr + 'T00:00:00');
-  return Math.round((b - a) / 86400000);
+  return d.toISOString().slice(0, 10);
 }
 
 function todayStr() {
@@ -38,28 +27,8 @@ function getDayOfWeek(dateStr) {
 }
 
 /* --- Habit scheduling --- */
-/* Solo estos tipos suman al porcentaje de progreso.
- * habitod y unhabit quedan fuera hasta la misión 6B. */
-function countsForProgress(h) {
-  return h.type !== 'unhabit' && h.type !== 'habitod';
-}
-
 function isHabitDue(habit, dateStr) {
   if (!habit.active) return false;
-
-  // No existía todavía en esa fecha
-  if (habit.created_date && dateStr < getDateStr(habit.created_date)) return false;
-
-  // Hábito pausado (bloqueador)
-  if (habit.paused) {
-    const from = habit.paused_from || '0000-00-00';
-    const until = habit.paused_until || '9999-12-31';
-    if (dateStr >= from && dateStr <= until) return false;
-  }
-
-  // Día de descanso elegido por el usuario
-  if ((habit.rest_dates || []).includes(dateStr)) return false;
-
   const dow = getDayOfWeek(dateStr);
   switch (habit.frequency) {
     case 'daily': return true;
@@ -71,102 +40,104 @@ function isHabitDue(habit, dateStr) {
 }
 
 function getActiveHabitsForDate(habits, dateStr) {
-  return habits.filter(h => h.active && countsForProgress(h) && isHabitDue(h, dateStr));
+  return habits.filter(h => h.active && isHabitDue(h, dateStr));
 }
-
-/* Estadística de UN día.
- * Días pasados: usa la foto guardada en el log (scheduled_habits) → inmutable.
- * Hoy y futuro: calcula con los hábitos actuales. */
-function getDayStats(logs, habits, dateStr) {
-  const today = todayStr();
-  const log = logs.find(l => l.date === dateStr) || null;
-  let scheduledIds;
-  if (dateStr < today && log && Array.isArray(log.scheduled_habits)) {
-    scheduledIds = log.scheduled_habits;
-  } else {
-    scheduledIds = getActiveHabitsForDate(habits, dateStr).map(h => h.id);
-  }
-  const completedSet = new Set(log ? (log.completed_habits || []) : []);
-  const completed = scheduledIds.filter(id => completedSet.has(id)).length;
-  const total = scheduledIds.length;
-  return {
-    scheduledIds, completed, total,
-    pct: total > 0 ? Math.round((completed / total) * 100) : 0,
-    log,
-  };
-}
-
 
 /* --- Analytics --- */
-/* days = cuántos días; offset = cuántos días saltar hacia atrás desde hoy */
-function calculateConsistency(logs, habits, days, offset = 0) {
+function calculateConsistency(logs, habits, days) {
   if (!habits.length) return 0;
-  const today = todayStr();
   let total = 0, done = 0;
-  for (let i = offset; i < offset + days; i++) {
-    const st = getDayStats(logs, habits, subDays(today, i));
-    total += st.total;
-    done += st.completed;
+  for (let i = 0; i < days; i++) {
+    const d = subDays(todayStr(), i);
+    const dueHabits = getActiveHabitsForDate(habits, d);
+    if (!dueHabits.length) continue;
+    const log = logs.find(l => l.date === d);
+    const completed = log ? (log.completed_habits || []).filter(id => dueHabits.some(h => h.id === id)).length : 0;
+    total += dueHabits.length;
+    done += completed;
   }
   return total === 0 ? 0 : Math.round((done / total) * 100);
 }
 
 function calculateStreak(logs, habits) {
   if (!habits.length) return 0;
-  const today = todayStr();
   let streak = 0;
-  let d = today;
-  for (let guard = 0; guard < 400; guard++) {
-    const st = getDayStats(logs, habits, d);
-    if (st.total === 0) { d = subDays(d, 1); continue; }
-    const ok = st.completed > 0 && (st.completed / st.total) >= 0.5;
-    if (!ok) {
-      if (d === today) { d = subDays(d, 1); continue; }
-      break;
-    }
-    streak++;
-    d = subDays(d, 1);
+  let d = todayStr();
+  while (true) {
+    const dueHabits = getActiveHabitsForDate(habits, d);
+    if (!dueHabits.length) { d = subDays(d, 1); continue; }
+    const log = logs.find(l => l.date === d);
+    const completed = log ? (log.completed_habits || []).filter(id => dueHabits.some(h => h.id === id)).length : 0;
+    if (completed === 0) break;
+    const pct = completed / dueHabits.length;
+    if (pct >= 0.5) { streak++; d = subDays(d, 1); }
+    else break;
+    if (streak > 365) break;
   }
   return streak;
 }
 
 function getTrend(logs, habits) {
-  const recent = calculateConsistency(logs, habits, 3, 0);
-  const older = calculateConsistency(logs, habits, 4, 3);
+  const recent = calculateConsistency(logs, habits, 3);
+  const older = calculateConsistency(logs.filter(l => {
+    const cutoff = subDays(todayStr(), 3);
+    return l.date < cutoff;
+  }), habits, 4);
   if (recent > older + 5) return { symbol: '↑', direction: 'up' };
   if (recent < older - 5) return { symbol: '↓', direction: 'down' };
   return { symbol: '→', direction: 'stable' };
 }
 
-function getHabitRates(logs, habits, windowDays) {
-  const today = todayStr();
-  return habits
-    .filter(h => h.active && countsForProgress(h))
-    .map(h => {
-      let due = 0, done = 0;
-      for (let i = 1; i <= windowDays; i++) {
-        const st = getDayStats(logs, habits, subDays(today, i));
-        if (!st.scheduledIds.includes(h.id)) continue;
-        due++;
-        if (st.log && (st.log.completed_habits || []).includes(h.id)) done++;
-      }
-      const ageDays = h.created_date ? daysBetween(getDateStr(h.created_date), today) : 999;
-      return { habit: h, due, done, rate: due > 0 ? Math.round((done / due) * 100) : 0, ageDays };
-    });
+function getOperationalStatus(pct) {
+  if (pct >= 85) return { label: 'Excelente', cls: 'status-excellent' };
+  if (pct >= 65) return { label: 'Operativo', cls: 'status-good' };
+  if (pct >= 40) return { label: 'Regular', cls: 'status-regular' };
+  return { label: 'Crítico', cls: 'status-bad' };
+}
+
+function getDomainLevel(pct) {
+  if (pct >= 90) return { label: 'Maestro', level: 5 };
+  if (pct >= 75) return { label: 'Avanzado', level: 4 };
+  if (pct >= 55) return { label: 'Intermedio', level: 3 };
+  if (pct >= 35) return { label: 'Básico', level: 2 };
+  return { label: 'Iniciado', level: 1 };
 }
 
 function getMostConsistentHabit(logs, habits) {
-  const rates = getHabitRates(logs, habits, 14).filter(r => r.due > 0);
-  if (!rates.length) return null;
-  return rates.reduce((a, b) => (b.rate > a.rate || (b.rate === a.rate && b.due > a.due)) ? b : a);
+  if (!habits.length) return null;
+  let best = null;
+  habits.filter(h => h.active).forEach(h => {
+    let due = 0, done = 0;
+    for (let i = 0; i < 14; i++) {
+      const d = subDays(todayStr(), i);
+      if (!isHabitDue(h, d)) continue;
+      due++;
+      const log = logs.find(l => l.date === d);
+      if (log && (log.completed_habits || []).includes(h.id)) done++;
+    }
+    const rate = due > 0 ? Math.round((done / due) * 100) : 0;
+    if (!best || rate > best.rate) best = { habit: h, rate };
+  });
+  return best;
 }
 
 function getMostAbandonedHabit(logs, habits) {
-  const rates = getHabitRates(logs, habits, 14).filter(r => r.ageDays >= 3 && r.due >= 3);
-  if (!rates.length) return null;
-  return rates.reduce((a, b) => b.rate < a.rate ? b : a);
+  if (!habits.length) return null;
+  let worst = null;
+  habits.filter(h => h.active).forEach(h => {
+    let due = 0, done = 0;
+    for (let i = 0; i < 14; i++) {
+      const d = subDays(todayStr(), i);
+      if (!isHabitDue(h, d)) continue;
+      due++;
+      const log = logs.find(l => l.date === d);
+      if (log && (log.completed_habits || []).includes(h.id)) done++;
+    }
+    const rate = due > 0 ? Math.round((done / due) * 100) : 0;
+    if (!worst || rate < worst.rate) worst = { habit: h, rate };
+  });
+  return worst;
 }
-
 
 /* --- Identity weekly report --- */
 function getWeeklyIdentityReport(logs, habits) {
@@ -207,19 +178,22 @@ function getWeeklyIdentityReport(logs, habits) {
  */
 function getDataMaturity(logs, habits) {
   if (!habits.length) return 0;
+  const oldest = habits.reduce((min, h) => {
+    const d = h.created_date ? new Date(h.created_date) : new Date();
+    return d < min ? d : min;
+  }, new Date());
+  const daysSinceStart = Math.floor((Date.now() - oldest.getTime()) / 86400000);
   const today = todayStr();
-  const oldestStr = habits.map(h => getDateStr(h.created_date || new Date())).sort()[0];
-  const daysSinceStart = daysBetween(oldestStr, today);
   const validDays = new Set(
-    logs.filter(l => l.completed_habits && l.completed_habits.length > 0).map(l => l.date)
+    logs
+      .filter(l => l.date <= today && (l.completed_habits || []).some(id => habits.some(h => h.id === id)))
+      .map(l => l.date)
   ).size;
-
-  if (daysSinceStart >= 14 && validDays >= 10) return 3;
-  if (daysSinceStart >= 3 && validDays >= 2) return 2;
-  if (daysSinceStart >= 3) return 1;
+  if (daysSinceStart >= 30 && validDays >= 30) return 3;
+  if (daysSinceStart >= 14 && validDays >= 10) return 2;
+  if (daysSinceStart >= 7 || validDays >= 10) return 1;
   return 0;
 }
-
 
 /**
  * Devuelve true si la madurez es >= level.
@@ -233,23 +207,46 @@ function getDataMaturity(logs, habits) {
  */
 function getDaysRemainingToMaturity(logs, habits) {
   if (!habits.length) {
-    return { daysRemaining: 3, validDaysRemaining: 2, message: 'Crea un hábito para comenzar a reunir datos.' };
+    return { daysRemaining: 14, validDaysRemaining: 10, message: 'Crea un hábito para comenzar a reunir datos.' };
   }
-  const today = todayStr();
-  const oldestStr = habits.map(h => getDateStr(h.created_date || new Date())).sort()[0];
-  const daysSinceStart = daysBetween(oldestStr, today);
-  const daysRemaining = Math.max(0, 3 - daysSinceStart);
-  const validDays = new Set(
-    logs.filter(l => l.date <= today && l.completed_habits && l.completed_habits.length > 0).map(l => l.date)
+
+  const oldest = habits.reduce((min, h) => {
+    const created = h.created_date ? new Date(h.created_date) : new Date();
+    return created < min ? created : min;
+  }, new Date());
+  const millisecondsPerDay = 86400000;
+  const remainingMs = Math.max(0, oldest.getTime() + 14 * millisecondsPerDay - Date.now());
+  const daysRemaining = Math.ceil(remainingMs / millisecondsPerDay);
+  const validHabitIds = new Set(habits.map(h => h.id));
+  const validDays = new Set(logs
+    .filter(l => l.date <= todayStr() && (l.completed_habits || []).some(id => validHabitIds.has(id)))
+    .map(l => l.date)
   ).size;
-  const validDaysRemaining = Math.max(0, 2 - validDays);
+  const validDaysRemaining = Math.max(0, 10 - validDays);
+
+  if (daysRemaining === 0 && validDaysRemaining === 0) {
+    return { daysRemaining, validDaysRemaining, message: 'El análisis está listo.' };
+  }
+
   const parts = [];
-  if (daysRemaining > 0) parts.push(`el análisis se activa en ${daysRemaining} ${daysRemaining === 1 ? 'día' : 'días'}`);
-  if (validDaysRemaining > 0) parts.push(`registra actividad en ${validDaysRemaining} ${validDaysRemaining === 1 ? 'día' : 'días'} para activar las alertas`);
+  if (remainingMs > 0) {
+    const totalMinutes = Math.ceil(remainingMs / 60000);
+    const days = Math.floor(totalMinutes / 1440);
+    const hours = Math.floor((totalMinutes % 1440) / 60);
+    const minutes = totalMinutes % 60;
+    const timeParts = [];
+    if (days) timeParts.push(`${days} ${days === 1 ? 'día' : 'días'}`);
+    if (hours) timeParts.push(`${hours} ${hours === 1 ? 'hora' : 'horas'}`);
+    if (minutes || !timeParts.length) timeParts.push(`${minutes} ${minutes === 1 ? 'minuto' : 'minutos'}`);
+    parts.push(`disponible en ${timeParts.join(', ')}`);
+  }
+  if (validDaysRemaining > 0) {
+    parts.push(`faltan ${validDaysRemaining} ${validDaysRemaining === 1 ? 'día' : 'días'} con actividad registrada`);
+  }
   return {
     daysRemaining,
     validDaysRemaining,
-    message: parts.length ? parts.join('; ') + '.' : 'El análisis está listo.',
+    message: `Análisis ${parts.join('; ')}.`,
   };
 }
 

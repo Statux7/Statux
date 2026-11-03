@@ -6,7 +6,7 @@
  */
 /* global el, setText, show, hide, openModal, closeModal,
    Tasks, Habits, Logs, Blocks, Identities, Connections, Silhouette,
-   CanvasView, User, todayStr, CanvasEngine, isHabitDue, countsForProgress, getDayStats, subDays, Dashboard, Calandrier */
+   CanvasView, User, todayStr, CanvasEngine, isHabitDue, Dashboard, Calandrier */
 
 const Habitos = (() => {
 
@@ -150,31 +150,26 @@ const Habitos = (() => {
 
   function buildBlockNode(block, habits, logs, today) {
     const blockHabits = habits.filter(h => h.block_id === block.id);
-    const scheduledToday = blockHabits.filter(h => isHabitDue(h, today));
-    const dueTodayIds = getDayStats(logs, habits, today).scheduledIds
-      .filter(id => blockHabits.some(h => h.id === id));
     const todayLog = logs.find(l => l.date === today);
     const completedIds = todayLog ? (todayLog.completed_habits || []) : [];
-    const dueToday = dueTodayIds.map(id => blockHabits.find(h => h.id === id)).filter(Boolean);
-    const completedToday = dueToday.filter(h => completedIds.includes(h.id)).length;
-    const total = dueToday.length;
+    const completedToday = blockHabits.filter(h => completedIds.includes(h.id)).length;
+    const total = blockHabits.length;
     const pct = total > 0 ? completedToday / total : 0;
-    const resting = blockHabits.length > 0 && scheduledToday.length === 0;
 
+    // Racha: días consecutivos con al menos 1 hábito del bloque completado
     let streak = 0;
     if (blockHabits.length > 0) {
       for (let i = 0; i < 365; i++) {
         const checkDate = i === 0 ? today : subDays(today, i);
-        const scheduledIds = getDayStats(logs, habits, checkDate).scheduledIds
-          .filter(id => blockHabits.some(h => h.id === id));
-        if (!scheduledIds.length) continue;
         const log = logs.find(l => l.date === checkDate);
         const ids = log ? (log.completed_habits || []) : [];
-        if (scheduledIds.some(id => ids.includes(id))) streak++;
-        else if (i > 0) break;
+        const anyDone = blockHabits.some(h => ids.includes(h.id));
+        if (anyDone) streak++;
+        else if (i > 0) break; // rompe racha (día 0 = hoy, puede ser 0 sin romper)
       }
     }
 
+    // Ítem Habitór del día: buscar primer hábito de tipo habitor en este bloque
     let habitorItem = null;
     const habitorHabit = blockHabits.find(h => h.type === 'habitor');
     if (habitorHabit) {
@@ -185,6 +180,11 @@ const Habitos = (() => {
       }
     }
 
+    // Tipos presentes (para badge)
+    const hasHabitor = blockHabits.some(h => h.type === 'habitor');
+    const hasHabitod = blockHabits.some(h => h.type === 'habitod');
+    const hasUnhabit = blockHabits.some(h => h.type === 'unhabit');
+
     return {
       id: block.id,
       x: block.x,
@@ -194,19 +194,16 @@ const Habitos = (() => {
       _type: 'block',
       _name: block.name,
       _habitCount: total,
-      _totalAll: blockHabits.length,
-      _resting: resting,
       _completedToday: completedToday,
       _pct: pct,
       _streak: streak,
       _habitorItem: habitorItem,
-      _hasHabitor: blockHabits.some(h => h.type === 'habitor'),
-      _hasHabitod: blockHabits.some(h => h.type === 'habitod'),
-      _hasUnhabit: blockHabits.some(h => h.type === 'unhabit'),
+      _hasHabitor: hasHabitor,
+      _hasHabitod: hasHabitod,
+      _hasUnhabit: hasUnhabit,
       render: (ctx, node, cam, t) => renderBlockNode(ctx, node, t),
     };
   }
-
 
   function buildIdentityNode(identity, habits, logs, blocks, today) {
     // BFS: encontrar todos los bloques que eventualmente conectan a esta identidad
@@ -243,10 +240,9 @@ const Habitos = (() => {
       let total = 0, done = 0;
       for (let i = 0; i < 7; i++) {
         const d = subDays(today, i);
-        const st = getDayStats(logs, reachableHabits, d);
-        const ids = st.log ? (st.log.completed_habits || []) : [];
+        const log = logs.find(l => l.date === d);
+        const ids = log ? (log.completed_habits || []) : [];
         reachableHabits.forEach(h => {
-          if (!countsForProgress(h) || !st.scheduledIds.includes(h.id)) return;
           total++;
           if (ids.includes(h.id)) done++;
         });
@@ -296,27 +292,6 @@ const Habitos = (() => {
     const completed = node._completedToday || 0;
     const streak = node._streak || 0;
     const habitorItem = node._habitorItem || null;
-
-    if (node._resting) {
-      ctx.save();
-      ctx.globalAlpha = 0.55;
-      roundRectPath(ctx, 0, 0, W, H, 10);
-      ctx.fillStyle = '#0b0b0b';
-      ctx.fill();
-      roundRectPath(ctx, 0, 0, W, H, 10);
-      ctx.strokeStyle = '#1c1c1c';
-      ctx.lineWidth = 1;
-      ctx.stroke();
-      ctx.fillStyle = '#777';
-      ctx.font = '500 11px Inter, sans-serif';
-      ctx.textAlign = 'center';
-      ctx.fillText(truncateText(ctx, node._name || 'Sin nombre', W - 8), W / 2, -8);
-      ctx.fillStyle = '#555';
-      ctx.font = '10px JetBrains Mono, monospace';
-      ctx.fillText('DESCANSO', W / 2, H / 2 + 3);
-      ctx.restore();
-      return;
-    }
 
     // ── Color de borde por estado ──
     let borderColor = '#2a2a2a';
@@ -419,7 +394,7 @@ const Habitos = (() => {
       ctx.restore();
     }
 
-    if ((node._totalAll || 0) === 0) {
+    if (total === 0) {
       // Sin hábitos aún
       ctx.fillStyle = '#2a2a2a';
       ctx.font = '11px Inter, sans-serif';
@@ -1283,6 +1258,11 @@ const Habitos = (() => {
     });
   }
 
+    const snapToggle = el('toggle-snap');
+    if (snapToggle) {
+      snapToggle.onchange = () => engine && engine.setSnap(snapToggle.checked);
+    }
+
     const habitData = {
       name,
       type,
@@ -1463,7 +1443,7 @@ const Habitos = (() => {
     const identity = Identities.find(id);
     const label = block ? block.name : identity ? identity.label : id;
 
-    setText('confirm-text', block ? `¿Eliminar "${label}"? Sus hábitos y conexiones también se eliminarán.` : `¿Eliminar "${label}"? Sus conexiones también se eliminarán.`);
+    setText('confirm-text', `¿Eliminar "${label}"? Las conexiones también se eliminarán.`);
     Habitos._pendingDeleteFn = () => {
       if (block) Blocks.remove(id);
       else if (identity) Identities.remove(id);
@@ -1493,7 +1473,7 @@ const Habitos = (() => {
   function confirmDeleteTask(id) {
     const task = Tasks.find(id);
     if (!task || !Tasks.canEdit(id)) return;
-    setText('confirm-text', block ? `¿Eliminar "${label}"? Sus hábitos y conexiones también se eliminarán.` : `¿Eliminar "${label}"? Sus conexiones también se eliminarán.`);
+    setText('confirm-text', `¿Eliminar la tarea "${task.name}"?`);
     Habitos._pendingDeleteFn = () => {
       if (!Tasks.remove(id)) return;
       renderFocusDay();

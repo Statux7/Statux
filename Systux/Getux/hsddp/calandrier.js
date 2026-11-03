@@ -1,7 +1,7 @@
 /**
  * calandrier.js — Vista de calendario mensual
  */
-/* global el, setText, Habits, Tasks, Logs, getDateStr, todayStr, calculateConsistency, getOperationalStatus, getTrend, getActiveHabitsForDate, getDayStats, openModal, closeModal */
+/* global el, setText, Habits, Tasks, Logs, getDateStr, todayStr, calculateConsistency, getOperationalStatus, getTrend, getActiveHabitsForDate, openModal, closeModal */
 
 const Calandrier = (() => {
   let currentMonth = new Date();
@@ -71,8 +71,11 @@ const Calandrier = (() => {
 
     for (let d = 1; d <= daysInMonth; d++) {
       const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
-      const st = getDayStats(logs, habits, dateStr);
-      const pct = st.pct;
+      const dueHabits = getActiveHabitsForDate(habits, dateStr);
+      const log = logs.find(l => l.date === dateStr);
+      const completed = log ? (log.completed_habits || []).filter(id => dueHabits.some(h => h.id === id)).length : 0;
+      const pct = dueHabits.length > 0 ? Math.round((completed / dueHabits.length) * 100) : 0;
+
       const isToday = dateStr === todayDateStr;
       const isFuture = dateStr > todayDateStr;
 
@@ -84,7 +87,7 @@ const Calandrier = (() => {
         <div class="cal-day ${isToday ? 'today' : ''} ${isFuture ? 'future' : ''}"
              data-date="${dateStr}" data-pct="${pctCls}">
           <span class="cal-day-num">${d}</span>
-          ${(st.total > 0 && !isFuture) ? `<div class="cal-day-bar"><div class="cal-day-fill" style="width:${pct}%"></div></div>` : ''}
+          ${dueHabits.length ? `<div class="cal-day-bar"><div class="cal-day-fill" style="width:${pct}%"></div></div>` : ''}
           ${taskDot}
         </div>`;
     }
@@ -104,8 +107,6 @@ const Calandrier = (() => {
     const todayDate = todayStr();
     const isPast = dateStr < todayDate;
     const isToday = dateStr === todayDate;
-    const isFuture = dateStr > todayDate;
-    const canToggle = dateStr === todayDate;
 
     const dayNames = ['domingo','lunes','martes','miércoles','jueves','viernes','sábado'];
     const monthsShort = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
@@ -113,48 +114,53 @@ const Calandrier = (() => {
 
     setText('day-panel-title', label.toUpperCase());
 
-    const st = getDayStats(logs, habits, dateStr);
-    const completedIds = st.log ? (st.log.completed_habits || []) : [];
-    const dueList = st.scheduledIds.map(id => {
-      const h = habits.find(x => x.id === id);
-      return { id, name: h ? h.name : ((st.log && st.log.names && st.log.names[id]) || 'Hábito eliminado'), exists: !!h };
-    });
+    const log = logs.find(l => l.date === dateStr);
+    const completedIds = log ? (log.completed_habits || []) : [];
+    const dueHabits = getActiveHabitsForDate(habits, dateStr);
+    const completed = completedIds.filter(id => dueHabits.some(h => h.id === id)).length;
+    const pct = dueHabits.length > 0 ? Math.round((completed / dueHabits.length) * 100) : 0;
+
     const dayTasks = tasks.filter(t => t.due_date === dateStr);
+
     let html = '';
 
-    if (st.total > 0) {
-      html += `<div class="day-perf">${st.completed}/${st.total} rutinas — ${st.pct}%</div>`;
+    // Performance block
+    if (dueHabits.length) {
+      html += `<div class="day-perf">${completed}/${dueHabits.length} rutinas — ${pct}%</div>`;
     }
+
     if (isPast && !isToday) {
       html += `<p class="past-lock">⚿ Fecha pasada: solo consulta, sin modificaciones.</p>`;
     }
-    if (isFuture) {
-      html += `<p class="past-lock">⚿ Fecha futura: aún no se puede marcar.</p>`;
-    }
 
+    // Habits section
     html += `<div class="day-panel-section">
       <p class="day-panel-section-title">Rutinas</p>`;
-    if (dueList.length) {
-      dueList.forEach(item => {
-        const done = completedIds.includes(item.id);
-        const clickable = canToggle && item.exists;
+
+    if (dueHabits.length) {
+      dueHabits.forEach(h => {
+        const done = completedIds.includes(h.id);
+        const clickable = !isPast || isToday;
         html += `
           <div class="day-panel-item ${done ? 'completed' : ''} ${clickable ? '' : 'no-pointer'}"
-               data-habit-id="${item.id}" data-date="${dateStr}" data-clickable="${clickable}">
+               data-habit-id="${h.id}" data-date="${dateStr}" data-clickable="${clickable}">
             <div class="today-check">${done ? '✓' : ''}</div>
-            <span class="day-panel-item-name">${item.name}</span>
+            <span class="day-panel-item-name">${h.name}</span>
           </div>`;
       });
     } else {
       html += `<p class="today-empty">No hay rutinas para este día.</p>`;
     }
+
     html += `</div>`;
 
+    // Tasks section
     html += `<div class="day-panel-section">
       <p class="day-panel-section-title">Tareas</p>`;
+
     if (dayTasks.length) {
       dayTasks.forEach(t => {
-        const canModify = dateStr === todayDate;
+        const canModify = !isPast || isToday;
         html += `
           <div class="day-panel-item ${t.completed ? 'completed' : ''} ${canModify ? '' : 'no-pointer'}"
                data-task-id="${t.id}" data-date="${dateStr}" data-can-modify="${canModify}">
@@ -165,21 +171,28 @@ const Calandrier = (() => {
     } else {
       html += `<p class="today-empty">No hay tareas para este día.</p>`;
     }
+
     html += `</div>`;
 
     const body = el('day-panel-body');
     if (body) {
       body.innerHTML = html;
+
+      // Habit toggles (only current/future)
       body.querySelectorAll('[data-habit-id]').forEach(item => {
         if (item.dataset.clickable !== 'true') return;
         item.addEventListener('click', () => {
-          Logs.toggleHabit(item.dataset.habitId, item.dataset.date);
+          const activeHabits = Habits.list().filter(h => h.active);
+          Logs.toggleHabit(item.dataset.habitId, item.dataset.date, activeHabits.length);
           renderCalendar();
           openDayPanel(dateStr, Habits.list(), Tasks.list(), Logs.list());
         });
       });
+
+      // Task toggles (BLOQUEADO para fechas pasadas)
       body.querySelectorAll('[data-task-id]').forEach(item => {
-        if (dateStr !== todayDate) return;
+        const canModify = item.dataset.canModify === 'true';
+        if (!canModify) return; // No permitir modificación en fechas pasadas
         item.addEventListener('click', () => {
           Tasks.toggle(item.dataset.taskId, item.dataset.date);
           openDayPanel(dateStr, Habits.list(), Tasks.list(), Logs.list());

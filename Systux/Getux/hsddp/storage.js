@@ -14,7 +14,6 @@ const KEYS = {
   SILHOUETTE: 'habitos_silhouette',
   CANVAS_VIEW: 'habitos_canvas_view',
   IDENTITY_REPORT: 'habitos_identity_report',
-  MIGRATION_V2: 'habitos_migration_v2',
 };
 
 function uid() {
@@ -86,24 +85,34 @@ const Habits = {
   list: () => load(KEYS.HABITS, []),
   create: (data) => {
     const habits = Habits.list();
-    const h = { type: 'habito', block_id: null, type_data: {}, rest_dates: [], paused: false, paused_from: null, paused_until: null, ...data, id: uid(), created_date: now(), updated_date: now() };
+    const h = {
+      type: 'habito',
+      block_id: null,
+      type_data: {},
+      ...data,
+      id: uid(),
+      created_date: now(),
+      updated_date: now(),
+    };
     habits.push(h);
     save(KEYS.HABITS, habits);
-    Logs.snapshotToday();
     return h;
   },
   update: (id, data) => {
-    const habits = Habits.list().map(h => h.id === id ? { ...h, ...data, updated_date: now() } : h);
+    const habits = Habits.list().map(h =>
+      h.id === id ? { ...h, ...data, updated_date: now() } : h
+    );
     save(KEYS.HABITS, habits);
-    Logs.snapshotToday();
     return habits.find(h => h.id === id);
   },
   remove: (id) => {
     save(KEYS.HABITS, Habits.list().filter(h => h.id !== id));
-    const today = todayStr();
-    const log = Logs.get(today);
-    if (log) Logs.upsert(today, { completed_habits: (log.completed_habits || []).filter(hid => hid !== id) });
-    Logs.snapshotToday();
+    // Clean logs
+    const logs = Logs.list().map(l => ({
+      ...l,
+      completed_habits: (l.completed_habits || []).filter(hid => hid !== id),
+    }));
+    save(KEYS.LOGS, logs);
   },
   find: (id) => Habits.list().find(h => h.id === id),
   byBlock: (blockId) => Habits.list().filter(h => h.block_id === blockId),
@@ -138,7 +147,7 @@ const Habits = {
     for (let i = 0; i < 365; i++) {
       const d = new Date(today);
       d.setDate(d.getDate() - i);
-      const ds = getDateStr(d);
+      const ds = d.toISOString().slice(0, 10);
       if (dates.has(ds)) break;
       count++;
     }
@@ -163,7 +172,7 @@ const Tasks = {
     const task = Tasks.find(id);
     if (!task) return null;
     // Verificar que no sea una tarea pasada (seguridad)
-    const today = getDateStr(new Date());
+    const today = new Date().toISOString().slice(0, 10);
     if (task.due_date && task.due_date < today) {
       console.warn('❌ No se puede editar una tarea pasada');
       return null;
@@ -178,7 +187,7 @@ const Tasks = {
     const task = Tasks.find(id);
     if (!task) return false;
     // Verificar que no sea una tarea pasada (seguridad)
-    const today = getDateStr(new Date());
+    const today = new Date().toISOString().slice(0, 10);
     if (task.due_date && task.due_date < today) {
       console.warn('❌ No se puede eliminar una tarea pasada');
       return false;
@@ -198,7 +207,7 @@ const Tasks = {
   canEdit: (id) => {
     const task = Tasks.find(id);
     if (!task) return false;
-    const today = getDateStr(new Date());
+    const today = new Date().toISOString().slice(0, 10);
     return !task.due_date || task.due_date >= today;
   },
 };
@@ -219,50 +228,18 @@ const Logs = {
     save(KEYS.LOGS, logs);
     return logs[idx >= 0 ? idx : logs.length - 1];
   },
-  toggleHabit: (habitId, dateStr) => {
-    if (dateStr !== todayStr()) return false;
-    const log = Logs.get(dateStr) || { date: dateStr, completed_habits: [] };
+  toggleHabit: (habitId, dateStr, totalActive) => {
+    const log = Logs.get(dateStr) || { date: dateStr, completed_habits: [], total_habits: totalActive };
     const ids = log.completed_habits || [];
     const newIds = ids.includes(habitId) ? ids.filter(id => id !== habitId) : [...ids, habitId];
-    Logs.upsert(dateStr, { completed_habits: newIds });
-    Logs.snapshotDay(dateStr);
-    return true;
+    Logs.upsert(dateStr, { completed_habits: newIds, total_habits: totalActive });
   },
   purgeOld: (days) => {
     const cutoff = new Date();
     cutoff.setDate(cutoff.getDate() - days);
-    const cutStr = getDateStr(cutoff);
+    const cutStr = cutoff.toISOString().slice(0, 10);
     save(KEYS.LOGS, Logs.list().filter(l => l.date >= cutStr));
   },
-  snapshotDay: (dateStr) => {
-    const due = Habits.list().filter(h => h.active && countsForProgress(h) && isHabitDue(h, dateStr));
-    if (!due.length && !Logs.get(dateStr)) return;
-    const names = {};
-    due.forEach(h => { names[h.id] = h.name; });
-    Logs.upsert(dateStr, { scheduled_habits: due.map(h => h.id), names, total_habits: due.length });
-  },
-  snapshotToday: () => Logs.snapshotDay(todayStr()),
-  closePastDays: () => {
-    const habits = Habits.list();
-    if (!habits.length) return;
-    const today = todayStr();
-    const firstHabitDate = habits.map(h => getDateStr(h.created_date || new Date())).sort()[0];
-    const minDate = subDays(today, 59);
-    let d = firstHabitDate > minDate ? firstHabitDate : minDate;
-    const byDate = new Map(Logs.list().map(l => [l.date, l]));
-    while (d < today) {
-      const existing = byDate.get(d);
-      if (!existing || !Array.isArray(existing.scheduled_habits)) {
-        const due = habits.filter(h => h.active && countsForProgress(h) && isHabitDue(h, d));
-        const names = {};
-        due.forEach(h => { names[h.id] = h.name; });
-        byDate.set(d, { ...(existing || { date: d, completed_habits: [] }), scheduled_habits: due.map(h => h.id), names, total_habits: due.length });
-      }
-      d = addDays(d, 1);
-    }
-    save(KEYS.LOGS, [...byDate.values()].sort((a, b) => a.date.localeCompare(b.date)));
-  },
-
 };
 
 /* --- Blocks ---
@@ -298,11 +275,13 @@ const Blocks = {
     return blocks.find(b => b.id === id);
   },
   remove: (id) => {
-    Habits.byBlock(id).forEach(h => Habits.remove(h.id));
     save(KEYS.BLOCKS, Blocks.list().filter(b => b.id !== id));
+    // 🔥 IMPORTANTE: Eliminar todos los hábitos asociados al bloque
+    const habitsToDelete = Habits.byBlock(id).map(h => h.id);
+    habitsToDelete.forEach(habitId => Habits.remove(habitId));
+    // Limpiar conexiones que tocaban este bloque
     Connections.removeForNode(id, 'block');
   },
-
   find: (id) => Blocks.list().find(b => b.id === id),
   setPosition: (id, x, y) => Blocks.update(id, { x, y }),
   canAddHabit: (id) => Habits.byBlock(id).length < MAX_HABITS_PER_BLOCK,
@@ -399,24 +378,4 @@ const CanvasView = {
 const IdentityReport = {
   get: () => load(KEYS.IDENTITY_REPORT, { lastShown: null, lastWeekPct: null }),
   save: (data) => save(KEYS.IDENTITY_REPORT, data),
-};
-
-/* --- Migración de datos (se ejecuta una sola vez) --- */
-const Migrations = {
-  run: () => {
-    if (load(KEYS.MIGRATION_V2, false)) return;
-    let habits = Habits.list();
-    const legacy = habits.filter(h => !('block_id' in h));
-    if (legacy.length) {
-      let block = Blocks.list().find(b => b.name === 'Sin bloque');
-      if (!block) block = Blocks.create({ name: 'Sin bloque', x: 0, y: 80 });
-      habits = habits.map(h => ('block_id' in h) ? h : { ...h, block_id: block.id });
-    }
-    habits = habits.filter(h => h.block_id !== null);
-    habits = habits.map(h => ({
-      type: 'habito', type_data: {}, rest_dates: [], paused: false, paused_from: null, paused_until: null, ...h,
-    }));
-    save(KEYS.HABITS, habits);
-    save(KEYS.MIGRATION_V2, true);
-  },
 };
