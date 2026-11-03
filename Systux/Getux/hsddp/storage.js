@@ -112,10 +112,17 @@ const Habits = {
     Logs.freezePast();
     save(KEYS.HABITS, Habits.list().filter(h => h.id !== id));
     // Clean logs
-    const logs = Logs.list().map(l => ({
-      ...l,
-      completed_habits: (l.completed_habits || []).filter(hid => hid !== id),
-    }));
+    const logs = Logs.list().map(l => {
+      const completed = l.completed_habits || [];
+      const wasCompleted = completed.includes(id);
+      return {
+        ...l,
+        ...(wasCompleted && !Number.isFinite(l.valid_activity_count)
+          ? { valid_activity_count: completed.length }
+          : {}),
+        completed_habits: completed.filter(hid => hid !== id),
+      };
+    });
     save(KEYS.LOGS, logs);
   },
   find: (id) => Habits.list().find(h => h.id === id),
