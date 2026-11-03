@@ -1,0 +1,68 @@
+{
+  "categoria": "rachas",
+  "mensajes": [
+    {
+      "id": "rac_001",
+      "tipo": "racha_bloque",
+      "condicion": { "hitos": [3, 7, 15, 30] },
+      "caduca": "fin_del_dia",
+      "prioridad": 2,
+      "variantes": [
+        "El bloque {{bloque}} acumula {{dias}} días consecutivos de ejecución.",
+        "Racha activa de {{dias}} días en el bloque {{bloque}}.",
+        "{{bloque}}: constancia ininterrumpida durante {{dias}} jornadas.",
+        "Se registran {{dias}} días seguidos de actividad en {{bloque}}.",
+        "Parámetro estable: {{dias}} días de racha en {{bloque}}.",
+        "El bloque {{bloque}} mantiene {{dias}} días de registro continuo.",
+        "Racha de {{dias}} días en {{bloque}}. El sistema lo registra.",
+        "{{bloque}} suma {{dias}} días consecutivos.",
+        "{{dias}} días sin cortar {{bloque}}. Constancia en marcha.",
+        "El bloque {{bloque}} llega a {{dias}} días seguidos.",
+        "{{dias}} jornadas seguidas con {{bloque}} activo. Buen registro.",
+        "Racha vigente: {{bloque}}, {{dias}} días. El sistema lo tiene anotado."
+      ]
+    },
+    {
+      "id": "rac_002",
+      "tipo": "racha_identidad",
+      "condicion": { "hitos": [3, 7, 15, 30] },
+      "caduca": "fin_del_dia",
+      "prioridad": 2,
+      "variantes": [
+        "La identidad {{identidad}} suma {{dias}} días de consistencia.",
+        "Soporte activo para {{identidad}}: {{dias}} días consecutivos.",
+        "{{dias}} jornadas consolidando la identidad {{identidad}}.",
+        "El eje de {{identidad}} registra {{dias}} días de tracción.",
+        "Constancia sostenida de {{dias}} días en {{identidad}}.",
+        "{{identidad}}: {{dias}} días alineados con el sistema.",
+        "La identidad {{identidad}} lleva {{dias}} días de racha.",
+        "{{dias}} días sosteniendo {{identidad}}. El registro lo refleja.",
+        "Racha de {{identidad}}: {{dias}} días consecutivos.",
+        "{{identidad}} acumula {{dias}} días. Consistencia medible.",
+        "El sistema registra {{dias}} días de racha en {{identidad}}.",
+        "{{dias}} jornadas seguidas alimentando {{identidad}}. Eso es constancia."
+      ]
+    },
+    {
+      "id": "rac_003",
+      "tipo": "racha_en_riesgo",
+      "condicion": { "hora_actual": "tarde" },
+      "caduca": "fin_del_dia",
+      "prioridad": 1,
+      "variantes": [
+        "El bloque {{bloque}} requiere registro para proteger tu racha de {{dias}} días.",
+        "{{bloque}} en pausa. Quedan registros pendientes para mantener los {{dias}} días.",
+        "Atención al bloque {{bloque}}: tu racha de {{dias}} días depende de hoy.",
+        "El sistema aguarda datos en {{bloque}} para sostener los {{dias}} días.",
+        "{{dias}} días de racha en {{bloque}} exigen validación hoy.",
+        "Protege tu racha de {{dias}} días completando el bloque {{bloque}}.",
+        "{{bloque}} lleva {{dias}} días de racha. Hoy todavía no hay registro.",
+        "Racha de {{dias}} días en {{bloque}}. Aún queda jornada para sostenerla.",
+        "{{dias}} días en {{bloque}} y hoy el contador sigue en cero.",
+        "El bloque {{bloque}} tiene {{dias}} días. Un registro hoy la mantiene.",
+        "{{bloque}}: {{dias}} días consecutivos. La jornada de hoy está abierta.",
+        "{{dias}} días de racha en {{bloque}}. El sistema espera el registro de hoy."
+      ]
+    }
+  ]
+}
