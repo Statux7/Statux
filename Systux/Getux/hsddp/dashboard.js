@@ -1,7 +1,7 @@
 /**
  * dashboard.js — Lógica del Dashboard
  */
-/* global Habits, Tasks, Logs, User, el, setText, show, hide, todayStr, subDays, calculateConsistency, calculateStreak, getOperationalStatus, getTrend, getDomainLevel, getMostConsistentHabit, getMostAbandonedHabit, getActiveHabitsForDate, hasMaturity, getDataMaturity, getWeeklyIdentityReport, getDaysRemainingToMaturity, isHabitDue */
+/* global Habits, Tasks, Logs, User, el, setText, show, hide, todayStr, subDays, calculateConsistency, calculateStreak, getOperationalStatus, getTrend, getDomainLevel, getMostConsistentHabit, getMostAbandonedHabit, getActiveHabitsForDate, getDayStats, getHabitRates, hasMaturity, getDataMaturity, getWeeklyIdentityReport, getDaysRemainingToMaturity, isHabitDue */
 
 const Dashboard = (() => {
 
@@ -156,10 +156,8 @@ const Dashboard = (() => {
 
     for (let i = 6; i >= 0; i--) {
       const d = subDays(today, i);
-      const dueHabits = getActiveHabitsForDate(habits, d);
-      const log = logs.find(l => l.date === d);
-      const completed = log ? (log.completed_habits || []).filter(id => dueHabits.some(h => h.id === id)).length : 0;
-      const pct = dueHabits.length > 0 ? Math.round((completed / dueHabits.length) * 100) : 0;
+      const st = getDayStats(logs, habits, d);
+      const pct = st.pct;
 
       const isToday = d === today;
       const fillCls = isToday ? 'today' : pct >= 70 ? 'good' : pct >= 40 ? 'ok' : '';
@@ -181,8 +179,11 @@ const Dashboard = (() => {
     const list = el('alerts-list');
     if (!list) return;
     if (!hasMaturity(logs, habits, 2)) {
-      const maturityInfo = getDaysRemainingToMaturity(logs, habits);
-      list.innerHTML = `<p class="no-alerts maturity-msg">${maturityInfo.message}</p>`;
+      const level = getDataMaturity(logs, habits);
+      const message = level === 0
+        ? 'Recopilando datos. El análisis se activa a los 3 días de uso.'
+        : 'Registra actividad en al menos 2 días para activar el análisis.';
+      list.innerHTML = `<p class="no-alerts maturity-msg">${message}</p>`;
       return;
     }
     const alerts = generateAlerts(logs, habits);
@@ -195,32 +196,19 @@ const Dashboard = (() => {
 
   function generateAlerts(logs, habits) {
     const alerts = [];
-    const today = todayStr();
-
-    // Overall decline
-    const recent = calculateConsistency(logs, habits, 3);
-    const older = calculateConsistency(logs, habits, 7);
+    const recent = calculateConsistency(logs, habits, 3, 0);
+    const older = calculateConsistency(logs, habits, 4, 3);
     if (older > 0 && recent < older - 20) {
       alerts.push(`⚠ Descenso de consistencia: ${older}% → ${recent}% en los últimos días.`);
     }
-
-    // Abandoned habits (0 completions in last 7 days)
-    habits.filter(h => h.active).forEach(h => {
-      let due = 0, done = 0;
-      for (let i = 0; i < 7; i++) {
-        const d = subDays(today, i);
-        if (!isHabitDue(h, d)) continue;
-        due++;
-        const log = logs.find(l => l.date === d);
-        if (log && (log.completed_habits || []).includes(h.id)) done++;
-      }
-      if (due >= 3 && done === 0) {
-        alerts.push(`↓ "${h.name}" sin completar en ${due} días hábiles.`);
+    getHabitRates(logs, habits, 7).forEach(r => {
+      if (r.ageDays >= 3 && r.due >= 3 && r.done === 0) {
+        alerts.push(`↓ "${r.habit.name}" sin completar en ${r.due} días hábiles.`);
       }
     });
-
     return alerts.slice(0, 4);
   }
+
 
   function renderTodayHabits(habits, logs, today) {
     const container = el('today-habits');
