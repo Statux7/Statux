@@ -4,9 +4,8 @@
 
 /* --- Date helpers --- */
 function getDateStr(date) {
-  if (typeof date === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(date)) return date;
   const d = date instanceof Date ? date : new Date(date);
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  return d.toISOString().slice(0, 10);
 }
 
 function todayStr() {
@@ -30,7 +29,6 @@ function getDayOfWeek(dateStr) {
 /* --- Habit scheduling --- */
 function isHabitDue(habit, dateStr) {
   if (!habit.active) return false;
-  if (habit.created_date && dateStr < habit.created_date.slice(0, 10)) return false;
   const dow = getDayOfWeek(dateStr);
   switch (habit.frequency) {
     case 'daily': return true;
@@ -54,11 +52,6 @@ function calculateConsistency(logs, habits, days) {
     const dueHabits = getActiveHabitsForDate(habits, d);
     if (!dueHabits.length) continue;
     const log = logs.find(l => l.date === d);
-    if (Number.isFinite(log && log.frozen_pct)) {
-      total += 1;
-      done += log.frozen_pct / 100;
-      continue;
-    }
     const completed = log ? (log.completed_habits || []).filter(id => dueHabits.some(h => h.id === id)).length : 0;
     total += dueHabits.length;
     done += completed;
@@ -74,12 +67,6 @@ function calculateStreak(logs, habits) {
     const dueHabits = getActiveHabitsForDate(habits, d);
     if (!dueHabits.length) { d = subDays(d, 1); continue; }
     const log = logs.find(l => l.date === d);
-    if (Number.isFinite(log && log.frozen_pct)) {
-      if (log.frozen_pct >= 50) { streak++; d = subDays(d, 1); }
-      else break;
-      if (streak > 365) break;
-      continue;
-    }
     const completed = log ? (log.completed_habits || []).filter(id => dueHabits.some(h => h.id === id)).length : 0;
     if (completed === 0) break;
     const pct = completed / dueHabits.length;
@@ -137,7 +124,7 @@ function getMostConsistentHabit(logs, habits) {
 function getMostAbandonedHabit(logs, habits) {
   if (!habits.length) return null;
   let worst = null;
-  habits.filter(h => h.active && (!h.created_date || Date.now() - new Date(h.created_date).getTime() >= 7 * 86400000)).forEach(h => {
+  habits.filter(h => h.active).forEach(h => {
     let due = 0, done = 0;
     for (let i = 0; i < 14; i++) {
       const d = subDays(todayStr(), i);
@@ -199,8 +186,7 @@ function getDataMaturity(logs, habits) {
   const today = todayStr();
   const validDays = new Set(
     logs
-      .filter(l => l.date <= today && ((l.completed_habits || []).some(id => habits.some(h => h.id === id)) ||
-        Number(l.valid_activity_count) > 0 || Number(l.frozen_completed) > 0))
+      .filter(l => l.date <= today && (l.completed_habits || []).some(id => habits.some(h => h.id === id)))
       .map(l => l.date)
   ).size;
   if (daysSinceStart >= 30 && validDays >= 30) return 3;
@@ -233,8 +219,7 @@ function getDaysRemainingToMaturity(logs, habits) {
   const daysRemaining = Math.ceil(remainingMs / millisecondsPerDay);
   const validHabitIds = new Set(habits.map(h => h.id));
   const validDays = new Set(logs
-    .filter(l => l.date <= todayStr() && ((l.completed_habits || []).some(id => validHabitIds.has(id)) ||
-      Number(l.valid_activity_count) > 0 || Number(l.frozen_completed) > 0))
+    .filter(l => l.date <= todayStr() && (l.completed_habits || []).some(id => validHabitIds.has(id)))
     .map(l => l.date)
   ).size;
   const validDaysRemaining = Math.max(0, 10 - validDays);
@@ -263,15 +248,6 @@ function getDaysRemainingToMaturity(logs, habits) {
     validDaysRemaining,
     message: `Análisis ${parts.join('; ')}.`,
   };
-}
-
-function getDayProgress(log, dueHabits) {
-  if (!log) return 0;
-  if (Number.isFinite(log.frozen_pct)) return log.frozen_pct;
-  const validIds = new Set(dueHabits.map(h => h.id));
-  const done = (log.completed_habits || []).filter(id => validIds.has(id)).length;
-  const total = dueHabits.length || log.total_habits || 0;
-  return total ? Math.min(100, Math.round(done / total * 100)) : 0;
 }
 
 function hasMaturity(logs, habits, level) {

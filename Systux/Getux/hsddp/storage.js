@@ -14,7 +14,6 @@ const KEYS = {
   SILHOUETTE: 'habitos_silhouette',
   CANVAS_VIEW: 'habitos_canvas_view',
   IDENTITY_REPORT: 'habitos_identity_report',
-  HISTORY: 'habitos_history',
 };
 
 function uid() {
@@ -85,7 +84,6 @@ const User = {
 const Habits = {
   list: () => load(KEYS.HABITS, []),
   create: (data) => {
-    Logs.freezePast();
     const habits = Habits.list();
     const h = {
       type: 'habito',
@@ -101,7 +99,6 @@ const Habits = {
     return h;
   },
   update: (id, data) => {
-    Logs.freezePast();
     const habits = Habits.list().map(h =>
       h.id === id ? { ...h, ...data, updated_date: now() } : h
     );
@@ -109,20 +106,12 @@ const Habits = {
     return habits.find(h => h.id === id);
   },
   remove: (id) => {
-    Logs.freezePast();
     save(KEYS.HABITS, Habits.list().filter(h => h.id !== id));
     // Clean logs
-    const logs = Logs.list().map(l => {
-      const completed = l.completed_habits || [];
-      const wasCompleted = completed.includes(id);
-      return {
-        ...l,
-        ...(wasCompleted && !Number.isFinite(l.valid_activity_count)
-          ? { valid_activity_count: completed.length }
-          : {}),
-        completed_habits: completed.filter(hid => hid !== id),
-      };
-    });
+    const logs = Logs.list().map(l => ({
+      ...l,
+      completed_habits: (l.completed_habits || []).filter(hid => hid !== id),
+    }));
     save(KEYS.LOGS, logs);
   },
   find: (id) => Habits.list().find(h => h.id === id),
@@ -183,7 +172,7 @@ const Tasks = {
     const task = Tasks.find(id);
     if (!task) return null;
     // Verificar que no sea una tarea pasada (seguridad)
-    const today = typeof todayStr === 'function' ? todayStr() : new Date().toISOString().slice(0, 10);
+    const today = new Date().toISOString().slice(0, 10);
     if (task.due_date && task.due_date < today) {
       console.warn('❌ No se puede editar una tarea pasada');
       return null;
@@ -198,7 +187,7 @@ const Tasks = {
     const task = Tasks.find(id);
     if (!task) return false;
     // Verificar que no sea una tarea pasada (seguridad)
-    const today = typeof todayStr === 'function' ? todayStr() : new Date().toISOString().slice(0, 10);
+    const today = new Date().toISOString().slice(0, 10);
     if (task.due_date && task.due_date < today) {
       console.warn('❌ No se puede eliminar una tarea pasada');
       return false;
@@ -210,17 +199,15 @@ const Tasks = {
     const tasks = Tasks.list();
     const task = tasks.find(t => t.id === id);
     if (!task) return;
+    // Permitir toggle en cualquier fecha (solo consulta, no edición destructiva)
     const completed = !task.completed;
     Tasks.update(id, { completed, completed_date: completed ? dateStr : null });
-    if (typeof window !== 'undefined') {
-      window.dispatchEvent(new CustomEvent('tasks:toggle', { detail: { taskId: id, date: dateStr, completed } }));
-    }
   },
   find: (id) => Tasks.list().find(t => t.id === id),
   canEdit: (id) => {
     const task = Tasks.find(id);
     if (!task) return false;
-    const today = typeof todayStr === 'function' ? todayStr() : new Date().toISOString().slice(0, 10);
+    const today = new Date().toISOString().slice(0, 10);
     return !task.due_date || task.due_date >= today;
   },
 };
@@ -233,8 +220,11 @@ const Logs = {
     const logs = Logs.list();
     const idx = logs.findIndex(l => l.date === dateStr);
     const entry = { date: dateStr, completed_habits: [], total_habits: 0, ...data };
-    if (idx >= 0) logs[idx] = { ...logs[idx], ...data, date: dateStr };
-    else logs.push(entry);
+    if (idx >= 0) {
+      logs[idx] = { ...logs[idx], ...data, date: dateStr };
+    } else {
+      logs.push(entry);
+    }
     save(KEYS.LOGS, logs);
     return logs[idx >= 0 ? idx : logs.length - 1];
   },
@@ -242,82 +232,14 @@ const Logs = {
     const log = Logs.get(dateStr) || { date: dateStr, completed_habits: [], total_habits: totalActive };
     const ids = log.completed_habits || [];
     const newIds = ids.includes(habitId) ? ids.filter(id => id !== habitId) : [...ids, habitId];
-    const dueHabits = typeof Habits !== 'undefined' && typeof isHabitDue === 'function'
-      ? Habits.list().filter(h => h.active && h.type !== 'unhabit' && h.type !== 'habitod' && isHabitDue(h, dateStr))
-      : [];
-    const dueIds = dueHabits.length ? dueHabits.map(h => h.id) : (log.due_habit_ids || []);
-    const total = dueHabits.length || log.total_habits || totalActive;
-    Logs.upsert(dateStr, {
-      completed_habits: newIds,
-      total_habits: total,
-      ...(dueIds.length ? { due_habit_ids: dueIds } : {}),
-    });
-    if (typeof window !== 'undefined') {
-      window.dispatchEvent(new CustomEvent('habits:toggle', { detail: { habitId, date: dateStr, completed: !ids.includes(habitId) } }));
-    }
-  },
-  freezePast: () => {
-    const today = typeof todayStr === 'function' ? todayStr() : new Date().toISOString().slice(0, 10);
-    let changed = false;
-    const frozen = Logs.list().map(log => {
-      if (log.date >= today || Number.isFinite(log.frozen_pct)) return log;
-      const dueIds = log.due_habit_ids || [];
-      const total = dueIds.length || log.total_habits || 0;
-      const completedIds = dueIds.length
-        ? (log.completed_habits || []).filter(id => dueIds.includes(id))
-        : (log.completed_habits || []);
-      const completedSet = new Set(completedIds);
-      const frozenRates = Object.fromEntries(dueIds.map(id => [id, completedSet.has(id) ? 1 : 0]));
-      const pct = total > 0 ? Math.min(100, Math.round(completedIds.length / total * 100)) : 0;
-      changed = true;
-      return {
-        ...log,
-        frozen_pct: pct,
-        frozen_total: total,
-        frozen_completed: completedIds.length,
-        ...(dueIds.length ? { frozen_habit_rates: frozenRates } : {}),
-      };
-    });
-    if (changed) save(KEYS.LOGS, frozen);
+    Logs.upsert(dateStr, { completed_habits: newIds, total_habits: totalActive });
   },
   purgeOld: (days) => {
     const cutoff = new Date();
     cutoff.setDate(cutoff.getDate() - days);
-    const cutStr = typeof getDateStr === 'function' ? getDateStr(cutoff) : cutoff.toISOString().slice(0, 10);
+    const cutStr = cutoff.toISOString().slice(0, 10);
     save(KEYS.LOGS, Logs.list().filter(l => l.date >= cutStr));
   },
-  compactOld: (days = 365) => {
-    Logs.freezePast();
-    const cutoff = new Date();
-    cutoff.setDate(cutoff.getDate() - days);
-    const cutStr = typeof getDateStr === 'function' ? getDateStr(cutoff) : cutoff.toISOString().slice(0, 10);
-    const logs = Logs.list();
-    const oldLogs = logs.filter(l => l.date < cutStr);
-    if (!oldLogs.length) return 0;
-    const archive = load(KEYS.HISTORY, {});
-    oldLogs.forEach(log => {
-      const total = log.frozen_total || log.due_habit_ids?.length || log.total_habits || 0;
-      const completed = log.frozen_completed ?? (log.completed_habits || []).length;
-      const pct = Number.isFinite(log.frozen_pct)
-        ? log.frozen_pct
-        : total > 0 ? Math.min(100, Math.round(completed / total * 100)) : 0;
-      archive[log.date] = { date: log.date, pct };
-    });
-    save(KEYS.HISTORY, archive);
-    save(KEYS.LOGS, logs.filter(l => l.date >= cutStr));
-    return oldLogs.length;
-  },
-  maintainHistory: () => {
-    const today = typeof todayStr === 'function' ? todayStr() : new Date().toISOString().slice(0, 10);
-    if (load('habitos_maintenance_date', '') === today) return 0;
-    const compacted = Logs.compactOld(365);
-    save('habitos_maintenance_date', today);
-    return compacted;
-  },
-};
-const HistoryArchive = {
-  list: () => Object.values(load(KEYS.HISTORY, {})).sort((a, b) => a.date.localeCompare(b.date)),
-  get: (dateStr) => load(KEYS.HISTORY, {})[dateStr] || null,
 };
 
 /* --- Blocks ---

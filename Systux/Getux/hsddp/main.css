@@ -1673,29 +1673,3 @@ input, textarea, select { font-family: inherit; }
     top: 100px;
   }
 }
-
-/* Iconify identity icon search */
-.identity-icon-results {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(112px, 1fr));
-  gap: 6px;
-  max-height: 190px;
-  overflow: auto;
-  margin-top: 8px;
-}
-.identity-icon-result {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  min-width: 0;
-  padding: 6px 8px;
-  color: var(--secondary-fg);
-  background: var(--muted);
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  cursor: pointer;
-}
-.identity-icon-result.selected { border-color: var(--fg); color: var(--fg); }
-.identity-icon-result img { width: 18px; height: 18px; flex: 0 0 auto; }
-.identity-icon-result span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 10px; }
-#identity-icon-status { min-height: 1.4em; }

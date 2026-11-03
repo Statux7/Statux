@@ -1,7 +1,7 @@
 /**
  * calandrier.js — Vista de calendario mensual
  */
-/* global el, setText, Habits, Tasks, Logs, HistoryArchive, getDateStr, todayStr, calculateConsistency, getOperationalStatus, getTrend, getActiveHabitsForDate, getDayProgress, openModal, closeModal */
+/* global el, setText, Habits, Tasks, Logs, getDateStr, todayStr, calculateConsistency, getOperationalStatus, getTrend, getActiveHabitsForDate, openModal, closeModal */
 
 const Calandrier = (() => {
   let currentMonth = new Date();
@@ -73,11 +73,8 @@ const Calandrier = (() => {
       const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
       const dueHabits = getActiveHabitsForDate(habits, dateStr);
       const log = logs.find(l => l.date === dateStr);
-      const archived = HistoryArchive.get(dateStr);
       const completed = log ? (log.completed_habits || []).filter(id => dueHabits.some(h => h.id === id)).length : 0;
-      const pct = archived ? archived.pct : Number.isFinite(log && log.frozen_pct)
-        ? log.frozen_pct
-        : dueHabits.length > 0 ? Math.round((completed / dueHabits.length) * 100) : 0;
+      const pct = dueHabits.length > 0 ? Math.round((completed / dueHabits.length) * 100) : 0;
 
       const isToday = dateStr === todayDateStr;
       const isFuture = dateStr > todayDateStr;
@@ -118,25 +115,17 @@ const Calandrier = (() => {
     setText('day-panel-title', label.toUpperCase());
 
     const log = logs.find(l => l.date === dateStr);
-    const archived = HistoryArchive.get(dateStr);
-    const frozen = Number.isFinite(log && log.frozen_pct);
     const completedIds = log ? (log.completed_habits || []) : [];
-    const dueHabits = archived || frozen ? [] : getActiveHabitsForDate(habits, dateStr);
+    const dueHabits = getActiveHabitsForDate(habits, dateStr);
     const completed = completedIds.filter(id => dueHabits.some(h => h.id === id)).length;
-    const pct = archived ? archived.pct : frozen
-      ? log.frozen_pct
-      : dueHabits.length > 0 ? Math.round((completed / dueHabits.length) * 100) : 0;
+    const pct = dueHabits.length > 0 ? Math.round((completed / dueHabits.length) * 100) : 0;
 
     const dayTasks = tasks.filter(t => t.due_date === dateStr);
 
     let html = '';
 
     // Performance block
-    if (archived) {
-      html += `<div class="day-perf">Historial compactado — ${pct}% de progreso</div>`;
-    } else if (frozen) {
-      html += `<div class="day-perf">Progreso histórico preservado — ${pct}%</div>`;
-    } else if (dueHabits.length) {
+    if (dueHabits.length) {
       html += `<div class="day-perf">${completed}/${dueHabits.length} rutinas — ${pct}%</div>`;
     }
 

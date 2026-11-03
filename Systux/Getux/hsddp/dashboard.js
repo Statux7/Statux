@@ -1,7 +1,7 @@
 /**
  * dashboard.js — Lógica del Dashboard
  */
-/* global Habits, Tasks, Logs, User, el, setText, show, hide, todayStr, subDays, calculateConsistency, calculateStreak, getOperationalStatus, getTrend, getDomainLevel, getMostConsistentHabit, getMostAbandonedHabit, getActiveHabitsForDate, hasMaturity, getDataMaturity, getWeeklyIdentityReport, getDaysRemainingToMaturity, isHabitDue, MessageCenter */
+/* global Habits, Tasks, Logs, User, el, setText, show, hide, todayStr, subDays, calculateConsistency, calculateStreak, getOperationalStatus, getTrend, getDomainLevel, getMostConsistentHabit, getMostAbandonedHabit, getActiveHabitsForDate, hasMaturity, getDataMaturity, getWeeklyIdentityReport, getDaysRemainingToMaturity, isHabitDue */
 
 const Dashboard = (() => {
 
@@ -128,11 +128,11 @@ const Dashboard = (() => {
     }
 
     renderWeeklyChart(logs, habits);
+    renderAlerts(logs, habits);
     renderTodayHabits(habits, logs, today);
     renderTodayTasks(tasks, today);
     renderIdentityReport(logs, habits);
     renderPurposeBlock(habits);
-    renderAlerts(logs, habits);
   }
 
   function getGreeting(name) {
@@ -158,7 +158,8 @@ const Dashboard = (() => {
       const d = subDays(today, i);
       const dueHabits = getActiveHabitsForDate(habits, d);
       const log = logs.find(l => l.date === d);
-      const pct = getDayProgress(log, dueHabits);
+      const completed = log ? (log.completed_habits || []).filter(id => dueHabits.some(h => h.id === id)).length : 0;
+      const pct = dueHabits.length > 0 ? Math.round((completed / dueHabits.length) * 100) : 0;
 
       const isToday = d === today;
       const fillCls = isToday ? 'today' : pct >= 70 ? 'good' : pct >= 40 ? 'ok' : '';
@@ -177,7 +178,19 @@ const Dashboard = (() => {
   }
 
   function renderAlerts(logs, habits) {
-    MessageCenter.render(logs, habits, Tasks.list());
+    const list = el('alerts-list');
+    if (!list) return;
+    if (!hasMaturity(logs, habits, 2)) {
+      const maturityInfo = getDaysRemainingToMaturity(logs, habits);
+      list.innerHTML = `<p class="no-alerts maturity-msg">${maturityInfo.message}</p>`;
+      return;
+    }
+    const alerts = generateAlerts(logs, habits);
+    if (!alerts.length) {
+      list.innerHTML = '<p class="no-alerts">Sin alertas activas.</p>';
+      return;
+    }
+    list.innerHTML = alerts.map(a => `<div class="alert-item">${a}</div>`).join('');
   }
 
   function generateAlerts(logs, habits) {
