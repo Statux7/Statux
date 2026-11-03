@@ -176,7 +176,7 @@ const Tasks = {
     const task = Tasks.find(id);
     if (!task) return null;
     // Verificar que no sea una tarea pasada (seguridad)
-    const today = new Date().toISOString().slice(0, 10);
+    const today = typeof todayStr === 'function' ? todayStr() : new Date().toISOString().slice(0, 10);
     if (task.due_date && task.due_date < today) {
       console.warn('❌ No se puede editar una tarea pasada');
       return null;
@@ -191,7 +191,7 @@ const Tasks = {
     const task = Tasks.find(id);
     if (!task) return false;
     // Verificar que no sea una tarea pasada (seguridad)
-    const today = new Date().toISOString().slice(0, 10);
+    const today = typeof todayStr === 'function' ? todayStr() : new Date().toISOString().slice(0, 10);
     if (task.due_date && task.due_date < today) {
       console.warn('❌ No se puede eliminar una tarea pasada');
       return false;
@@ -213,7 +213,7 @@ const Tasks = {
   canEdit: (id) => {
     const task = Tasks.find(id);
     if (!task) return false;
-    const today = new Date().toISOString().slice(0, 10);
+    const today = typeof todayStr === 'function' ? todayStr() : new Date().toISOString().slice(0, 10);
     return !task.due_date || task.due_date >= today;
   },
 };
@@ -259,9 +259,17 @@ const Logs = {
       const completedIds = dueIds.length
         ? (log.completed_habits || []).filter(id => dueIds.includes(id))
         : (log.completed_habits || []);
+      const completedSet = new Set(completedIds);
+      const frozenRates = Object.fromEntries(dueIds.map(id => [id, completedSet.has(id) ? 1 : 0]));
       const pct = total > 0 ? Math.min(100, Math.round(completedIds.length / total * 100)) : 0;
       changed = true;
-      return { ...log, frozen_pct: pct, frozen_total: total, frozen_completed: completedIds.length };
+      return {
+        ...log,
+        frozen_pct: pct,
+        frozen_total: total,
+        frozen_completed: completedIds.length,
+        ...(dueIds.length ? { frozen_habit_rates: frozenRates } : {}),
+      };
     });
     if (changed) save(KEYS.LOGS, frozen);
   },
