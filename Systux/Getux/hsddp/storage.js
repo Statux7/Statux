@@ -203,9 +203,11 @@ const Tasks = {
     const tasks = Tasks.list();
     const task = tasks.find(t => t.id === id);
     if (!task) return;
-    // Permitir toggle en cualquier fecha (solo consulta, no edición destructiva)
     const completed = !task.completed;
     Tasks.update(id, { completed, completed_date: completed ? dateStr : null });
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('tasks:toggle', { detail: { taskId: id, date: dateStr, completed } }));
+    }
   },
   find: (id) => Tasks.list().find(t => t.id === id),
   canEdit: (id) => {
