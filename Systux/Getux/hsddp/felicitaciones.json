@@ -1,0 +1,111 @@
+{
+  "categoria": "felicitaciones",
+  "mensajes": [
+    {
+      "id": "fel_001",
+      "tipo": "dia_excelente",
+      "condicion": { "minimo": 90 },
+      "caduca": "fin_del_dia",
+      "prioridad": 2,
+      "variantes": [
+        "{{nombre}}, ayer cerraste en {{porcentaje}}%. Esa constancia se nota.",
+        "Una jornada sólida: {{porcentaje}}% completado.",
+        "Registro de ayer: {{porcentaje}}%. El sistema lo anota a tu favor.",
+        "{{nombre}}, alcanzaste un {{porcentaje}}% de ejecución en la sesión previa.",
+        "Ejecución óptima ayer: {{porcentaje}}%. El bloque responde al plan.",
+        "{{porcentaje}}% de cumplimiento ayer, {{nombre}}. Buen desempeño.",
+        "Jornada de alto rendimiento: {{porcentaje}}% registrado.",
+        "{{nombre}}, el análisis de ayer muestra un {{porcentaje}}% efectivo.",
+        "{{porcentaje}}% ayer, {{nombre}}. El registro habla por sí solo.",
+        "Cierre alto: {{porcentaje}}%. La constancia empieza a ser costumbre.",
+        "{{nombre}}, ayer el sistema marcó {{porcentaje}}%. Día para archivar.",
+        "Ayer completaste el {{porcentaje}}% de tu jornada. Buen registro.",
+        "{{porcentaje}}% de cumplimiento. Los datos de ayer respaldan el trabajo."
+      ]
+    },
+    {
+      "id": "fel_002",
+      "tipo": "buen_dia",
+      "condicion": { "minimo": 70, "maximo": 89 },
+      "caduca": "fin_del_dia",
+      "prioridad": 2,
+      "variantes": [
+        "{{nombre}}, ayer mantuviste el ritmo con un {{porcentaje}}%.",
+        "Buen desempeño: {{porcentaje}}% completado en la jornada.",
+        "El registro de ayer indica un {{porcentaje}}% de avance.",
+        "{{nombre}}, la consistencia se mantiene en {{porcentaje}}%.",
+        "Jornada estable con un {{porcentaje}}% de ejecución.",
+        "Balance positivo de ayer: {{porcentaje}}%.",
+        "{{nombre}}, ayer cerraste en {{porcentaje}}%. Un día bien llevado.",
+        "Registro de ayer: {{porcentaje}}%. Sólido, con margen para calibrar.",
+        "{{porcentaje}}% completado. La base del día está.",
+        "Ayer: {{porcentaje}}%. No es perfecto, y no hace falta que lo sea.",
+        "{{nombre}}, {{porcentaje}}% en el registro de ayer. Buen paso.",
+        "Cierre de ayer: {{porcentaje}}%. La constancia se está armando."
+      ]
+    },
+    {
+      "id": "fel_003",
+      "tipo": "mejor_dia_semana",
+      "condicion": {},
+      "caduca": "fin_del_dia",
+      "prioridad": 2,
+      "variantes": [
+        "El {{dia_semana}} fue tu jornada más fuerte con un {{porcentaje}}%, {{nombre}}.",
+        "{{nombre}}, tu pico semanal ocurrió el {{dia_semana}} al {{porcentaje}}%.",
+        "El análisis destaca al {{dia_semana}} con un {{porcentaje}}% completado.",
+        "{{dia_semana}}: registro máximo de la semana con {{porcentaje}}%.",
+        "{{nombre}}, el {{dia_semana}} operaste al {{porcentaje}}%.",
+        "Máxima eficiencia semanal registrada el {{dia_semana}}: {{porcentaje}}%.",
+        "{{nombre}}, tu mejor día de la semana fue {{dia_semana}}: {{porcentaje}}%.",
+        "Resumen semanal: {{dia_semana}} cerró como el mejor, con {{porcentaje}}%.",
+        "El {{dia_semana}} marcaste {{porcentaje}}%. Ese es el techo de la semana.",
+        "{{dia_semana}} fue el día más alto: {{porcentaje}}%. Referencia para la próxima.",
+        "{{nombre}}, la semana tuvo su punto más alto el {{dia_semana}}: {{porcentaje}}%.",
+        "Pico semanal en {{dia_semana}} con {{porcentaje}}%. El sistema lo guarda como referencia."
+      ]
+    },
+    {
+      "id": "fel_004",
+      "tipo": "habito_extremo",
+      "condicion": {},
+      "caduca": "fin_del_dia",
+      "prioridad": 2,
+      "variantes": [
+        "{{nombre}}, completaste el hábito de alta fricción: {{habito}}.",
+        "Registro validado para el hábito extremo: {{habito}}.",
+        "{{habito}} ejecutado con éxito. Alta exigencia superada.",
+        "{{nombre}}, se procesó el registro de la conducta extrema: {{habito}}.",
+        "Superado el parámetro de dificultad en {{habito}}.",
+        "{{habito}} completado. Bloque de alta demanda procesado, {{nombre}}.",
+        "{{nombre}}, completaste {{habito}}. Ese hábito no es de los fáciles.",
+        "{{habito}} queda registrado como completado. Nivel de exigencia alto.",
+        "Hábito extremo superado: {{habito}}. El sistema lo anota.",
+        "{{nombre}}, {{habito}} está completo. Es de los que exigen más.",
+        "Registro: {{habito}} cumplido. Pocos hábitos pesan tanto como ese.",
+        "{{habito}} completado, {{nombre}}. Un ítem de dificultad alta fuera del camino."
+      ]
+    },
+    {
+      "id": "fel_005",
+      "tipo": "nivel_subido",
+      "condicion": {},
+      "caduca": "siempre",
+      "prioridad": 1,
+      "variantes": [
+        "{{nombre}}, el sistema registra tu ascenso al nivel {{nivel}}.",
+        "Nueva jerarquía alcanzada: nivel {{nivel}}, {{nombre}}.",
+        "Actualización de estatus: nivel {{nivel}} desbloqueado.",
+        "{{nombre}}, tu parámetro global asciende al nivel {{nivel}}.",
+        "Progresión confirmada. Tu dominio alcanza el nivel {{nivel}}.",
+        "{{nombre}}, el sistema computa tu avance al nivel {{nivel}}.",
+        "{{nombre}}, subiste al nivel {{nivel}} de dominio. El registro lo confirma.",
+        "Nuevo nivel alcanzado: {{nivel}}. La constancia sostenida tiene efecto.",
+        "Ascenso de nivel: ahora estás en {{nivel}}.",
+        "{{nombre}}, el sistema te ubica en nivel {{nivel}}. Es consecuencia del registro.",
+        "Nivel {{nivel}} desbloqueado. No es suerte: es acumulación de jornadas.",
+        "Subiste a nivel {{nivel}}. El dominio se mide así, con datos."
+      ]
+    }
+  ]
+}
