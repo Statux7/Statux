@@ -1,11 +1,13 @@
 /**
  * app.js — Inicialización y orquestación principal
  */
-/* global Logs, User, el, setText, Router, Dashboard, Habitos, Calandrier */
+/* global Logs, User, el, setText, Router, Dashboard, Habitos, Calandrier, Migrations, todayStr */
 
 document.addEventListener('DOMContentLoaded', () => {
-  // Purge old logs on startup
+  Migrations.run();
   Logs.purgeOld(60);
+  Logs.closePastDays();
+  Logs.snapshotToday();
 
   const username = User.get();
   const gender = User.getGender();
@@ -141,3 +143,18 @@ function initMobileSidebarToggle() {
 
   setExpanded(false);
 }
+
+
+let _currentDay = todayStr();
+function handleDayRollover() {
+  const nowDay = todayStr();
+  if (nowDay === _currentDay) return;
+  _currentDay = nowDay;
+  Logs.closePastDays();
+  Logs.snapshotToday();
+  window.dispatchEvent(new Event('hashchange'));
+}
+setInterval(handleDayRollover, 60000);
+document.addEventListener('visibilitychange', () => {
+  if (!document.hidden) handleDayRollover();
+});
