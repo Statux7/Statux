@@ -54,6 +54,11 @@ function calculateConsistency(logs, habits, days) {
     const dueHabits = getActiveHabitsForDate(habits, d);
     if (!dueHabits.length) continue;
     const log = logs.find(l => l.date === d);
+    if (Number.isFinite(log && log.frozen_pct)) {
+      total += 1;
+      done += log.frozen_pct / 100;
+      continue;
+    }
     const completed = log ? (log.completed_habits || []).filter(id => dueHabits.some(h => h.id === id)).length : 0;
     total += dueHabits.length;
     done += completed;
@@ -69,6 +74,12 @@ function calculateStreak(logs, habits) {
     const dueHabits = getActiveHabitsForDate(habits, d);
     if (!dueHabits.length) { d = subDays(d, 1); continue; }
     const log = logs.find(l => l.date === d);
+    if (Number.isFinite(log && log.frozen_pct)) {
+      if (log.frozen_pct >= 50) { streak++; d = subDays(d, 1); }
+      else break;
+      if (streak > 365) break;
+      continue;
+    }
     const completed = log ? (log.completed_habits || []).filter(id => dueHabits.some(h => h.id === id)).length : 0;
     if (completed === 0) break;
     const pct = completed / dueHabits.length;
@@ -126,7 +137,7 @@ function getMostConsistentHabit(logs, habits) {
 function getMostAbandonedHabit(logs, habits) {
   if (!habits.length) return null;
   let worst = null;
-  habits.filter(h => h.active).forEach(h => {
+  habits.filter(h => h.active && (!h.created_date || Date.now() - new Date(h.created_date).getTime() >= 7 * 86400000)).forEach(h => {
     let due = 0, done = 0;
     for (let i = 0; i < 14; i++) {
       const d = subDays(todayStr(), i);
