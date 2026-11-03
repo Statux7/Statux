@@ -114,6 +114,7 @@ const MessageCenter = (() => {
     }
 
     const state = readState(), sent = state.unhabitMilestones || {};
+    const anchorSent = state.goldenAnchor || {};
     habits.filter(h => h.active && h.type === 'unhabit').forEach(h => {
       const cleanDays = Habits.cleanDays(h.id), dates = (h.type_data && h.type_data.relapse_dates) || [];
       const cycle = dates.length ? dates[dates.length - 1] : 'start';
@@ -172,7 +173,14 @@ const MessageCenter = (() => {
       const ratio = due ? done / due : 0;
       if (ratio > 0 && (!best || ratio > best.ratio)) best = { habit: h, ratio };
     });
-    if (best) push(out, 'anchor:' + today, `Ancla dorada: “${best.habit.name}” es tu hábito más consistente del último mes (${Math.round(best.ratio * 100)}%).`, 'positive');
+    const monthKey = today.slice(0, 7);
+    if (best && !anchorSent[monthKey]) {
+      anchorSent[monthKey] = today;
+      push(out, 'anchor:' + monthKey, `Ancla dorada: “${best.habit.name}” es tu hábito más consistente del último mes (${Math.round(best.ratio * 100)}%).`, 'positive');
+    }
+    state.goldenAnchor = anchorSent;
+    state.unhabitMilestones = sent;
+    saveState(state);
 
     return out;
   }
@@ -239,7 +247,10 @@ const MessageCenter = (() => {
     }
     draw();
     if (!timer) timer = setInterval(() => {
-      if (carousel.length > 1) { index = (index + 1) % carousel.length; draw(); }
+      carousel = collect(Logs.list(), Habits.list(), Tasks.list());
+      index = carousel.length ? (index + 1) % carousel.length : 0;
+      draw();
+      next.classList.toggle('hidden', carousel.length < 2);
     }, 5000);
   }
   return { render };
