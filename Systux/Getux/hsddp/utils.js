@@ -8,8 +8,14 @@ function getDateStr(date) {
   return d.toISOString().slice(0, 10);
 }
 
+function isDevMode() {
+  return typeof DevTools !== 'undefined' && DevTools.enabled === true;
+}
+
 function todayStr() {
-  return getDateStr(new Date());
+  const d = new Date();
+  if (isDevMode()) d.setDate(d.getDate() + DevTools.dayOffset());   // viaje en el tiempo (solo DEV)
+  return getDateStr(d);
 }
 
 function addDays(dateStr, n) {
@@ -177,6 +183,7 @@ function getWeeklyIdentityReport(logs, habits) {
  * "Registro válido" = día en que completed_habits.length > 0
  */
 function getDataMaturity(logs, habits) {
+  if (isDevMode()) return 3;   // DEV: análisis siempre desbloqueado
   if (!habits.length) return 0;
   const oldest = habits.reduce((min, h) => {
     const d = h.created_date ? new Date(h.created_date) : new Date();
