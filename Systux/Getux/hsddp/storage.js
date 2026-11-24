@@ -147,7 +147,7 @@ const Habits = {
     for (let i = 0; i < 365; i++) {
       const d = new Date(today);
       d.setDate(d.getDate() - i);
-      const ds = d.toISOString().slice(0, 10);
+      const ds = getDateStr(d);
       if (dates.has(ds)) break;
       count++;
     }
@@ -172,7 +172,7 @@ const Tasks = {
     const task = Tasks.find(id);
     if (!task) return null;
     // Verificar que no sea una tarea pasada (seguridad)
-    const today = new Date().toISOString().slice(0, 10);
+    const today = getDateStr(new Date());
     if (task.due_date && task.due_date < today) {
       console.warn('❌ No se puede editar una tarea pasada');
       return null;
@@ -187,7 +187,7 @@ const Tasks = {
     const task = Tasks.find(id);
     if (!task) return false;
     // Verificar que no sea una tarea pasada (seguridad)
-    const today = new Date().toISOString().slice(0, 10);
+    const today = getDateStr(new Date());
     if (task.due_date && task.due_date < today) {
       console.warn('❌ No se puede eliminar una tarea pasada');
       return false;
@@ -207,7 +207,7 @@ const Tasks = {
   canEdit: (id) => {
     const task = Tasks.find(id);
     if (!task) return false;
-    const today = new Date().toISOString().slice(0, 10);
+    const today = getDateStr(new Date());
     return !task.due_date || task.due_date >= today;
   },
 };
@@ -228,16 +228,19 @@ const Logs = {
     save(KEYS.LOGS, logs);
     return logs[idx >= 0 ? idx : logs.length - 1];
   },
-  toggleHabit: (habitId, dateStr, totalActive) => {
-    const log = Logs.get(dateStr) || { date: dateStr, completed_habits: [], total_habits: totalActive };
+  toggleHabit: (habitId, dateStr) => {
+    // Solo se puede marcar HOY. Pasado y futuro quedan bloqueados.
+    if (dateStr !== todayStr()) return false;
+    const log = Logs.get(dateStr) || { date: dateStr, completed_habits: [], total_habits: 0 };
     const ids = log.completed_habits || [];
     const newIds = ids.includes(habitId) ? ids.filter(id => id !== habitId) : [...ids, habitId];
-    Logs.upsert(dateStr, { completed_habits: newIds, total_habits: totalActive });
+    Logs.upsert(dateStr, { completed_habits: newIds });
+    return true;
   },
   purgeOld: (days) => {
     const cutoff = new Date();
     cutoff.setDate(cutoff.getDate() - days);
-    const cutStr = cutoff.toISOString().slice(0, 10);
+    const cutStr = getDateStr(cutoff);
     save(KEYS.LOGS, Logs.list().filter(l => l.date >= cutStr));
   },
 };
