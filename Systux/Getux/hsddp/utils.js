@@ -4,8 +4,19 @@
 
 /* --- Date helpers --- */
 function getDateStr(date) {
+  // Si ya es 'YYYY-MM-DD', devolver tal cual (evita desfase por zona horaria)
+  if (typeof date === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(date)) return date;
   const d = date instanceof Date ? date : new Date(date);
-  return d.toISOString().slice(0, 10);
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;   // FECHA LOCAL, no UTC
+}
+
+function daysBetween(fromStr, toStr) {
+  const a = new Date(fromStr + 'T00:00:00');
+  const b = new Date(toStr + 'T00:00:00');
+  return Math.round((b - a) / 86400000);
 }
 
 function isDevMode() {
