@@ -107,6 +107,8 @@ const Calandrier = (() => {
     const todayDate = todayStr();
     const isPast = dateStr < todayDate;
     const isToday = dateStr === todayDate;
+    const isFuture = dateStr > todayDate;
+    const canToggle = dateStr === todayDate;   // SOLO hoy se puede marcar
 
     const dayNames = ['domingo','lunes','martes','miércoles','jueves','viernes','sábado'];
     const monthsShort = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
@@ -132,6 +134,9 @@ const Calandrier = (() => {
     if (isPast && !isToday) {
       html += `<p class="past-lock">⚿ Fecha pasada: solo consulta, sin modificaciones.</p>`;
     }
+    if (isFuture) {
+      html += `<p class="past-lock">⚿ Fecha futura: aún no se puede marcar.</p>`;
+    }
 
     // Habits section
     html += `<div class="day-panel-section">
@@ -140,7 +145,7 @@ const Calandrier = (() => {
     if (dueHabits.length) {
       dueHabits.forEach(h => {
         const done = completedIds.includes(h.id);
-        const clickable = !isPast || isToday;
+        const clickable = canToggle;
         html += `
           <div class="day-panel-item ${done ? 'completed' : ''} ${clickable ? '' : 'no-pointer'}"
                data-habit-id="${h.id}" data-date="${dateStr}" data-clickable="${clickable}">
@@ -160,7 +165,7 @@ const Calandrier = (() => {
 
     if (dayTasks.length) {
       dayTasks.forEach(t => {
-        const canModify = !isPast || isToday;
+        const canModify = dateStr === todayDate;
         html += `
           <div class="day-panel-item ${t.completed ? 'completed' : ''} ${canModify ? '' : 'no-pointer'}"
                data-task-id="${t.id}" data-date="${dateStr}" data-can-modify="${canModify}">
@@ -182,18 +187,19 @@ const Calandrier = (() => {
       body.querySelectorAll('[data-habit-id]').forEach(item => {
         if (item.dataset.clickable !== 'true') return;
         item.addEventListener('click', () => {
-          const activeHabits = Habits.list().filter(h => h.active);
-          Logs.toggleHabit(item.dataset.habitId, item.dataset.date, activeHabits.length);
+          Logs.toggleHabit(item.dataset.habitId, item.dataset.date);
           renderCalendar();
           openDayPanel(dateStr, Habits.list(), Tasks.list(), Logs.list());
         });
       });
 
-      // Task toggles (BLOQUEADO para fechas pasadas)
+      // Task toggles (BLOQUEADO fuera de hoy)
       body.querySelectorAll('[data-task-id]').forEach(item => {
         const canModify = item.dataset.canModify === 'true';
         if (!canModify) return; // No permitir modificación en fechas pasadas
         item.addEventListener('click', () => {
+          // TODO-P2: el handler actual se filtra con data-can-modify antes de adjuntarse; además se valida la fecha dentro del click.
+          if (dateStr !== todayDate) return;
           Tasks.toggle(item.dataset.taskId, item.dataset.date);
           openDayPanel(dateStr, Habits.list(), Tasks.list(), Logs.list());
         });
