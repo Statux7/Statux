@@ -56,8 +56,7 @@ const Calandrier = (() => {
     // Build grid
     const firstDay = new Date(year, month, 1).getDay();
     const daysInMonth = new Date(year, month + 1, 0).getDate();
-    const todayDate = new Date();
-    const todayDateStr = getDateStr(todayDate);
+    const todayDateStr = todayStr();
 
     const grid = el('calendar-grid');
     if (!grid) return;
@@ -198,8 +197,7 @@ const Calandrier = (() => {
         const canModify = item.dataset.canModify === 'true';
         if (!canModify) return; // No permitir modificación en fechas pasadas
         item.addEventListener('click', () => {
-          // TODO-P2: el handler actual se filtra con data-can-modify antes de adjuntarse; además se valida la fecha dentro del click.
-          if (dateStr !== todayDate) return;
+                    if (dateStr !== todayDate) return;
           Tasks.toggle(item.dataset.taskId, item.dataset.date);
           openDayPanel(dateStr, Habits.list(), Tasks.list(), Logs.list());
         });
