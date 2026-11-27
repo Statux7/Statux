@@ -44,8 +44,27 @@ function getDayOfWeek(dateStr) {
 }
 
 /* --- Habit scheduling --- */
+/* Solo estos tipos suman al porcentaje de progreso (habitod y unhabit quedan fuera por ahora). */
+function countsForProgress(h) {
+  return h.type !== 'unhabit' && h.type !== 'habitod';
+}
+
 function isHabitDue(habit, dateStr) {
   if (!habit.active) return false;
+
+  // No existía todavía en esa fecha
+  if (habit.created_date && dateStr < getDateStr(habit.created_date)) return false;
+
+  // Hábito pausado (bloqueador)
+  if (habit.paused) {
+    const from = habit.paused_from || '0000-00-00';
+    const until = habit.paused_until || '9999-12-31';
+    if (dateStr >= from && dateStr <= until) return false;
+  }
+
+  // Día de descanso elegido por el usuario
+  if ((habit.rest_dates || []).includes(dateStr)) return false;
+
   const dow = getDayOfWeek(dateStr);
   switch (habit.frequency) {
     case 'daily': return true;
@@ -56,40 +75,63 @@ function isHabitDue(habit, dateStr) {
   }
 }
 
+
+
+/* Estadística de UN día.
+ * Días pasados: usa la foto guardada en el log (scheduled_habits) → inmutable.
+ * Hoy y futuro: calcula con los hábitos actuales. */
+function getDayStats(logs, habits, dateStr) {
+  const today = todayStr();
+  const log = logs.find(l => l.date === dateStr) || null;
+  let scheduledIds;
+  if (dateStr < today && log && Array.isArray(log.scheduled_habits)) {
+    scheduledIds = log.scheduled_habits;
+  } else {
+    scheduledIds = getActiveHabitsForDate(habits, dateStr).map(h => h.id);
+  }
+  const completedSet = new Set(log ? (log.completed_habits || []) : []);
+  const completed = scheduledIds.filter(id => completedSet.has(id)).length;
+  const total = scheduledIds.length;
+  return {
+    scheduledIds, completed, total,
+    pct: total > 0 ? Math.round((completed / total) * 100) : 0,
+    log,
+  };
+}
+
 function getActiveHabitsForDate(habits, dateStr) {
   return habits.filter(h => h.active && isHabitDue(h, dateStr));
 }
 
 /* --- Analytics --- */
-function calculateConsistency(logs, habits, days) {
+/* days = cuántos días; offset = cuántos días saltar hacia atrás desde hoy */
+function calculateConsistency(logs, habits, days, offset = 0) {
   if (!habits.length) return 0;
+  const today = todayStr();
   let total = 0, done = 0;
-  for (let i = 0; i < days; i++) {
-    const d = subDays(todayStr(), i);
-    const dueHabits = getActiveHabitsForDate(habits, d);
-    if (!dueHabits.length) continue;
-    const log = logs.find(l => l.date === d);
-    const completed = log ? (log.completed_habits || []).filter(id => dueHabits.some(h => h.id === id)).length : 0;
-    total += dueHabits.length;
-    done += completed;
+  for (let i = offset; i < offset + days; i++) {
+    const st = getDayStats(logs, habits, subDays(today, i));
+    total += st.total;
+    done += st.completed;
   }
   return total === 0 ? 0 : Math.round((done / total) * 100);
 }
 
 function calculateStreak(logs, habits) {
   if (!habits.length) return 0;
+  const today = todayStr();
   let streak = 0;
-  let d = todayStr();
-  while (true) {
-    const dueHabits = getActiveHabitsForDate(habits, d);
-    if (!dueHabits.length) { d = subDays(d, 1); continue; }
-    const log = logs.find(l => l.date === d);
-    const completed = log ? (log.completed_habits || []).filter(id => dueHabits.some(h => h.id === id)).length : 0;
-    if (completed === 0) break;
-    const pct = completed / dueHabits.length;
-    if (pct >= 0.5) { streak++; d = subDays(d, 1); }
-    else break;
-    if (streak > 365) break;
+  let d = today;
+  for (let guard = 0; guard < 400; guard++) {      // tope: nunca bucle infinito
+    const st = getDayStats(logs, habits, d);
+    if (st.total === 0) { d = subDays(d, 1); continue; }   // día sin hábitos programados: ni suma ni rompe
+    const ok = st.completed > 0 && (st.completed / st.total) >= 0.5;
+    if (!ok) {
+      if (d === today) { d = subDays(d, 1); continue; }    // hoy aún no termina: no rompe la racha
+      break;
+    }
+    streak++;
+    d = subDays(d, 1);
   }
   return streak;
 }
