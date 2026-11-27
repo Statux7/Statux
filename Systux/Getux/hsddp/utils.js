@@ -100,7 +100,7 @@ function getDayStats(logs, habits, dateStr) {
 }
 
 function getActiveHabitsForDate(habits, dateStr) {
-  return habits.filter(h => h.active && isHabitDue(h, dateStr));
+  return habits.filter(h => h.active && countsForProgress(h) && isHabitDue(h, dateStr));
 }
 
 /* --- Analytics --- */
