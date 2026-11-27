@@ -14,6 +14,7 @@ const KEYS = {
   SILHOUETTE: 'habitos_silhouette',
   CANVAS_VIEW: 'habitos_canvas_view',
   IDENTITY_REPORT: 'habitos_identity_report',
+  MIGRATION_V2: 'habitos_migration_v2',
 };
 
 function uid() {
@@ -89,6 +90,10 @@ const Habits = {
       type: 'habito',
       block_id: null,
       type_data: {},
+      rest_dates: [],        // fechas 'YYYY-MM-DD' marcadas como descanso
+      paused: false,         // bloqueador de hábito
+      paused_from: null,     // 'YYYY-MM-DD'
+      paused_until: null,    // 'YYYY-MM-DD' o null = indefinido
       ...data,
       id: uid(),
       created_date: now(),
@@ -96,6 +101,7 @@ const Habits = {
     };
     habits.push(h);
     save(KEYS.HABITS, habits);
+    Logs.snapshotToday();
     return h;
   },
   update: (id, data) => {
@@ -103,16 +109,19 @@ const Habits = {
       h.id === id ? { ...h, ...data, updated_date: now() } : h
     );
     save(KEYS.HABITS, habits);
+    Logs.snapshotToday();
     return habits.find(h => h.id === id);
   },
   remove: (id) => {
     save(KEYS.HABITS, Habits.list().filter(h => h.id !== id));
-    // Clean logs
-    const logs = Logs.list().map(l => ({
-      ...l,
-      completed_habits: (l.completed_habits || []).filter(hid => hid !== id),
-    }));
-    save(KEYS.LOGS, logs);
+    // IMPORTANTE: los logs de días PASADOS no se tocan (historial inmutable).
+    // Solo se limpia el log de HOY.
+    const today = todayStr();
+    const log = Logs.get(today);
+    if (log) {
+      Logs.upsert(today, { completed_habits: (log.completed_habits || []).filter(hid => hid !== id) });
+    }
+    Logs.snapshotToday();
   },
   find: (id) => Habits.list().find(h => h.id === id),
   byBlock: (blockId) => Habits.list().filter(h => h.block_id === blockId),
@@ -237,6 +246,48 @@ const Logs = {
     Logs.upsert(dateStr, { completed_habits: newIds });
     return true;
   },
+  /* Foto de los hábitos programados de UN día (se guarda en el log) */
+  snapshotDay: (dateStr) => {
+    const due = Habits.list().filter(h => h.active && countsForProgress(h) && isHabitDue(h, dateStr));
+    if (!due.length && !Logs.get(dateStr)) return;     // no crear logs vacíos
+    const names = {};
+    due.forEach(h => { names[h.id] = h.name; });
+    Logs.upsert(dateStr, {
+      scheduled_habits: due.map(h => h.id),
+      names,
+      total_habits: due.length,
+    });
+  },
+  snapshotToday: () => Logs.snapshotDay(todayStr()),
+
+  /* Congela días pasados: crea/completa logs desde el primer hábito (máx 60 días) hasta AYER */
+  closePastDays: () => {
+    const habits = Habits.list();
+    if (!habits.length) return;
+    const today = todayStr();
+    const firstHabitDate = habits.map(h => getDateStr(h.created_date || new Date())).sort()[0];
+    const minDate = subDays(today, 59);
+    let d = firstHabitDate > minDate ? firstHabitDate : minDate;
+
+    const byDate = new Map(Logs.list().map(l => [l.date, l]));
+    while (d < today) {
+      const existing = byDate.get(d);
+      if (!existing || !Array.isArray(existing.scheduled_habits)) {
+        const due = habits.filter(h => h.active && countsForProgress(h) && isHabitDue(h, d));
+        const names = {};
+        due.forEach(h => { names[h.id] = h.name; });
+        byDate.set(d, {
+          ...(existing || { date: d, completed_habits: [] }),
+          scheduled_habits: due.map(h => h.id),
+          names,
+          total_habits: due.length,
+        });
+      }
+      d = addDays(d, 1);
+    }
+    save(KEYS.LOGS, [...byDate.values()].sort((a, b) => a.date.localeCompare(b.date)));
+  },
+
   purgeOld: (days) => {
     const cutoff = new Date();
     cutoff.setDate(cutoff.getDate() - days);
@@ -381,4 +432,39 @@ const CanvasView = {
 const IdentityReport = {
   get: () => load(KEYS.IDENTITY_REPORT, { lastShown: null, lastWeekPct: null }),
   save: (data) => save(KEYS.IDENTITY_REPORT, data),
+};
+
+
+/* --- Migración de datos (se ejecuta una sola vez) --- */
+const Migrations = {
+  run: () => {
+    if (load(KEYS.MIGRATION_V2, false)) return;
+
+    let habits = Habits.list();
+
+    // a) Hábitos del sistema VIEJO (nunca tuvieron la propiedad block_id) → bloque "Sin bloque"
+    const legacy = habits.filter(h => !('block_id' in h));
+    if (legacy.length) {
+      let block = Blocks.list().find(b => b.name === 'Sin bloque');
+      if (!block) block = Blocks.create({ name: 'Sin bloque', x: 0, y: 80 });
+      habits = habits.map(h => ('block_id' in h) ? h : { ...h, block_id: block.id });
+    }
+
+    // b) Hábitos fantasma (block_id explícitamente null: su bloque fue borrado) → eliminar
+    habits = habits.filter(h => h.block_id !== null);
+
+    // c) Valores por defecto de los campos nuevos
+    habits = habits.map(h => ({
+      type: 'habito',
+      type_data: {},
+      rest_dates: [],
+      paused: false,
+      paused_from: null,
+      paused_until: null,
+      ...h,
+    }));
+
+    save(KEYS.HABITS, habits);
+    save(KEYS.MIGRATION_V2, true);
+  },
 };
