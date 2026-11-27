@@ -172,7 +172,7 @@ const Tasks = {
     const task = Tasks.find(id);
     if (!task) return null;
     // Verificar que no sea una tarea pasada (seguridad)
-    const today = getDateStr(new Date());
+    const today = todayStr();
     if (task.due_date && task.due_date < today) {
       console.warn('❌ No se puede editar una tarea pasada');
       return null;
@@ -187,7 +187,7 @@ const Tasks = {
     const task = Tasks.find(id);
     if (!task) return false;
     // Verificar que no sea una tarea pasada (seguridad)
-    const today = getDateStr(new Date());
+    const today = todayStr();
     if (task.due_date && task.due_date < today) {
       console.warn('❌ No se puede eliminar una tarea pasada');
       return false;
@@ -207,7 +207,7 @@ const Tasks = {
   canEdit: (id) => {
     const task = Tasks.find(id);
     if (!task) return false;
-    const today = getDateStr(new Date());
+    const today = todayStr();
     return !task.due_date || task.due_date >= today;
   },
 };
